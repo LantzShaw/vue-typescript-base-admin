@@ -20,7 +20,7 @@ export function useECharts(
   const getDarkMode = computed(() => {
     return theme === 'default' ? getSysDarkMode.value : theme;
   });
-  let chartInstance = ref<echarts.ECharts | null>(null);
+  let chartInstance: echarts.ECharts | null = null;
   let resizeFn: Fn = resize;
   const cacheOptions = ref({}) as Ref<EChartsOption>;
   let removeResizeFn: Fn = () => {};
@@ -43,7 +43,7 @@ export function useECharts(
       return;
     }
 
-    chartInstance.value = echarts.init(el, t, { renderer: 'canvas' });
+    chartInstance = echarts.init(el, t, { renderer: 'canvas' });
 
     const { removeEvent } = useEventListener({
       el: window,
@@ -73,14 +73,14 @@ export function useECharts(
 
       nextTick(() => {
         useTimeoutFn(() => {
-          if (!chartInstance.value) {
+          if (!chartInstance) {
             initCharts(getDarkMode.value as 'default');
 
-            if (!chartInstance.value) return;
+            if (!chartInstance) return;
           }
-          clear && chartInstance.value?.clear();
+          clear && chartInstance?.clear();
 
-          chartInstance.value?.setOption(unref(getOptions));
+          chartInstance?.setOption(unref(getOptions));
 
           resolve(null);
         }, 30);
@@ -89,7 +89,7 @@ export function useECharts(
   }
 
   function resize() {
-    chartInstance.value?.resize({
+    chartInstance?.resize({
       animation: {
         duration: 300,
         easing: 'quadraticIn',
@@ -104,8 +104,8 @@ export function useECharts(
   watch(
     () => getDarkMode.value,
     (theme) => {
-      if (chartInstance.value) {
-        chartInstance.value.dispose();
+      if (chartInstance) {
+        chartInstance.dispose();
         initCharts(theme as 'default');
         setOptions(cacheOptions.value);
       }
@@ -119,18 +119,18 @@ export function useECharts(
   });
 
   tryOnUnmounted(() => {
-    if (!chartInstance.value) return;
+    if (!chartInstance) return;
     removeResizeFn();
-    chartInstance.value.dispose();
-    chartInstance.value = null;
+    chartInstance.dispose();
+    chartInstance = null;
   });
 
   function getInstance(): echarts.ECharts | null {
-    if (!chartInstance.value) {
+    if (!chartInstance) {
       initCharts(getDarkMode.value as 'default');
     }
 
-    return chartInstance.value as echarts.ECharts;
+    return chartInstance as echarts.ECharts;
   }
 
   return {
