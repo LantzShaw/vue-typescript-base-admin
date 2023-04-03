@@ -11,7 +11,6 @@ import {
   APPLICATION_ID_KEY,
   TENANT_ID_KEY,
   ORGANIZATION_ID_KEY,
-  DEPARTMENT_ID_KEY,
   LOCK_INFO_KEY,
   PROJ_CFG_KEY,
   APP_LOCAL_CACHE_KEY,
@@ -32,7 +31,6 @@ interface BasicStore {
   [APPLICATION_ID_KEY]: string | number | null | undefined;
   [TENANT_ID_KEY]: string | number | null | undefined;
   [ORGANIZATION_ID_KEY]: string | number | null | undefined;
-  [DEPARTMENT_ID_KEY]: string | number | null | undefined;
   [LOCK_INFO_KEY]: LockInfo;
   [PROJ_CFG_KEY]: ProjectConfig;
   [MULTIPLE_TABS_KEY]: RouteLocationNormalized[];

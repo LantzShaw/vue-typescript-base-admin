@@ -77,7 +77,7 @@
     searchForm,
     tableColumns,
     inputFormSchemas,
-  } from './org.data';
+  } from './organization.data';
 
   const { t } = useI18n();
   const { createMessage, notification } = useMessage();

@@ -1,16 +1,10 @@
 <template>
-  <PageWrapper :title="`配置人员归属`" contentFullHeight dense @back="goBack">
-    <template #headerContent>
-      <a-descriptions :column="1">
-        <a-descriptions-item label="单位名称">
-          {{ organization.organizationName }}
-        </a-descriptions-item>
-        <a-descriptions-item label="部门名称">
-          {{ department.departmentName }}
-        </a-descriptions-item>
-      </a-descriptions>
-    </template>
-
+  <PageWrapper
+    :title="`配置人员归属[` + organization.organizationName + `]`"
+    contentFullHeight
+    dense
+    @back="goBack"
+  >
     <BasicTable @register="registerTable" :searchInfo="searchInfo">
       <!-- 按钮工具栏 -->
       <template #toolbar>
@@ -31,12 +25,18 @@
         <template v-else-if="column.key === 'identity'">
           <dict-label :options="identityOptions" :value="record.identity" />
         </template>
+        <template v-else-if="column.key === 'associateOrganizationNum'">
+          <a @click="handleEdit(record)" :title="record.associateOrganizationNum">
+            {{ record.associateOrganizationNum }}
+          </a>
+        </template>
       </template>
     </BasicTable>
+    <OwnershipOrganizationModal @register="registerModal" @success="handleSuccess" />
   </PageWrapper>
 </template>
 <script lang="ts" setup>
-  import { defineComponent, computed, onMounted, ref, h, reactive, unref } from 'vue';
+  import { onMounted, ref, h, reactive, unref } from 'vue';
   import { useRouter, useRoute } from 'vue-router';
   // hooks
   import { useI18n } from '/@/hooks/web/useI18n';
@@ -44,44 +44,37 @@
   import { useGo } from '/@/hooks/web/usePage';
   import { useTabs } from '/@/hooks/web/useTabs';
   // 组件
-  import { Descriptions } from 'ant-design-vue';
 
-  import { BasicTree, TreeItem, TreeActionType } from '/@/components/Tree/index';
   import { DictLabel } from '/@/components/DictLabel/index';
-  import { BasicTable, TableAction, useTable } from '/@/components/Table';
+  import { BasicTable, useTable } from '/@/components/Table';
   import { PageWrapper } from '/@/components/Page';
-
+  import { useModal } from '/@/components/Modal';
+  import OwnershipOrganizationModal from './OwnershipOrganizationModal.vue';
   // 接口
-  import { orgForm } from '/@/api/system/org';
-  import { departmentForm } from '/@/api/system/department';
+  import { organizationForm } from '/@/api/system/organization';
+
   import { employeePageWithUnassigned, employeeAllocatable } from '/@/api/system/employee';
 
-  import { menuTree, menuDelete, menuRevised } from '/@/api/system/menu';
-  import { applicationSelect } from '/@/api/system/application';
   import { optionsListBatchApi } from '/@/api/sys/dict';
   // data
-  import { identityOptions, tfOptions, genderOptions, searchForm, tableColumns } from './menu.data';
+  import { identityOptions, genderOptions, searchForm, tableColumns } from './ownershipConfig.data';
 
-  const ADescriptions = Descriptions;
-  const ADescriptionsItem = Descriptions.Item;
   const go = useGo();
   const { closeCurrent } = useTabs();
   const { t } = useI18n();
 
-  const department = ref<Recordable>({});
   const organization = ref<Recordable>({});
   const { notification, createConfirm } = useMessage();
   const { currentRoute } = useRouter();
   const route = useRoute();
 
   // 通过路由获取字典code
-  const departmentId = unref(currentRoute).params?.departmentId ?? '';
+
   const organizationId = unref(currentRoute).params?.organizationId ?? '';
-  const dictCode = unref(currentRoute).query?.code ?? '';
-  const title = unref(currentRoute).query?.title ?? '';
 
   const searchInfo = reactive<Recordable>({});
-  const treeRef = ref<Nullable<TreeActionType>>(null);
+
+  const [registerModal, { openModal }] = useModal();
 
   /**
    * 构建registerTable
@@ -94,7 +87,6 @@
       },
       rowKey: 'id',
       beforeFetch: (params) => {
-        params.departmentId = departmentId;
         params.organizationId = organizationId;
         return params;
       },
@@ -116,6 +108,15 @@
   }
 
   /**
+   * 编辑
+   */
+  function handleEdit(record: Recordable) {
+    openModal(true, {
+      record,
+      isUpdate: true,
+    });
+  }
+  /**
    * 执行成功
    */
   async function handleBatchBind() {
@@ -126,7 +127,6 @@
         content: () => h('span', t('确认分配')),
         onOk: async () => {
           await employeeAllocatable({
-            departmentId: departmentId,
             organizationId: organizationId,
             ids: getSelectRowKeys(),
           });
@@ -143,8 +143,7 @@
     reload();
   }
   async function getDepartmentInfo() {
-    organization.value = ((await orgForm({ id: organizationId })) || {}) as Recordable;
-    department.value = ((await departmentForm({ id: departmentId })) || {}) as Recordable;
+    organization.value = ((await organizationForm({ id: organizationId })) || {}) as Recordable;
   }
 
   /**

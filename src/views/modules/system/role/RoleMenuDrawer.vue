@@ -106,7 +106,7 @@
   /**
    * 标题
    */
-  const getTitle = computed(() => `授权菜单[${roleName.value}]`);
+  const getTitle = computed(() => `菜单权限[${roleName.value}]`);
 </script>
 <style lang="less">
   .application-container {

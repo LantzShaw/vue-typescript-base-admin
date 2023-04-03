@@ -88,7 +88,7 @@
   /**
    * 标题
    */
-  const getTitle = computed(() => `授权[${roleName.value}]`);
+  const getTitle = computed(() => `API权限[${roleName.value}]`);
 </script>
 <style lang="less">
   .application-container {

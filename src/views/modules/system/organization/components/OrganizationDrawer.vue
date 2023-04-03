@@ -3,7 +3,7 @@
     v-bind="$attrs"
     @register="registerDrawer"
     showFooter
-    :okAuth="'system:org:edit'"
+    :okAuth="'system:organization:edit'"
     :title="getTitle"
     width="50%"
     @ok="handleSubmit"
@@ -24,9 +24,20 @@
   import { BasicForm, useForm } from '/@/components/Form';
   import { BasicDrawer, useDrawerInner } from '/@/components/Drawer';
   // 接口
-  import { orgAdd, orgUpdate, orgForm, orgTreeForEdit } from '/@/api/system/org';
+  import {
+    organizationAdd,
+    organizationUpdate,
+    organizationForm,
+    organizationTreeForEdit,
+  } from '/@/api/system/organization';
   // data
-  import { isUpdate, idRef, record, inputFormSchemas, orgTreeOptions } from '../org.data';
+  import {
+    isUpdate,
+    idRef,
+    record,
+    inputFormSchemas,
+    organizationTreeOptions,
+  } from '../organization.data';
 
   const emit = defineEmits(['success', 'register']);
 
@@ -53,8 +64,8 @@
     resetFields();
     setDrawerProps({ loading: true, confirmLoading: true });
     // 请求数据
-    record.value = ((await orgForm({ id: data?.record?.id })) || {}) as Recordable;
-    orgTreeOptions.value = (await orgTreeForEdit({})) || [];
+    record.value = ((await organizationForm({ id: data?.record?.id })) || {}) as Recordable;
+    organizationTreeOptions.value = (await organizationTreeForEdit({})) || [];
 
     // 判断是否是更新
     isUpdate.value = !!data?.isUpdate;
@@ -71,7 +82,7 @@
       {
         field: 'parentId',
         componentProps: {
-          treeData: orgTreeOptions,
+          treeData: organizationTreeOptions,
         },
       },
     ]);
@@ -90,12 +101,12 @@
       const values = await validate();
       setDrawerProps({ loading: true, confirmLoading: true });
       if (unref(isUpdate)) {
-        await orgUpdate({
+        await organizationUpdate({
           ...values,
           id: idRef.value,
         });
       } else {
-        await orgAdd({ ...values });
+        await organizationAdd({ ...values });
       }
 
       notification.success({ message: `执行成功` });

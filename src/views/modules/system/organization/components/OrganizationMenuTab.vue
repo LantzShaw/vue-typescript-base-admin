@@ -41,7 +41,7 @@
   import { orgTreeSync, orgUpdate, orgOwnMenu, orgGrantMenu } from '/@/api/system/org';
   import { optionsListBatchApi } from '/@/api/sys/dict';
 
-  import { idRef } from '../org.data';
+  import { idRef } from '../organization.data';
   import { isArray } from '/@/utils/is';
   const emit = defineEmits(['success']);
 

@@ -16,6 +16,7 @@ export const onlineStatusOptions = ref<any[]>([]);
 export const deleteStatusOptions = ref<any[]>([]);
 export const alarmStatusOptions = ref<any[]>([]);
 export const sensorTypeOptions = ref<any[]>([]);
+export const eventTriggerStatusOptions = ref<any[]>([]);
 export const tfOptions = ref<any[]>([]);
 export const grantTypesOptions = ref<any[]>([]);
 export const scopeOptions = ref<any[]>([]);
@@ -43,6 +44,15 @@ export const searchForm: FormProps = {
       component: 'Input',
       componentProps: {
         placeholder: '请输入传感器名称',
+      },
+    },
+    {
+      label: t('事件状态'),
+      field: 'eventStatus',
+      component: 'Select',
+      componentProps: {
+        options: eventTriggerStatusOptions,
+        allowClear: true,
       },
     },
     // {
@@ -77,15 +87,15 @@ export const tableColumns: BasicColumn[] = [
     title: t('传感器名称'),
     dataIndex: 'dtuipSensorName',
     sorter: true,
-    width: 130,
+    width: 120,
     align: 'center',
   },
-  {
-    title: t('报警内容'),
-    dataIndex: 'dtuipTriggerContent',
-    width: 200,
-    align: 'center',
-  },
+  // {
+  //   title: t('报警内容'),
+  //   dataIndex: 'dtuipTriggerContent',
+  //   width: 200,
+  //   align: 'center',
+  // },
   {
     title: t('触发时间'),
     dataIndex: 'dtuipTriggerDate',
@@ -97,7 +107,15 @@ export const tableColumns: BasicColumn[] = [
   {
     title: t('触发值'),
     dataIndex: 'dtuipTriggerVal',
-    width: 120,
+    width: 100,
+    align: 'center',
+    ellipsis: true,
+    sorter: true,
+  },
+  {
+    title: t('事件状态'),
+    dataIndex: 'eventStatus',
+    width: 90,
     align: 'center',
     ellipsis: true,
     sorter: true,

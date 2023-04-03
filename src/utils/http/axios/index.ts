@@ -11,7 +11,7 @@ import { useGlobSetting } from '/@/hooks/setting';
 import { useMessage } from '/@/hooks/web/useMessage';
 import { RequestEnum, ResultEnum, ContentTypeEnum } from '/@/enums/httpEnum';
 import { isString, isUnDef, isNull, isEmpty } from '/@/utils/is';
-import { getToken, getOrganizationId, getDepartmentId } from '/@/utils/auth';
+import { getToken, getOrganizationId,  } from '/@/utils/auth';
 import { setObjToUrlParams, deepMerge } from '/@/utils';
 import { useErrorLogStoreWithOut } from '/@/store/modules/errorLog';
 import { useI18n } from '/@/hooks/web/useI18n';
@@ -178,10 +178,7 @@ const transform: AxiosTransform = {
     if (organizationId) {
       (config as Recordable).headers['X-Bigfish-Organization-Id'] = organizationId;
     }
-    const departmentId = getDepartmentId();
-    if (departmentId) {
-      (config as Recordable).headers['X-Bigfish-Department-Id'] = departmentId;
-    }
+
 
     return config;
   },

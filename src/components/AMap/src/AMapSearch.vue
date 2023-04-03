@@ -85,7 +85,7 @@
 
           map.value.setZoom(map.value.getZoom());
 
-          // map.value.setFitView();
+          map.value.setFitView();
         });
       };
 

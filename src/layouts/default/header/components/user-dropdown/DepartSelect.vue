@@ -56,13 +56,7 @@
   const inputFormSchemas: FormSchema[] = [
     {
       field: 'organizationId',
-      label: t('当前公司'),
-      component: 'Select',
-      required: true,
-    },
-    {
-      field: 'departmentId',
-      label: t('当前部门'),
+      label: '',
       component: 'TreeSelect',
       required: true,
       componentProps: {
@@ -75,15 +69,14 @@
    * 构建表单
    */
   const [registerForm, { resetFields, setFieldsValue, updateSchema, validate }] = useForm({
-    labelWidth: 90,
+    labelWidth: 120,
     schemas: inputFormSchemas,
     showActionButtonGroup: false,
     baseColProps: { lg: 24, md: 24 },
   });
 
   const organizationId = ref('');
-  const departmentId = ref('');
-  const organizationOptions = ref<any[]>([]);
+
   /**
    * 构建Drawer
    */
@@ -92,55 +85,21 @@
     setModalProps({ loading: true, confirmLoading: true });
 
     organizationId.value = userStore.getOrganizationId || '';
-    departmentId.value = userStore.getDepartmentId || '';
 
-    organizationOptions.value = (await getUserOrganizations({})) || [];
-
-    if (organizationId.value) {
-      const treeData = await getUserDepartments({
-        organizationId: organizationId.value,
-      });
-
-      updateSchema([
-        {
-          field: 'departmentId',
-          componentProps: {
-            treeData,
-          },
-        },
-      ]);
-    }
+    const treeData = (await getUserOrganizations({})) || [];
 
     updateSchema([
       {
         field: 'organizationId',
         componentProps: {
-          options: organizationOptions,
-
-          onChange: async (e: any) => {
-            const treeData = await getUserDepartments({ organizationId: e });
-
-            await updateSchema([
-              {
-                field: 'departmentId',
-                componentProps: {
-                  treeData,
-                },
-              },
-            ]);
-            // 如果applicationId没变
-            if (organizationId.value == e) {
-            } else {
-              setFieldsValue({ departmentId: '' });
-            }
-          },
+          treeData,
         },
       },
     ]);
+
     // 字段赋值
     setFieldsValue({
       organizationId: organizationId.value,
-      departmentId: departmentId.value,
     });
     setModalProps({ loading: false, confirmLoading: false });
   });
@@ -153,7 +112,6 @@
       const values = await validate();
       setModalProps({ loading: true, confirmLoading: true });
       userStore.setOrganizationId(values.organizationId);
-      userStore.setDepartmentId(values.departmentId);
       notification.success({ message: `执行成功` });
       closeModal();
       emit('success');
@@ -161,7 +119,7 @@
       setModalProps({ loading: false, confirmLoading: false });
     }
   }
-  const getTitle = computed(() => '切换部门');
+  const getTitle = computed(() => '切换组织机构');
 </script>
 <style lang="less" scoped>
   .loginSelectForm {

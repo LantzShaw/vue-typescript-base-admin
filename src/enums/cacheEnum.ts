@@ -18,9 +18,6 @@ export const TENANT_ID_KEY = 'TENANT__ID__';
 // 公司id
 export const ORGANIZATION_ID_KEY = 'ORGANIZATION__ID__';
 
-// 部门id
-export const DEPARTMENT_ID_KEY = 'DEPARTMENT__ID__';
-
 // project config key
 export const PROJ_CFG_KEY = 'PROJ__CFG__KEY__';
 

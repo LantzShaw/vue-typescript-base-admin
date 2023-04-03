@@ -8,6 +8,8 @@ import { FormSchema } from '/@/components/Form';
 // 接口
 import { optionsListApi } from '/@/api/sys/dict';
 
+import { deviceGroupPage } from '/@/api/manage/deviceGroup';
+
 export const isUpdate = ref(true);
 export const idRef = ref('');
 export const record = ref<Recordable>({});
@@ -15,6 +17,7 @@ export const record = ref<Recordable>({});
 export const onlineStatusOptions = ref<any[]>([]);
 export const deleteStatusOptions = ref<any[]>([]);
 export const alarmStatusOptions = ref<any[]>([]);
+export const dataItemStatusOptions = ref<any[]>([]);
 export const tfOptions = ref<any[]>([]);
 export const grantTypesOptions = ref<any[]>([]);
 export const scopeOptions = ref<any[]>([]);
@@ -25,9 +28,27 @@ const { t } = useI18n();
  *  查询表单字段
  */
 export const searchForm: FormProps = {
-  baseColProps: { lg: 8, md: 8 },
+  baseColProps: { lg: 6, md: 8 },
   labelWidth: 90,
   schemas: [
+    {
+      label: t('设备组'),
+      field: 'dtuipGroupId',
+      component: 'ApiSelect',
+      required: false,
+      componentProps: {
+        maxlength: 100,
+        placeholder: '请选择设备分组',
+        api: deviceGroupPage,
+        params: {
+          pageIndex: 1,
+          pageSize: 100000,
+        },
+        resultField: 'records',
+        labelField: 'groupName',
+        valueField: 'dtuipId',
+      },
+    },
     {
       label: t('设备名称'),
       field: 'deviceName',
@@ -46,6 +67,18 @@ export const searchForm: FormProps = {
         options: alarmStatusOptions,
         allowClear: true,
       },
+    },
+    {
+      field: 'status',
+      label: '状态',
+      component: 'Select',
+      componentProps: {
+        options: [
+          { label: '启用', value: '0' },
+          { label: '停用', value: '1' },
+        ],
+      },
+      colProps: { span: 8 },
     },
     // {
     //   label: t('是否删除'),
@@ -73,6 +106,13 @@ export const searchForm: FormProps = {
  */
 export const tableColumns: BasicColumn[] = [
   {
+    title: t('设备分组名称'),
+    dataIndex: 'groupName',
+    sorter: true,
+    width: 130,
+    align: 'center',
+  },
+  {
     title: t('设备名称'),
     dataIndex: 'deviceName',
     sorter: true,
@@ -86,7 +126,6 @@ export const tableColumns: BasicColumn[] = [
     width: 160,
     align: 'center',
   },
-
   {
     title: t('是否在线'),
     dataIndex: 'dtuipIsLine',
@@ -97,6 +136,14 @@ export const tableColumns: BasicColumn[] = [
     title: t('协议类型'),
     dataIndex: 'dtuipLinktype',
     width: 150,
+    align: 'center',
+    ellipsis: true,
+    sorter: true,
+  },
+  {
+    title: t('启用状态'),
+    dataIndex: 'status',
+    width: 120,
     align: 'center',
     ellipsis: true,
     sorter: true,
@@ -125,12 +172,6 @@ export const tableColumns: BasicColumn[] = [
     dataIndex: 'dtuipLat',
     sorter: true,
     width: 120,
-    align: 'center',
-  },
-  {
-    title: t('用户名称'),
-    dataIndex: 'dtuipUserName',
-    width: 90,
     align: 'center',
   },
   {

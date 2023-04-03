@@ -1,6 +1,6 @@
 <template>
   <span class="thumb">
-    <AImage :src="authImage" />
+    <AImage v-bing="$attrs" :width="width" :height="height" :src="authImage" />
   </span>
 </template>
 <script lang="ts">
@@ -18,6 +18,8 @@
     props: {
       fileUrl: propTypes.string.def(''),
       fileName: propTypes.string.def(''),
+      height: propTypes.string.def(''),
+      width: propTypes.string.def(''),
     },
     setup(props) {
       const authImage = ref<any>(null);

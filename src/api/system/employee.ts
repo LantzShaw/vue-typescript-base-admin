@@ -14,6 +14,7 @@ enum Api {
   EmployeePageWithAssigned = '/upms/employee/page-assigned',
   EmployeePageWithUnassigned = '/upms/employee/page-unassigned',
   EmployeeAuthorize = '/upms/employee/authorize',
+  EmployeeOrg = '/upms/employee/list-org',
 }
 
 export const employeeList = (params?: any) => defHttp.get({ url: Api.EmployeeList, params });
@@ -46,3 +47,5 @@ export const checkEmployeeCode = (id: string, employeeCode: string) =>
   defHttp.get({ url: Api.EmployeeCheck, params: { id, employeeCode } });
 
 export const employeeAuthorize = (data?: any) => defHttp.put({ url: Api.EmployeeAuthorize, data });
+
+export const employeeOrg = (params?: any) => defHttp.get({ url: Api.EmployeeOrg, params });

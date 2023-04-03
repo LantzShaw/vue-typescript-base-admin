@@ -11,7 +11,6 @@ import {
   APPLICATION_ID_KEY,
   TENANT_ID_KEY,
   ORGANIZATION_ID_KEY,
-  DEPARTMENT_ID_KEY,
   MAINTAINER_ORGANIZATION_IDS_KEY,
   MONITORING_UNIT_ORGANIZATION_IDS_KEY,
   EXTERNAL_USER_ORGANIZATION_IDS_KEY,
@@ -40,7 +39,6 @@ interface UserState {
   applicationId?: string;
   tenantId?: string | number;
   organizationId?: string;
-  departmentId?: string;
   maintainerOrgIdList: string[];
   monitoringUnitOrgIdList: string[];
   externalUserOrgIdList: string[];
@@ -65,8 +63,6 @@ export const useUserStore = defineStore({
     tenantId: '',
     //组织id
     organizationId: '',
-    //部门id
-    departmentId: '',
     // 维护方组织机构列表
     maintainerOrgIdList: [],
     // 监管单位组织机构列表
@@ -89,9 +85,6 @@ export const useUserStore = defineStore({
     },
     getOrganizationId(): string {
       return this.organizationId || getAuthCache<string>(ORGANIZATION_ID_KEY);
-    },
-    getDepartmentId(): string {
-      return this.departmentId || getAuthCache<string>(DEPARTMENT_ID_KEY);
     },
     getRoleList(): RoleEnum[] {
       return this.roleList.length > 0 ? this.roleList : getAuthCache<RoleEnum[]>(ROLES_KEY);
@@ -135,10 +128,6 @@ export const useUserStore = defineStore({
       this.organizationId = organizationId ? organizationId : ''; // for null or undefined value
       setAuthCache(ORGANIZATION_ID_KEY, organizationId);
     },
-    setDepartmentId(departmentId: string | undefined) {
-      this.departmentId = departmentId ? departmentId : ''; // for null or undefined value
-      setAuthCache(DEPARTMENT_ID_KEY, departmentId);
-    },
     setRoleList(roleList: RoleEnum[]) {
       this.roleList = roleList;
       setAuthCache(ROLES_KEY, roleList);
@@ -170,7 +159,6 @@ export const useUserStore = defineStore({
       this.token = '';
       this.applicationId = '';
       this.organizationId = '';
-      this.departmentId = '';
       this.roleList = [];
       this.sessionTimeout = false;
       this.maintainerOrgIdList = [];
@@ -247,7 +235,7 @@ export const useUserStore = defineStore({
     async getUserInfoAction(): Promise<UserInfo | null> {
       if (!this.getToken) return null;
       const userInfo = await getUserInfo();
-      const { roles = [], employeeId, organizationId, departmentId } = userInfo;
+      const { roles = [], employeeId, organizationId } = userInfo;
       if (isArray(roles)) {
         const roleList = roles.map((item) => item.value) as RoleEnum[];
         this.setRoleList(roleList);
@@ -271,7 +259,6 @@ export const useUserStore = defineStore({
       // TODO: 解决取不到organizationId的情况
       // this.setApplicationId(userInfo.applicationId);
       this.setOrganizationId(organizationId);
-      this.setDepartmentId(departmentId);
 
       return userInfo;
     },
@@ -291,7 +278,6 @@ export const useUserStore = defineStore({
       this.setUserInfo(null);
       this.setApplicationId(undefined);
       this.setOrganizationId(undefined);
-      this.setDepartmentId(undefined);
       goLogin && router.push(PageEnum.BASE_LOGIN);
     },
 
@@ -316,7 +302,7 @@ export const useUserStore = defineStore({
 
       console.log('组织列表', organizations);
 
-      let monitoringUnitOrgIdList: string[] = [],
+      const monitoringUnitOrgIdList: string[] = [],
         externalUserOrgIdList: string[] = [],
         maintainerOrgIdList: string[] = [];
 

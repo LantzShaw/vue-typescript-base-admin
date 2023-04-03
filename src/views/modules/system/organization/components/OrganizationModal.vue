@@ -28,7 +28,13 @@
   // 接口
   import { orgAdd, orgUpdate, orgForm, orgTreeForEdit } from '/@/api/system/org';
   // data
-  import { isUpdate, idRef, record, inputFormSchemas, orgTreeOptions } from '../org.data';
+  import {
+    isUpdate,
+    idRef,
+    record,
+    inputFormSchemas,
+    organizationTreeOptions,
+  } from '../organization.data';
 
   const emit = defineEmits(['success', 'register']);
 
@@ -52,7 +58,7 @@
     setModalProps({ loading: true, confirmLoading: true });
     // 请求数据
     record.value = ((await orgForm({ id: data?.record?.id })) || {}) as Recordable;
-    orgTreeOptions.value = (await orgTreeForEdit({})) || [];
+    organizationTreeOptions.value = (await orgTreeForEdit({})) || [];
 
     // 判断是否是更新
     isUpdate.value = !!data?.isUpdate;
@@ -69,7 +75,7 @@
       {
         field: 'parentId',
         componentProps: {
-          treeData: orgTreeOptions,
+          treeData: organizationTreeOptions,
         },
       },
     ]);

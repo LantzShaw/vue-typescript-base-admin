@@ -45,5 +45,4 @@ export interface GetUserInfoModel {
   applicationId?: string;
   employeeId?: string;
   organizationId?: string;
-  departmentId?: string;
 }

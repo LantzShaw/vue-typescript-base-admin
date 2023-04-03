@@ -1,13 +1,7 @@
 <template>
   <PageWrapper dense contentFullHeight contentClass="flex">
-    <div class="w-1/4 xl:w-1/5">
+    <div class="w-1/4">
       <div class="m-4 mr-0 p-2 overflow-hidden bg-white">
-        <a-tree-select
-          :tree-data="organizationOptions"
-          v-model:value="organizationId"
-          @change="handleChange"
-          style="width: 100%; margin-bottom: 1rem"
-        />
         <BasicTree
           ref="treeRef"
           title=""
@@ -16,11 +10,16 @@
           :clickRowToExpand="false"
           :treeData="treeData"
           @select="handleSelect"
-        />
+        >
+          <template #title="item">
+            <dict-label :options="organizationLevelOptions" :value="item.organizationLevel" />
+            {{ item.title }}
+          </template>
+        </BasicTree>
       </div>
     </div>
 
-    <BasicTable @register="registerTable" class="w-3/4 xl:w-4/5" :searchInfo="searchInfo">
+    <BasicTable @register="registerTable" class="w-3/4" :searchInfo="searchInfo">
       <!-- 按钮工具栏 -->
       <template #toolbar>
         <a-button
@@ -80,6 +79,7 @@
   import { optionsListBatchApi } from '/@/api/sys/dict';
   // data
   import {
+    organizationLevelOptions,
     identityOptions,
     organizationOptions,
     treeData,
@@ -95,7 +95,7 @@
   const { currentRoute } = useRouter();
 
   const organizationId = ref('');
-  const departmentId = ref('');
+
   const searchInfo = reactive<Recordable>({});
   const treeRef = ref<Nullable<TreeActionType>>(null);
 
@@ -129,9 +129,7 @@
 
   // 单位变更
   function handleChange(value) {
-    console.log('value:', value);
     searchInfo.organizationId = value;
-    searchInfo.departmentId = '';
     getTree().setSelectedKeys([]);
     fetchTree();
     reload();
@@ -139,8 +137,8 @@
 
   // 部门选中
   function handleSelect(keys: string[]) {
-    searchInfo.departmentId = keys[0];
-    departmentId.value = keys[0];
+    searchInfo.organizationId = keys[0];
+    organizationId.value = keys[0];
     reload();
   }
 
@@ -148,11 +146,11 @@
    * 配置人员归属
    */
   function handleConfig() {
-    if (departmentId.value === '' || organizationId.value == '') {
+    if (organizationId.value == '') {
       createMessage.warning('请选择部门');
     } else {
       const path = unref(currentRoute).path;
-      go(`${path}/config/${organizationId.value}/${departmentId.value}`);
+      go(`${path}/config/${organizationId.value}`);
     }
   }
 
@@ -162,7 +160,6 @@
   async function handleDelete(record: Recordable) {
     await employeeAllocatableRemove({
       organizationId: organizationId.value,
-      departmentId: departmentId.value,
       id: record.id,
     });
     notification.success({ message: `执行成功` });
@@ -173,10 +170,7 @@
    * 加载树
    */
   async function fetchTree() {
-    treeData.value =
-      (await departmentTree({
-        organizationId: organizationId.value,
-      })) || [];
+    treeData.value = (await orgTree({})) || [];
   }
 
   /**
@@ -211,8 +205,12 @@
    * 初始化字典
    */
   async function initDict() {
-    const { identity } = await optionsListBatchApi(['identity']);
+    const { identity, organization_level } = await optionsListBatchApi([
+      'identity',
+      'organization_level',
+    ]);
     identityOptions.value = identity || [];
+    organizationLevelOptions.value = organization_level || [];
   }
 
   onMounted(() => {

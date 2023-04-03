@@ -14,7 +14,7 @@ export const idRef = ref('');
 export const record = ref<Recordable>({});
 
 export const identityOptions = ref<any[]>([]);
-
+export const organizationLevelOptions = ref<any[]>([]);
 // export const treeData = ref<TreeItem[]>([]);
 export const treeData = ref<any[]>([]);
 export const organizationOptions = ref<any[]>([]);

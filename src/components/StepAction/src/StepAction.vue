@@ -1,54 +1,48 @@
 <template>
   <a-row :span="24" type="flex" justify="end">
-    <template v-if="maintainerOrgIdList.includes(organizationId)">
-      <a-col>
-        <a-space>
-          <template v-if="!currentStep || currentStep === '100'">
-            <a-button @click="submitClickHandler" type="primary">{{ submitActionName }}</a-button>
-          </template>
+    <!-- <template v-if="maintainerOrgIdList.includes(organizationId)"> -->
+    <a-col>
+      <a-space>
+        <template v-if="!currentStep || currentStep === '100'">
+          <a-button @click="submitClickHandler" type="primary">{{ submitActionName }}</a-button>
+        </template>
 
-          <template v-else-if="currentStep === '150' && organizationId === commitId">
-            <!-- <a-button type="primary" disabled>已提交确认中</a-button> -->
-            <a-typography-text type="warning"
-              >{{ name }}内容确认中，请耐心等待...</a-typography-text
-            >
-          </template>
+        <template v-else-if="currentStep === '150' && organizationId === commitId">
+          <a-typography-text type="warning">{{ name }}内容确认中，请耐心等待...</a-typography-text>
+        </template>
 
-          <template v-else-if="currentStep === '150' && organizationId !== commitId">
-            <a-button @click="rejectClickHandler" type="error">驳回</a-button>
-            <a-button @click="confirmClickHandler" type="success">{{ confirmActionName }}</a-button>
-          </template>
-          <template v-else-if="currentStep === '200'">
-            <!-- <a-button disabled type="success">{{ name }}已确认</a-button> -->
-            <a-typography-text type="success">{{ name }}已确认</a-typography-text>
-          </template>
-        </a-space>
-      </a-col>
-    </template>
+        <template v-else-if="currentStep === '150' && organizationId !== confirmId">
+          <a-button @click="rejectClickHandler" type="error">驳回</a-button>
+          <a-button @click="confirmClickHandler" type="success">{{ confirmActionName }}</a-button>
+        </template>
+        <template v-else-if="currentStep === '200'">
+          <a-typography-text type="success">{{ name }}已确认</a-typography-text>
+        </template>
+      </a-space>
+    </a-col>
+    <!-- </template> -->
 
-    <template v-else-if="externalUserOrgIdList.includes(organizationId)">
+    <!-- <template v-else-if="externalUserOrgIdList.includes(organizationId)">
       <a-col>
         <a-space>
           <template v-if="!currentStep || currentStep === '100'">
             <a-button @click="submitClickHandler" type="primary">{{ submitActionName }}</a-button>
           </template>
           <template v-else-if="currentStep === '150' && organizationId === commitId">
-            <!-- <a-button type="primary" disabled>已提交确认中</a-button> -->
             <a-typography-text type="warning"
               >{{ name }}内容确认中，请耐心等待...</a-typography-text
             >
           </template>
-          <template v-else-if="currentStep === '150' && organizationId !== commitId">
+          <template v-else-if="currentStep === '150' && organizationId !== confirmId">
             <a-button @click="rejectClickHandler" type="error">驳回</a-button>
             <a-button @click="confirmClickHandler" type="success">{{ confirmActionName }}</a-button>
           </template>
           <template v-else-if="currentStep === '200'">
-            <!-- <a-button disabled type="success">{{ name }}已确认</a-button> -->
             <a-typography-text type="success">{{ name }}已确认</a-typography-text>
           </template>
         </a-space>
       </a-col>
-    </template>
+    </template> -->
   </a-row>
 </template>
 
@@ -68,6 +62,10 @@
       ATypographyText: TypographyText,
     },
     props: {
+      // 点击确认的公司ID
+      confirmId: {
+        type: String,
+      },
       // 点击提交的公司ID
       commitId: {
         type: String,
@@ -118,7 +116,7 @@
       };
 
       const confirmClickHandler = () => {
-        emit('on-confirm', props.status[1]);
+        emit('on-confirm', props.status[0]);
       };
 
       return {

@@ -3,14 +3,14 @@
     <BasicTable @register="registerTable">
       <!-- 按钮工具栏 -->
       <template #toolbar>
-        <a-button
+        <!-- <a-button
           v-auth="'manage:sensor:add'"
           type="primary"
           preIcon="ant-design:plus-outlined"
           @click="handleCreate"
         >
           新增
-        </a-button>
+        </a-button> -->
         <a-button preIcon="ant-design:download-outlined" @click="handleExport"> 导出 </a-button>
         <a-button type="default" preIcon="ant-design:upload-outlined" @click="handleImport">
           导入

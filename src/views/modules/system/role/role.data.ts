@@ -142,30 +142,6 @@ export const inputFormSchemas: FormSchema[] = [
     },
   },
   {
-    label: t('数据权限'),
-    field: 'dataScopeType',
-    component: 'ApiSelect',
-    required: true,
-    componentProps: {
-      api: optionsListApi,
-      params: {
-        dictCode: 'data_scope_type',
-      },
-    },
-  },
-  {
-    label: t('数据范围'),
-    field: 'grantOrgIdList',
-    component: 'ApiTreeSelect',
-    componentProps: {
-      api: orgTree,
-      immediate: true,
-      allowClear: true,
-      multiple: true,
-    },
-    ifShow: ({ values }) => isCustom(values.dataScopeType),
-  },
-  {
     label: t('备注'),
     field: 'remark',
     component: 'InputTextArea',

@@ -34,7 +34,7 @@
     searchForm,
     tableColumns,
     inputFormSchemas,
-  } from '../org.data';
+  } from '../organization.data';
 
   const emit = defineEmits(['success']);
 

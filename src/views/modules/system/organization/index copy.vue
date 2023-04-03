@@ -112,7 +112,7 @@
   import { orgTree, orgDelete, orgRevised } from '/@/api/system/org';
   import { optionsListBatchApi } from '/@/api/sys/dict';
   // data
-  import { orgTypeOptions, treeData, searchForm, tableColumns } from './org.data';
+  import { orgTypeOptions, treeData, searchForm, tableColumns } from './organization.data';
 
   const { t } = useI18n();
   const { notification } = useMessage();

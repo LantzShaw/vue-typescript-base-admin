@@ -23,6 +23,16 @@
             {{ record.deviceName }}
           </a>
         </template>
+        <template v-else-if="column.key === 'status'">
+          <!-- <dict-label :options="alarmStatusOptions" :value="record.dtuipIsAlarms" /> -->
+          <!-- <dict-label :options="dataItemStatusOptions" :value="record.status" /> -->
+          <a-switch
+            :checked="record.status === '0'"
+            checked-children="启用"
+            un-checked-children="禁用"
+            @change="handleSwitchChange(record)"
+          />
+        </template>
         <template v-else-if="column.key === 'dtuipIsAlarms'">
           <dict-label :options="alarmStatusOptions" :value="record.dtuipIsAlarms" />
         </template>
@@ -42,15 +52,15 @@
                 onClick: handleEdit.bind(null, record),
                 auth: 'manage:device:edit',
               },
-              {
-                label: '删除',
-                color: 'error',
-                auth: 'manage:device:delete',
-                popConfirm: {
-                  title: '是否确认删除',
-                  confirm: handleDelete.bind(null, record),
-                },
-              },
+              // {
+              //   label: '删除',
+              //   color: 'error',
+              //   auth: 'manage:device:delete',
+              //   popConfirm: {
+              //     title: '是否确认删除',
+              //     confirm: handleDelete.bind(null, record),
+              //   },
+              // },
             ]"
           />
         </template>
@@ -60,6 +70,8 @@
   </PageWrapper>
 </template>
 <script lang="ts" setup>
+  import { Switch as ASwitch } from 'ant-design-vue';
+
   import { onMounted } from 'vue';
   // hooks
   import { useMessage } from '/@/hooks/web/useMessage';
@@ -73,13 +85,14 @@
   import { jsonToSheetXlsx } from '/@/components/Excel';
 
   // 接口
-  import { devicePage, deviceDelete } from '/@/api/manage/device';
+  import { devicePage, deviceDelete, deviceUpdate } from '/@/api/manage/device';
   import { optionsListBatchApi } from '/@/api/sys/dict';
   // data
   import {
     alarmStatusOptions,
     deleteStatusOptions,
     onlineStatusOptions,
+    dataItemStatusOptions,
     searchForm,
     tableColumns,
   } from './device.data';
@@ -104,7 +117,7 @@
     showTableSetting: true,
     showIndexColumn: false,
     actionColumn: {
-      width: 140,
+      width: 120,
       title: '操作',
       dataIndex: 'action',
       // slots: { customRender: 'action' },
@@ -113,6 +126,17 @@
       // auth: 'system:application:operation',
     },
   });
+
+  /**
+   * 启用、禁用 - 切换事件
+   *
+   * @param record 表格行数据
+   */
+  async function handleSwitchChange(record) {
+    await deviceUpdate({ id: record.id, status: record.status === '0' ? '1' : '0' });
+
+    reload();
+  }
 
   /**
    * 导出
@@ -169,14 +193,17 @@
    * 初始化字典数据
    */
   async function initDict() {
-    const { alarm_status, delete_status, online_status } = await optionsListBatchApi([
-      'alarm_status',
-      'delete_status',
-      'online_status',
-    ]);
+    const { alarm_status, delete_status, online_status, data_item_status } =
+      await optionsListBatchApi([
+        'alarm_status',
+        'delete_status',
+        'online_status',
+        'data_item_status',
+      ]);
     alarmStatusOptions.value = alarm_status || [];
     deleteStatusOptions.value = delete_status || [];
     onlineStatusOptions.value = online_status || [];
+    dataItemStatusOptions.value = data_item_status || [];
   }
 
   onMounted(() => {

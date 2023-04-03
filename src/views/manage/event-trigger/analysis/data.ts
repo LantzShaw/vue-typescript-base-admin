@@ -1,4 +1,48 @@
+import { EChartsOption } from 'echarts';
 import { BasicColumn } from '/@/components/Table';
+
+export const baseOption: EChartsOption = {
+  backgroundColor: '#fff',
+  animation: false, // NOTE: 如果不设置该属性，折线、柱状等内容将失效,
+  tooltip: {
+    trigger: 'axis',
+    axisPointer: {
+      type: 'shadow',
+      label: {
+        show: true,
+        backgroundColor: '#333',
+      },
+    },
+  },
+  legend: {
+    data: [],
+    textStyle: {
+      color: '#ccc',
+    },
+  },
+  xAxis: {
+    data: [],
+    axisLine: {
+      lineStyle: {
+        color: '#ccc',
+      },
+    },
+  },
+  yAxis: {
+    splitLine: { show: false },
+    axisLine: {
+      lineStyle: {
+        color: '#ccc',
+      },
+    },
+  },
+  dataZoom: {
+    show: true,
+    start: 0,
+    end: 100,
+  },
+  series: [],
+};
 
 export const mapData: any = [
   {
@@ -204,7 +248,7 @@ export const columns: BasicColumn[] = [
 
 export const data: any[] = (() => {
   const arr: any[] = [];
-  for (let index = 0; index < 40; index++) {
+  for (let index = 0; index < 3; index++) {
     arr.push({
       id: `${index}`,
       name: `${index} John Brown`,

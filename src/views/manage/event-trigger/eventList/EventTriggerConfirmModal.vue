@@ -6,13 +6,12 @@
     :showOkBtn="true"
     :show-cancel-btn="true"
     :okAuth="'manage:event-trigger:add'"
-    title="事件触发确认"
+    title="事件触发流程确认"
     okType="primary"
-    ok-text="是否通知监管方"
+    ok-text="全部提交"
     :centered="true"
     @ok="handleSubmitAll"
   >
-    <!-- 通知监管方 -->
     <div style="padding-left: 10px; padding-right: 10px">
       <a-form
         :model="formState"
@@ -20,15 +19,20 @@
         :label-col="{ span: 3 }"
         :wrapper-col="{ span: 21 }"
         autocomplete="off"
+        :rules="rules"
       >
         <a-tabs v-model:active-key="activeKey">
           <a-tab-pane key="0" tab="信息核实">
             <!-- 信息核实 -->
-
             <a-row>
               <a-col :span="24">
                 <div class="ml-2 mb-2 text-md text-black font-bold">信息核实</div>
-                <a-form-item label="说明内容" name="stepOneRemark">
+
+                <a-form-item
+                  label="说明内容"
+                  name="stepOneRemark"
+                  :rules="[{ required: true, message: '信息核实说明内容不能为空!' }]"
+                >
                   <a-textarea
                     :readonly="isReadOnly(record.stepOneStatus)"
                     :rows="4"
@@ -61,6 +65,7 @@
                   name="信息核实"
                   :current-step="record.stepOneStatus"
                   :commit-id="record.stepOneEnterpriseId"
+                  :confirm-id="record.stepOneAffirmEnterpriseId"
                 />
               </a-col>
             </a-row>
@@ -70,7 +75,12 @@
             <a-row>
               <a-col :span="24">
                 <div class="ml-2 mb-2 text-md text-black font-bold">查找原因</div>
-                <a-form-item label="说明内容" name="stepTwoRemark">
+
+                <a-form-item
+                  label="说明内容"
+                  name="stepTwoRemark"
+                  :rules="[{ required: true, message: '查找原因说明内容不能为空!' }]"
+                >
                   <a-textarea
                     :readonly="isReadOnly(record.stepTwoStatus)"
                     :rows="4"
@@ -103,6 +113,7 @@
                   name="查找原因"
                   :current-step="record.stepTwoStatus"
                   :commit-id="record.stepTwoEnterpriseId"
+                  :confirm-id="record.stepTwoAffirmEnterpriseId"
                 />
               </a-col>
             </a-row>
@@ -112,7 +123,11 @@
             <a-row>
               <a-col :span="24">
                 <div class="ml-2 mb-2 text-md text-black font-bold">应对措施</div>
-                <a-form-item label="说明内容" name="stepThreeRemark">
+                <a-form-item
+                  label="说明内容"
+                  name="stepThreeRemark"
+                  :rules="[{ required: true, message: '应对措施说明内容不能为空!' }]"
+                >
                   <a-textarea
                     :readonly="isReadOnly(record.stepThreeStatus)"
                     :rows="4"
@@ -145,6 +160,7 @@
                   name="应对措施"
                   :current-step="record.stepThreeStatus"
                   :commit-id="record.stepThreeEnterpriseId"
+                  :confirm-id="record.stepThreeAffirmEnterpriseId"
                 />
               </a-col>
             </a-row>
@@ -155,7 +171,11 @@
             <a-row>
               <a-col :span="24">
                 <div class="ml-2 mb-2 text-md text-black font-bold">措施落实</div>
-                <a-form-item label="说明内容" name="stepFourRemark">
+                <a-form-item
+                  label="说明内容"
+                  name="stepFourRemark"
+                  :rules="[{ required: true, message: '措施落实说明内容不能为空!' }]"
+                >
                   <a-textarea
                     :readonly="isReadOnly(record.stepFourStatus)"
                     :rows="4"
@@ -188,6 +208,7 @@
                   name="措施落实"
                   :current-step="record.stepFourStatus"
                   :commit-id="record.stepFourEnterpriseId"
+                  :confirm-id="record.stepFourAffirmEnterpriseId"
                 />
               </a-col>
             </a-row>
@@ -197,7 +218,11 @@
             <a-row>
               <a-col :span="24">
                 <div class="ml-2 mb-2 text-md text-black font-bold">原因分析</div>
-                <a-form-item label="说明内容" name="stepFiveRemark">
+                <a-form-item
+                  label="说明内容"
+                  name="stepFiveRemark"
+                  :rules="[{ required: true, message: '原因分析说明内容不能为空!' }]"
+                >
                   <a-textarea
                     :readonly="isReadOnly(record.stepFiveStatus)"
                     :rows="4"
@@ -230,6 +255,7 @@
                   name="原因分析"
                   :current-step="record.stepFiveStatus"
                   :commit-id="record.stepFiveEnterpriseId"
+                  :confirm-id="record.stepFiveAffirmEnterpriseId"
                 />
               </a-col>
             </a-row>
@@ -239,7 +265,11 @@
             <a-row>
               <a-col :span="24">
                 <div class="ml-2 mb-2 text-md text-black font-bold">举一反三</div>
-                <a-form-item label="说明内容" name="stepSixRemark">
+                <a-form-item
+                  label="说明内容"
+                  name="stepSixRemark"
+                  :rules="[{ required: true, message: '举一反三说明内容不能为空!' }]"
+                >
                   <a-textarea
                     :readonly="isReadOnly(record.stepSixStatus)"
                     :rows="4"
@@ -272,6 +302,7 @@
                   name="举一反三"
                   :current-step="record.stepSixStatus"
                   :commit-id="record.stepSixEnterpriseId"
+                  :confirm-id="record.stepSixAffirmEnterpriseId"
                 />
               </a-col>
             </a-row>
@@ -281,7 +312,11 @@
               <!-- 结果确认 -->
               <a-col :span="24">
                 <div class="ml-2 mb-2 text-md text-black font-bold">结果确认</div>
-                <a-form-item label="说明内容" name="stepSevenRemark">
+                <a-form-item
+                  label="说明内容"
+                  name="stepSevenRemark"
+                  :rules="[{ required: true, message: '结果确认说明内容不能为空!' }]"
+                >
                   <a-textarea
                     :readonly="isReadOnly(record.stepSevenStatus)"
                     :rows="4"
@@ -315,48 +350,7 @@
                   name="结果确认"
                   :current-step="record.stepSevenStatus"
                   :commit-id="record.stepSevenEnterpriseId"
-                />
-              </a-col>
-            </a-row>
-          </a-tab-pane>
-          <a-tab-pane key="7" tab="形成报告">
-            <a-row>
-              <!-- 形成报告 -->
-              <a-col :span="24">
-                <div class="ml-2 mb-2 text-md text-black font-bold">形成报告</div>
-                <a-form-item label="说明内容" name="stepEightRemark">
-                  <a-textarea
-                    :readonly="isReadOnly(record.stepEightStatus)"
-                    :rows="4"
-                    v-model:value="formState.stepEightRemark"
-                    placeholder="请填写形成报告说明内容..."
-                  />
-                </a-form-item>
-              </a-col>
-              <a-col :span="24">
-                <a-form-item label="附件" name="username">
-                  <BasicUpload
-                    :maxSize="20"
-                    :maxNumber="10"
-                    :showPreviewNumber="false"
-                    :emptyHidePreview="true"
-                    :multiple="false"
-                    :disabled="isReadOnly(record.stepEightStatus)"
-                    @change="handleUploadChange('850', $event)"
-                    :api="uploadApi"
-                    :value="fileList.fileEight"
-                  />
-                </a-form-item>
-              </a-col>
-              <a-col span="24">
-                <StepAction
-                  @onSubmit="onSubmitHandler"
-                  @onReject="onRejectHandler"
-                  @onConfirm="onConfirmHandler"
-                  :status="['800', '850', '900']"
-                  name="形成报告"
-                  :current-step="record.stepEightStatus"
-                  :commit-id="record.stepEightEnterpriseId"
+                  :confirm-id="record.stepSevenAffirmEnterpriseId"
                 />
               </a-col>
             </a-row>
@@ -413,18 +407,12 @@
   const emit = defineEmits(['success', 'register']);
 
   const activeKey = ref('0');
-  // const fileOne = ref<string[]>([]);
-  // const fileTwo = ref<string[]>([]);
-  // const fileThree = ref<string[]>([]);
-  // const fileFour = ref<string[]>([]);
-  // const fileFive = ref<string[]>([]);
-  // const fileSix = ref<string[]>([]);
-  // const fileSeven = ref<string[]>([]);
-  // const fileEight = ref<string[]>([]);
 
   const fileList = ref(fileState());
 
   const { notification } = useMessage();
+
+  const rules = {};
 
   const formState = reactive<FormState>({
     stepOneRemark: '',
@@ -510,12 +498,15 @@
             fileList.value.fileFour = item.attPath.split(',');
             break;
           case '550':
-            fileList.value.fileSix = item.attPath.split(',');
+            fileList.value.fileFive = item.attPath.split(',');
             break;
           case '650':
-            fileList.value.fileSeven = item.attPath.split(',');
+            fileList.value.fileSix = item.attPath.split(',');
             break;
           case '750':
+            fileList.value.fileSeven = item.attPath.split(',');
+            break;
+          case '850':
             fileList.value.fileEight = item.attPath.split(',');
             break;
         }
@@ -581,8 +572,6 @@
    * 流程提交
    */
   async function onSubmitHandler(status) {
-    console.log('提交', status);
-
     let params = {};
 
     switch (status) {
@@ -643,14 +632,14 @@
     formState.stepSixRemark = record.value.stepSixRemark;
     formState.stepSevenRemark = record.value.stepSevenRemark;
     formState.stepEightRemark = record.value.stepEightRemark;
+
+    notification.success({ message: `信息提交成功!` });
   }
 
   /**
    * 流程驳回
    */
   async function onRejectHandler(status) {
-    console.log('驳回', status, formState);
-
     const params = {};
 
     switch (status) {
@@ -689,44 +678,44 @@
     await eventTriggerUpdateState({ id: idRef.value, processStep: status, ...params });
 
     record.value = await eventTriggerEventDetail({ id: idRef.value });
+
+    notification.success({ message: `驳回提交成功!` });
   }
 
   /**
    * 流程确认
    */
   async function onConfirmHandler(status) {
-    console.log('确认', status, formState);
-
     const params = {};
 
     switch (status) {
-      case '150':
+      case '100':
         params['stepOneStatus'] = '200';
         break;
-      case '250':
+      case '200':
         params['stepTwoStatus'] = '200';
         break;
-      case '350':
+      case '300':
         params['stepThreeStatus'] = '200';
 
         break;
-      case '450':
+      case '400':
         params['stepFourStatus'] = '200';
 
         break;
-      case '550':
+      case '500':
         params['stepFiveStatus'] = '200';
 
         break;
-      case '650':
+      case '600':
         params['stepSixStatus'] = '200';
 
         break;
-      case '750':
+      case '700':
         params['stepSevenStatus'] = '200';
 
         break;
-      case '850':
+      case '800':
         params['stepEightStatus'] = '200';
 
         break;
@@ -735,5 +724,7 @@
     await eventTriggerUpdateState({ id: idRef.value, processStep: status, ...params });
 
     record.value = await eventTriggerEventDetail({ id: idRef.value });
+
+    notification.success({ message: `确认成功!` });
   }
 </script>

@@ -12,6 +12,8 @@ enum Api {
   RoleGrantMenu = '/upms/role/grant-menu',
   RoleOwnAuthority = '/upms/role/own-authority',
   RoleGrantAuthority = '/upms/role/grant-authority',
+  RoleOwnDataScope = '/upms/role/own-data-scope',
+  RoleGrantDataScope = '/upms/role/grant-data-scope',
   RoleSelect = '/upms/role/option',
 }
 
@@ -28,6 +30,12 @@ export const roleOwnAuthority = (params?: any) =>
 
 export const roleGrantAuthority = (data?: any) =>
   defHttp.post({ url: Api.RoleGrantAuthority, data });
+
+export const roleOwnDataScope = (params?: any) =>
+  defHttp.get({ url: Api.RoleOwnDataScope, params });
+
+export const roleGrantDataScope = (data?: any) =>
+  defHttp.post({ url: Api.RoleGrantDataScope, data });
 
 export const roleAdd = (data?: any) => defHttp.post({ url: Api.RoleAdd, data });
 

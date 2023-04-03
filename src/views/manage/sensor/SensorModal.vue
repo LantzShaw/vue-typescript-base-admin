@@ -1,6 +1,6 @@
 <template>
   <BasicModal
-    width="50%"
+    width="74%"
     v-bind="$attrs"
     @register="registerModal"
     showFooter
@@ -34,10 +34,10 @@
    * 构建表单
    */
   const [registerForm, { resetFields, setFieldsValue, validate }] = useForm({
-    labelWidth: 110,
+    labelWidth: 140,
     schemas: inputFormSchemas,
     showActionButtonGroup: false,
-    baseColProps: { lg: 24, md: 24 },
+    baseColProps: { lg: 12, md: 24 },
   });
 
   /**

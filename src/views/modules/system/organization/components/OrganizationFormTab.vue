@@ -23,7 +23,7 @@
   import { orgTreeSync, orgUpdate } from '/@/api/system/org';
   import { optionsListBatchApi } from '/@/api/sys/dict';
 
-  import { editFormSchemas, idRef, isUpdate } from '../org.data';
+  import { editFormSchemas, idRef, isUpdate } from '../organization.data';
 
   const emit = defineEmits(['success']);
 

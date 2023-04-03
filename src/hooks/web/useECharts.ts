@@ -20,7 +20,7 @@ export function useECharts(
   const getDarkMode = computed(() => {
     return theme === 'default' ? getSysDarkMode.value : theme;
   });
-  let chartInstance: echarts.ECharts | null = null;
+  let chartInstance = ref<echarts.ECharts | null>(null);
   let resizeFn: Fn = resize;
   const cacheOptions = ref({}) as Ref<EChartsOption>;
   let removeResizeFn: Fn = () => {};
@@ -43,7 +43,8 @@ export function useECharts(
       return;
     }
 
-    chartInstance = echarts.init(el, t);
+    chartInstance.value = echarts.init(el, t, { renderer: 'canvas' });
+
     const { removeEvent } = useEventListener({
       el: window,
       name: 'resize',
@@ -60,28 +61,35 @@ export function useECharts(
 
   function setOptions(options: EChartsOption, clear = true) {
     cacheOptions.value = options;
-    if (unref(elRef)?.offsetHeight === 0) {
-      useTimeoutFn(() => {
-        setOptions(unref(getOptions));
-      }, 30);
-      return;
-    }
-    nextTick(() => {
-      useTimeoutFn(() => {
-        if (!chartInstance) {
-          initCharts(getDarkMode.value as 'default');
 
-          if (!chartInstance) return;
-        }
-        clear && chartInstance?.clear();
+    return new Promise((resolve) => {
+      if (unref(elRef)?.offsetHeight === 0) {
+        useTimeoutFn(() => {
+          setOptions(unref(getOptions));
 
-        chartInstance?.setOption(unref(getOptions));
-      }, 30);
+          resolve(null);
+        }, 30);
+      }
+
+      nextTick(() => {
+        useTimeoutFn(() => {
+          if (!chartInstance.value) {
+            initCharts(getDarkMode.value as 'default');
+
+            if (!chartInstance.value) return;
+          }
+          clear && chartInstance.value?.clear();
+
+          chartInstance.value?.setOption(unref(getOptions));
+
+          resolve(null);
+        }, 30);
+      });
     });
   }
 
   function resize() {
-    chartInstance?.resize({
+    chartInstance.value?.resize({
       animation: {
         duration: 300,
         easing: 'quadraticIn',
@@ -96,8 +104,8 @@ export function useECharts(
   watch(
     () => getDarkMode.value,
     (theme) => {
-      if (chartInstance) {
-        chartInstance.dispose();
+      if (chartInstance.value) {
+        chartInstance.value.dispose();
         initCharts(theme as 'default');
         setOptions(cacheOptions.value);
       }
@@ -111,17 +119,18 @@ export function useECharts(
   });
 
   tryOnUnmounted(() => {
-    if (!chartInstance) return;
+    if (!chartInstance.value) return;
     removeResizeFn();
-    chartInstance.dispose();
-    chartInstance = null;
+    chartInstance.value.dispose();
+    chartInstance.value = null;
   });
 
   function getInstance(): echarts.ECharts | null {
-    if (!chartInstance) {
+    if (!chartInstance.value) {
       initCharts(getDarkMode.value as 'default');
     }
-    return chartInstance;
+
+    return chartInstance.value as echarts.ECharts;
   }
 
   return {

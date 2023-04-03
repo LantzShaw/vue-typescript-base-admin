@@ -78,7 +78,7 @@
   import { optionsListBatchApi } from '/@/api/sys/dict';
   // data
   import { isArray } from '/@/utils/is';
-  import { orgTypeOptions, treeData, searchForm, tableColumns, inputFormSchemas } from './org.data';
+  import { orgTypeOptions, treeData, searchForm, tableColumns, inputFormSchemas } from './organization.data';
 
   const { t } = useI18n();
   const { createMessage, notification } = useMessage();

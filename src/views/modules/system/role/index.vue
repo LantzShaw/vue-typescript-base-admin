@@ -35,13 +35,18 @@
                 auth: 'system:role:edit',
               },
               {
-                label: '授权菜单',
+                label: '菜单权限',
                 onClick: handleGrantMenu.bind(null, record),
                 auth: 'system:role:grant',
               },
               {
-                label: '授权权限',
+                label: 'API权限',
                 onClick: handleGrantAuthority.bind(null, record),
+                auth: 'system:role:grant',
+              },
+              {
+                label: '数据权限',
+                onClick: handleGrantDataScope.bind(null, record),
                 auth: 'system:role:grant',
               },
               {
@@ -61,6 +66,7 @@
     <RoleDrawer @register="registerDrawer" @success="handleSuccess" />
     <RoleMenuDrawer @register="registerRoleMenuDrawer" @success="handleSuccess" />
     <RoleAuthorityDrawer @register="registerRoleAuthorityDrawer" @success="handleSuccess" />
+    <RoleDataScopeDrawer @register="registerRoleDataScopeDrawer" @success="handleSuccess" />
   </div>
 </template>
 <script lang="ts" setup>
@@ -75,6 +81,7 @@
   import RoleDrawer from './RoleDrawer.vue';
   import RoleMenuDrawer from './RoleMenuDrawer.vue';
   import RoleAuthorityDrawer from './RoleAuthorityDrawer.vue';
+  import RoleDataScopeDrawer from './RoleDataScopeDrawer.vue';
 
   // 接口
   import { rolePage, roleDelete } from '/@/api/system/role';
@@ -101,6 +108,7 @@
    */
   const [registerRoleMenuDrawer, { openDrawer: openRoleMenuDrawer }] = useDrawer();
   const [registerRoleAuthorityDrawer, { openDrawer: openRoleAuthorityDrawer }] = useDrawer();
+  const [registerRoleDataScopeDrawer, { openDrawer: openRoleDataScopeDrawer }] = useDrawer();
   /**
    * 构建registerTable
    */
@@ -181,6 +189,13 @@
    */
   function handleGrantAuthority(record: Recordable) {
     openRoleAuthorityDrawer(true, {
+      record,
+      isUpdate: true,
+    });
+  }
+
+  function handleGrantDataScope(record: Recordable) {
+    openRoleDataScopeDrawer(true, {
       record,
       isUpdate: true,
     });
