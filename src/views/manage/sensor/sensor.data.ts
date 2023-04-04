@@ -10,6 +10,7 @@ import { optionsListApi } from '/@/api/sys/dict';
 
 import { devicePage } from '/@/api/manage/device';
 import { companyPage } from '/@/api/manage/company';
+import { installRegionPage } from '/@/api/manage/installRegion';
 
 export const isUpdate = ref(true);
 export const idRef = ref('');
@@ -393,10 +394,18 @@ export const inputFormSchemas: FormSchema[] = [
   {
     label: t('位号'),
     field: 'locationNo',
-    component: 'Input',
+    component: 'ApiSelect',
     componentProps: {
       maxlength: 100,
-      placeholder: '请输入位号',
+      placeholder: '请选择位号',
+      api: installRegionPage,
+      params: {
+        pageIndex: 1,
+        pageSize: 100000,
+      },
+      resultField: 'records',
+      labelField: 'regionName',
+      valueField: 'id',
     },
   },
   {

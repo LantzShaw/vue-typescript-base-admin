@@ -13,6 +13,7 @@ import { t } from '/@/hooks/web/useI18n';
 
 import feat from './modules/demo/feat';
 import comp from './modules/demo/comp';
+import charts from './modules/demo/charts';
 
 // import.meta.globEager() 直接引入所有的模块 Vite 独有的功能
 const modules = import.meta.globEager('./modules/**/*.ts');
@@ -75,6 +76,7 @@ export const basicRoutes = [
   ...mainOutRoutes,
   feat,
   comp,
+  charts,
   REDIRECT_ROUTE,
   PAGE_NOT_FOUND_ROUTE,
   ACCOUNT_ROUTE,

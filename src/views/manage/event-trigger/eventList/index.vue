@@ -19,7 +19,6 @@
       </template>
 
       <template #expandedRowRender="{ record }">
-        <!-- <span>报警内容: {{  }} </span> -->
         <div> <span v-html="record.dtuipTriggerContent"></span></div>
       </template>
 
@@ -52,16 +51,11 @@
           <TableAction
             stopButtonPropagation
             :actions="[
-              // {
-              //   label: '编辑',
-              //   onClick: handleEdit.bind(null, record),
-              //   auth: 'manage:event-trigger:edit',
-              // },
               // 甲方 - 使用方接受确认
               {
                 label: '接收确认',
                 onClick: handleFirstPartyConfirm.bind(null, record),
-                auth: 'manage:event-trigger:edit',
+                auth: 'manage:event:receive',
                 // disabled: record.apReceiveFlag === '1',
                 ifShow:
                   record.apReceiveFlag === '0' && externalUserOrgIdList.includes(organizationId),
@@ -70,7 +64,7 @@
               {
                 label: '接收确认',
                 onClick: handleSecondPartyConfirm.bind(null, record),
-                auth: 'manage:event-trigger:edit',
+                auth: 'manage:event:receive',
                 // disabled: record.bpReceiveFlag === '1',
                 ifShow:
                   record.bpReceiveFlag === '0' && maintainerOrgIdList.includes(organizationId),
@@ -78,7 +72,7 @@
               {
                 label: '流程确认',
                 onClick: handleOpenConfirmModal.bind(null, record),
-                auth: 'manage:event-trigger:edit',
+                auth: 'manage:event:process',
                 ifShow:
                   record.eventStatus === '1' &&
                   record.apReceiveFlag === '1' &&
@@ -87,7 +81,7 @@
               {
                 label: '流程确认',
                 onClick: handleOpenConfirmModal.bind(null, record),
-                auth: 'manage:event-trigger:edit',
+                auth: 'manage:event:process',
                 ifShow:
                   record.eventStatus === '1' &&
                   record.bpReceiveFlag === '1' &&
@@ -96,19 +90,19 @@
               {
                 label: '形成报告',
                 onClick: navigateToReport.bind(null, record),
-                auth: 'manage:event-trigger:edit',
+                auth: 'manage:event:report',
                 ifShow: record.eventStatus === '2',
               },
               {
                 label: '报警分析',
                 onClick: navigateToAnalysis.bind(null, record),
-                auth: 'manage:event-trigger:edit',
+                auth: 'manage:event:analysis',
                 ifShow: true,
               },
               {
                 label: '删除',
                 color: 'error',
-                auth: 'manage:event-trigger:delete',
+                auth: 'manage:event:delete',
                 popConfirm: {
                   title: '是否确认删除',
                   confirm: handleDelete.bind(null, record),
@@ -119,7 +113,7 @@
               {
                 label: '通知监管方',
                 onClick: navigateToAnalysis.bind(null, record),
-                auth: 'manage:event-trigger:edit',
+                auth: 'manage:event:notify',
                 ifShow: true,
                 disabled: record.eventStatus !== '2',
               },
@@ -289,7 +283,9 @@
    * @param record
    */
   function navigateToAnalysis(record: Recordable) {
-    go(`/event-trigger/analysis/${record.sensorId}?deviceName=${record.dtuipDeviceName}`);
+    go(
+      `/event-trigger/analysis/${record.sensorId}?regionId=${record.regionId}&deviceName=${record.dtuipDeviceName}`,
+    );
   }
 
   /**
@@ -310,7 +306,7 @@
    * @param record
    */
   function navigateToReport(record: Recordable) {
-    go(`/event/trigger/report/${record.dealRecordId}?alarmId=${record.id}`);
+    go(`/event/trigger/report/${record.dealRecordId}`);
   }
 
   /**

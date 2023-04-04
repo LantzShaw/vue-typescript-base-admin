@@ -4,7 +4,7 @@
       <!-- 按钮工具栏 -->
       <template #toolbar>
         <a-button
-          v-auth="'manage:event-trigger:add'"
+          v-auth="'manage:plan:add'"
           type="primary"
           preIcon="ant-design:plus-outlined"
           @click="handleCreate"
@@ -57,17 +57,17 @@
               {
                 label: '编辑',
                 onClick: handleEdit.bind(null, record),
-                auth: 'manage:event-trigger:edit',
+                auth: 'manage:plan:edit',
               },
               {
                 label: '关联设备',
                 onClick: navigateToAssociationDevice.bind(null, record),
-                auth: 'manage:event-trigger:edit',
+                auth: 'manage:plan:association-device',
               },
               {
                 label: '删除',
                 color: 'error',
-                auth: 'manage:event-trigger:delete',
+                auth: 'manage:plan:delete',
                 popConfirm: {
                   title: '是否确认删除',
                   confirm: handleDelete.bind(null, record),

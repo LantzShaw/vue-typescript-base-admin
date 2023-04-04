@@ -120,7 +120,7 @@
                 type: 'line',
                 smooth: true,
                 showAllSymbol: 'auto',
-                symbol: 'emptyCircle',
+                symbol: 'none',
                 symbolSize: 15,
                 data: lineData,
                 animation: false,
@@ -148,7 +148,7 @@
       const onSetOptions = async () => {
         const seriesOption = {
           legend: {
-            data: ['line1'],
+            data: ['line'],
           },
           xAxis: { data: category },
           series: [
@@ -157,7 +157,7 @@
               type: 'line',
               smooth: true,
               showAllSymbol: 'auto',
-              symbol: 'emptyCircle',
+              symbol: 'none',
               symbolSize: 15,
               data: lineData,
               // animation: false, // NOTE: 如果不设置该属性，折线、柱状等内容将失效, 也可以在最外层设置该属性

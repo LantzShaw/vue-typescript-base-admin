@@ -11,8 +11,19 @@
         >
           新增
         </a-button> -->
-        <a-button preIcon="ant-design:download-outlined" @click="handleExport"> 导出 </a-button>
-        <a-button type="default" preIcon="ant-design:upload-outlined" @click="handleImport">
+        <a-button
+          v-auth="'manage:maintenance-record:export'"
+          preIcon="ant-design:download-outlined"
+          @click="handleExport"
+        >
+          导出
+        </a-button>
+        <a-button
+          v-auth="'manage:maintenance-record:import'"
+          type="default"
+          preIcon="ant-design:upload-outlined"
+          @click="handleImport"
+        >
           导入
         </a-button>
       </template>
@@ -51,7 +62,7 @@
               {
                 label: '形成工单',
                 onClick: handleFirstPartyConfirm.bind(null, record),
-                auth: 'manage:event-trigger:edit',
+                auth: 'manage:maintenance-record:generate',
                 ifShow:
                   record.apReceiveFlag === '0' && externalUserOrgIdList.includes(organizationId),
               },
@@ -59,14 +70,14 @@
               {
                 label: '形成工单',
                 onClick: handleSecondPartyConfirm.bind(null, record),
-                auth: 'manage:event-trigger:edit',
+                auth: 'manage:maintenance-record:generate',
                 ifShow:
                   record.bpReceiveFlag === '0' && maintainerOrgIdList.includes(organizationId),
               },
               {
                 label: '流程确认',
                 onClick: handleOpenConfirmModal.bind(null, record),
-                auth: 'manage:event-trigger:edit',
+                auth: 'manage:maintenance-record:process',
                 ifShow:
                   record.eventStatus === '1' &&
                   record.apReceiveFlag === '1' &&
@@ -75,7 +86,7 @@
               {
                 label: '流程确认',
                 onClick: handleOpenConfirmModal.bind(null, record),
-                auth: 'manage:event-trigger:edit',
+                auth: 'manage:maintenance-record:process',
                 ifShow:
                   record.eventStatus === '1' &&
                   record.bpReceiveFlag === '1' &&
@@ -84,12 +95,12 @@
               {
                 label: '工单报告',
                 onClick: navigateToEquipmentMaintenanceReport.bind(null, record),
-                auth: 'manage:event-trigger:edit',
+                auth: 'manage:maintenance-record:report',
                 ifShow: record.eventStatus === '2',
               },
               {
                 label: '通知监管方',
-                auth: 'manage:event-trigger:delete',
+                auth: 'manage:maintenance-record:notify',
                 disabled: record.eventStatus !== '2',
                 popConfirm: {
                   title: '是否通知监管方',
@@ -99,7 +110,7 @@
               {
                 label: '删除',
                 color: 'error',
-                auth: 'manage:event-trigger:delete',
+                auth: 'manage:maintenance-record:delete',
                 popConfirm: {
                   title: '是否确认删除',
                   confirm: handleDelete.bind(null, record),
@@ -137,6 +148,7 @@
   import {
     equipmentMaintenanceRecordPage,
     equipmentMaintenanceRecordDelete,
+    equipmentMaintenanceRecordUpdateState,
   } from '/@/api/manage/equipmentMaintenance';
   import { optionsListBatchApi } from '/@/api/sys/dict';
   // data
@@ -238,8 +250,16 @@
    *
    * @param record
    */
-  function handleFirstPartyConfirm(record: Recordable) {
+  async function handleFirstPartyConfirm(record: Recordable) {
     console.log('------------甲方形成工单确认-------------', record);
+
+    await equipmentMaintenanceRecordUpdateState({
+      id: record.id,
+      apReceiveFlag: '1',
+      processStep: '000',
+    });
+
+    reload();
   }
 
   /**
@@ -247,8 +267,16 @@
    *
    * @param record
    */
-  function handleSecondPartyConfirm(record: Recordable) {
+  async function handleSecondPartyConfirm(record: Recordable) {
     console.log('------------乙方形成工单确认------------', record);
+
+    await equipmentMaintenanceRecordUpdateState({
+      id: record.id,
+      bpReceiveFlag: '1',
+      processStep: '050',
+    });
+
+    reload();
   }
 
   /**

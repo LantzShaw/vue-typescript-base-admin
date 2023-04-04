@@ -193,8 +193,8 @@
   import { uploadApi } from '/@/api/sys/upload';
 
   import {
-    equipmentMaintenanceRecordUpdate,
     equipmentMaintenanceRecordForm,
+    equipmentMaintenanceRecordUpdateState,
   } from '/@/api/manage/equipmentMaintenance';
 
   type FileList = {
@@ -273,10 +273,9 @@
       record.value.list.forEach((item) => {
         switch (item.processStep) {
           case '150':
-            fileList.value.fileOne = item.attPath.split(',');
-
             // TODO: 是否需要考虑item.attPath为空的情况
             // fileOne.value = ''.split(',');
+            fileList.value.fileOne = item.attPath.split(',');
             break;
           case '250':
             fileList.value.fileTwo = item.attPath.split(',');
@@ -363,7 +362,7 @@
         break;
     }
 
-    await equipmentMaintenanceRecordUpdate({
+    await equipmentMaintenanceRecordUpdateState({
       id: idRef.value,
       processStep: status,
       ...params,
@@ -398,7 +397,11 @@
         break;
     }
 
-    await equipmentMaintenanceRecordUpdate({ id: idRef.value, processStep: status, ...params });
+    await equipmentMaintenanceRecordUpdateState({
+      id: idRef.value,
+      processStep: status,
+      ...params,
+    });
 
     record.value = await equipmentMaintenanceRecordForm({ id: idRef.value });
 
@@ -424,7 +427,11 @@
         break;
     }
 
-    await equipmentMaintenanceRecordUpdate({ id: idRef.value, processStep: status, ...params });
+    await equipmentMaintenanceRecordUpdateState({
+      id: idRef.value,
+      processStep: status,
+      ...params,
+    });
 
     record.value = await equipmentMaintenanceRecordForm({ id: idRef.value });
 

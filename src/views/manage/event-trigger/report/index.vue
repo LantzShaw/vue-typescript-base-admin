@@ -363,7 +363,7 @@
   import { useRoute } from 'vue-router';
   import { formatToDate } from '/@/utils/dateUtil';
   import { useGo } from '/@/hooks/web/usePage';
-  import { eventTriggerEventDetail, eventTriggerForm } from '/@/api/manage/eventTrigger';
+  import { eventTriggerEventDetail } from '/@/api/manage/eventTrigger';
 
   import { AuthImage } from '/@/components/Upload';
 
@@ -417,7 +417,6 @@
   const route = useRoute();
 
   const eventId = ref<string>(route.params?.id as string);
-  const alarmId = ref<string>(route.query?.alarmId as string);
   const isButtonLoading = ref<boolean>(false);
   const isLoading = ref<boolean>(false);
 
@@ -434,9 +433,6 @@
     isLoading.value = true;
 
     const response = await eventTriggerEventDetail({ id: eventId.value });
-
-    // const baseInformation = await eventTriggerForm({ id: alarmId.value });
-    // console.log('baseInformation', baseInformation);
 
     const {
       id,

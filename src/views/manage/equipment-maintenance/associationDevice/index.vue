@@ -18,39 +18,8 @@
       </template>
       <!-- 表格内容 -->
       <template #bodyCell="{ column, record }">
-        <template v-if="column.key === 'sensorName'">
-          <a @click="handleEdit(record)" :title="record.sensorName">
-            {{ record.sensorName }}
-          </a>
-        </template>
-
-        <template v-else-if="column.key === 'planStartDate'">
-          {{ formatToDate(record.planStartDate) }}
-        </template>
-        <template v-else-if="column.key === 'planEndDate'">
-          {{ formatToDate(record.planEndDate) }}
-        </template>
-        <template v-else-if="column.key === 'dtuipSensorTypeId'">
-          <dict-label :options="sensorTypeOptions" :value="record.dtuipSensorTypeId" />
-        </template>
-        <template v-else-if="column.key === 'dtuipIsAlarms'">
-          <dict-label :options="alarmStatusOptions" :value="record.dtuipIsAlarms" />
-        </template>
-        <template v-else-if="column.key === 'dtuipIsDelete'">
-          <dict-label :options="deleteStatusOptions" :value="record.dtuipIsDelete" />
-        </template>
-        <template v-else-if="column.key === 'dtuipIsLine'">
-          <dict-label :options="onlineStatusOptions" :value="record.dtuipIsLine" />
-        </template>
-        <template v-else-if="column.key === 'planCycle'">
-          <dict-label :options="planPeriodTypeOptions" :value="record.planCycle" />
-        </template>
-        <!-- <template v-else-if="column.key === 'status'">
-          <dict-label :options="onlineStatusOptions" :value="record.dtuipIsLine" />
-        </template> -->
-
         <!-- 表格按钮 -->
-        <template v-else-if="column.key === 'action'">
+        <template v-if="column.key === 'action'">
           <TableAction
             stopButtonPropagation
             :actions="[

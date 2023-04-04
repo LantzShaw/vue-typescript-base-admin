@@ -24,6 +24,7 @@ enum Api {
   EquipmentMaintenanceRecordUpdate = '/biz/workflow/maintrecord/edit',
   EquipmentMaintenanceRecordList = '/biz/workflow/maintrecord/list',
   EquipmentMaintenanceRecordForm = '/biz/workflow/maintrecord/getbyid',
+  EquipmentMaintenanceRecordUpdateState = '/biz/workflow/maintrecord/statecheck',
 }
 
 // 维护计划
@@ -61,3 +62,5 @@ export const equipmentMaintenanceRecordUpdate = (data?: any) =>
   defHttp.post({ url: Api.EquipmentMaintenanceRecordUpdate, data });
 export const equipmentMaintenanceRecordForm = (params?: any) =>
   defHttp.get({ url: Api.EquipmentMaintenanceRecordForm, params });
+export const equipmentMaintenanceRecordUpdateState = (params?: any) =>
+  defHttp.post({ url: Api.EquipmentMaintenanceRecordUpdateState, params });

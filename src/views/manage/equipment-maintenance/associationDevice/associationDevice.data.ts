@@ -89,9 +89,16 @@ export const searchForm: FormProps = {
  * 表格字段
  */
 export const tableColumns: BasicColumn[] = [
+  // {
+  //   title: t('所属企业'),
+  //   dataIndex: 'companyName',
+  //   sorter: true,
+  //   width: 130,
+  //   align: 'center',
+  // },
   {
-    title: t('所属企业'),
-    dataIndex: 'companyName',
+    title: t('设备名称'),
+    dataIndex: 'deviceName',
     sorter: true,
     width: 130,
     align: 'center',

@@ -68,6 +68,8 @@
     roleName.value = data.record.roleName;
     idRef.value = data.record.id;
 
+    console.log('---------applicationMenus--------', applicationMenus.value);
+
     setDrawerProps({ loading: false, confirmLoading: false });
   });
 

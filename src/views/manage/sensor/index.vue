@@ -11,8 +11,19 @@
         >
           新增
         </a-button> -->
-        <a-button preIcon="ant-design:download-outlined" @click="handleExport"> 导出 </a-button>
-        <a-button type="default" preIcon="ant-design:upload-outlined" @click="handleImport">
+        <a-button
+          v-auth="'manage:sensor:export'"
+          preIcon="ant-design:download-outlined"
+          @click="handleExport"
+        >
+          导出
+        </a-button>
+        <a-button
+          v-auth="'manage:sensor:import'"
+          type="default"
+          preIcon="ant-design:upload-outlined"
+          @click="handleImport"
+        >
           导入
         </a-button>
       </template>

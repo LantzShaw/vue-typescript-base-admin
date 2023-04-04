@@ -34,10 +34,10 @@
         </a-card>
       </a-col>
       <a-col :span="16">
-        <a-card title="历史数据" :bordered="false">
-          <template #extra>
+        <a-card title="区域设备" :bordered="false">
+          <!-- <template #extra>
             <a>数据导出</a>
-          </template>
+          </template> -->
           <BasicTable
             :maxHeight="160"
             :columns="columns"
@@ -47,7 +47,6 @@
           </BasicTable>
         </a-card>
       </a-col>
-
       <a-col :span="24">
         <History :id="id" />
       </a-col>
@@ -65,15 +64,14 @@
   import { useGo } from '/@/hooks/web/usePage';
 
   import History from './History.vue';
+
   import { BasicTable } from '/@/components/Table';
   import { DictLabel } from '/@/components/DictLabel/index';
-
-  // import { sensorForm }
 
   import { columns, data } from './data';
 
   import { BasicColumn } from '/@/components/Table';
-  import { sensorForm } from '/@/api/manage/sensor';
+  import { sensorForm, sensorPage } from '/@/api/manage/sensor';
   import { optionsListBatchApi } from '/@/api/sys/dict';
 
   type SensorInformation = {
@@ -110,7 +108,11 @@
 
   const pageTitle = ref<string>(route.query?.deviceName as string);
   const id = ref<string>(route.params?.id as string);
+  const regionId = ref<string>(route.query?.regionId as string);
 
+  /**
+   * 获取传感器信息
+   */
   async function getSensorInformation() {
     const response = await sensorForm({ id: id.value });
 
@@ -127,6 +129,18 @@
     console.log('response: ', response);
   }
 
+  /**
+   * 获取区域设备
+   */
+  async function getRegionSensor() {
+    const response = await sensorPage({ regionId: regionId.value });
+
+    console.log('---------------response---------------', response);
+  }
+
+  /**
+   * 返回事件触发列表页面
+   */
   function goBack() {
     go('/event-trigger/event/list');
   }
@@ -150,6 +164,7 @@
   onMounted(() => {
     initDict();
     getSensorInformation();
+    getRegionSensor();
   });
 </script>
 
