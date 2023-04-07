@@ -4,7 +4,7 @@
       <!-- 按钮工具栏 -->
       <template #toolbar>
         <!-- <a-button
-          v-auth="'manage:event-trigger:add'"
+          v-auth="'manage:event:add'"
           type="primary"
           preIcon="ant-design:plus-outlined"
           @click="handleCreate"
@@ -12,10 +12,22 @@
           新增
         </a-button> -->
 
-        <a-button preIcon="ant-design:download-outlined" @click="handleExport"> 导出 </a-button>
-        <a-button type="default" preIcon="ant-design:upload-outlined" @click="handleImport">
-          导入
+        <a-button
+          v-auth="'manage:event:export'"
+          :loading="isExportLoading"
+          preIcon="ant-design:download-outlined"
+          @click="handleExport"
+        >
+          导出
         </a-button>
+        <ImpExcel
+          v-auth="'manage:event:import'"
+          @success="handleImport"
+          :isReturnFile="true"
+          dateFormat="YYYY-MM-DD"
+        >
+          <a-button preIcon="ant-design:upload-outlined"> 导入 </a-button>
+        </ImpExcel>
       </template>
 
       <template #expandedRowRender="{ record }">
@@ -56,18 +68,17 @@
                 label: '接收确认',
                 onClick: handleFirstPartyConfirm.bind(null, record),
                 auth: 'manage:event:receive',
-                // disabled: record.apReceiveFlag === '1',
+                disabled: record.apReceiveFlag === '1',
                 ifShow:
-                  record.apReceiveFlag === '0' && externalUserOrgIdList.includes(organizationId),
+                  record.eventStatus === '0' && externalUserOrgIdList.includes(organizationId),
               },
               // 乙方 - 维护方接受确认
               {
                 label: '接收确认',
                 onClick: handleSecondPartyConfirm.bind(null, record),
                 auth: 'manage:event:receive',
-                // disabled: record.bpReceiveFlag === '1',
-                ifShow:
-                  record.bpReceiveFlag === '0' && maintainerOrgIdList.includes(organizationId),
+                disabled: record.bpReceiveFlag === '1',
+                ifShow: record.eventStatus === '0' && maintainerOrgIdList.includes(organizationId),
               },
               {
                 label: '流程确认',
@@ -112,7 +123,7 @@
             :dropDownActions="[
               {
                 label: '通知监管方',
-                onClick: navigateToAnalysis.bind(null, record),
+                onClick: handleNotify.bind(null, record),
                 auth: 'manage:event:notify',
                 ifShow: true,
                 disabled: record.eventStatus !== '2',
@@ -130,7 +141,7 @@
   </PageWrapper>
 </template>
 <script lang="ts" setup>
-  import { onMounted } from 'vue';
+  import { onMounted, ref } from 'vue';
   // hooks
   import { useMessage } from '/@/hooks/web/useMessage';
   // 组件
@@ -140,7 +151,7 @@
   import { useModal } from '/@/components/Modal';
   import EventTriggerModal from './EventTriggerModal.vue';
   import EventTriggerConfirmModal from './EventTriggerConfirmModal.vue';
-  import { jsonToSheetXlsx } from '/@/components/Excel';
+  import { ImpExcel } from '/@/components/Excel';
 
   import { useGo } from '/@/hooks/web/usePage';
 
@@ -149,6 +160,8 @@
     eventTriggerPage,
     eventTriggerDelete,
     eventTriggerUpdateEvent,
+    eventTriggerExport,
+    eventTriggerImport,
   } from '/@/api/manage/eventTrigger';
   import { optionsListBatchApi } from '/@/api/sys/dict';
   // data
@@ -163,10 +176,13 @@
   } from './eventTrigger.data';
   import { useUserStore } from '/@/store/modules/user';
   import { getOrganizationId } from '/@/utils/auth';
+  import { downloadByData } from '/@/utils/file/download';
 
   const userStore = useUserStore();
 
   const go = useGo();
+
+  const isExportLoading = ref<boolean>(false);
 
   const organizationId = getOrganizationId() as string;
 
@@ -212,17 +228,33 @@
    * 导出
    */
   function handleExport() {
-    jsonToSheetXlsx({
-      data: getDataSource(),
-      // header: getColumns().map((column) => column.title),
-      filename: `事件处置列表_${new Date().getTime()}.xls`,
-    });
+    isExportLoading.value = true;
+
+    eventTriggerExport({})
+      .then((response) => {
+        downloadByData(response, `事件触发_${new Date().getTime()}.xlsx`);
+      })
+      .finally(() => {
+        isExportLoading.value = false;
+      });
   }
 
   /**
    * 导入
    */
-  function handleImport() {}
+  async function handleImport(rawFile) {
+    try {
+      const response = await eventTriggerImport({ file: rawFile });
+
+      if (response.status === 200) {
+        notification.success({ message: '导入成功!' });
+      } else {
+        notification.error({ message: '导入失败!' });
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   /**
    * 新增
@@ -244,6 +276,15 @@
   }
 
   /**
+   * 通知监管方
+   *
+   * @param record
+   */
+  function handleNotify(record: Recordable) {
+    notification.warning({ message: `该功能还在完善中` });
+  }
+
+  /**
    * 甲方确认
    *
    * @param record
@@ -254,6 +295,7 @@
     await eventTriggerUpdateEvent({
       id: record.dealRecordId,
       apReceiveFlag: '1',
+      bpReceiveFlag: record.bpReceiveFlag,
       processStep: '000',
     });
 
@@ -271,6 +313,7 @@
     await eventTriggerUpdateEvent({
       id: record.dealRecordId,
       bpReceiveFlag: '1',
+      apReceiveFlag: record.apReceiveFlag,
       processStep: '050',
     });
 

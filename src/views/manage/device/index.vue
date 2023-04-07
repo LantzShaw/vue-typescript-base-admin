@@ -12,20 +12,21 @@
           新增
         </a-button> -->
         <a-button
+          :loading="isExportLoading"
           v-auth="'manage:device:export'"
           preIcon="ant-design:download-outlined"
           @click="handleExport"
         >
           导出
         </a-button>
-        <a-button
+        <ImpExcel
           v-auth="'manage:device:import'"
-          type="default"
-          preIcon="ant-design:upload-outlined"
-          @click="handleImport"
+          @success="handleImport"
+          :isReturnFile="true"
+          dateFormat="YYYY-MM-DD"
         >
-          导入
-        </a-button>
+          <a-button preIcon="ant-design:upload-outlined"> 导入 </a-button>
+        </ImpExcel>
       </template>
       <!-- 表格内容 -->
       <template #bodyCell="{ column, record }">
@@ -83,7 +84,7 @@
 <script lang="ts" setup>
   import { Switch as ASwitch } from 'ant-design-vue';
 
-  import { onMounted } from 'vue';
+  import { onMounted, ref } from 'vue';
   // hooks
   import { useMessage } from '/@/hooks/web/useMessage';
 
@@ -93,10 +94,16 @@
   import { DictLabel } from '/@/components/DictLabel/index';
   import { useModal } from '/@/components/Modal';
   import DeviceModal from './DeviceModal.vue';
-  import { jsonToSheetXlsx } from '/@/components/Excel';
+  import { ImpExcel } from '/@/components/Excel';
 
   // 接口
-  import { devicePage, deviceDelete, deviceUpdate } from '/@/api/manage/device';
+  import {
+    devicePage,
+    deviceDelete,
+    deviceUpdate,
+    deviceExport,
+    deviceImport,
+  } from '/@/api/manage/device';
   import { optionsListBatchApi } from '/@/api/sys/dict';
   // data
   import {
@@ -107,6 +114,7 @@
     searchForm,
     tableColumns,
   } from './device.data';
+  import { downloadByData } from '/@/utils/file/download';
 
   const { notification } = useMessage();
 
@@ -114,6 +122,8 @@
    * 构建registerModal
    */
   const [registerModal, { openModal }] = useModal();
+
+  const isExportLoading = ref<boolean>(false);
 
   /**
    * 构建registerTable
@@ -138,6 +148,10 @@
     },
   });
 
+  // const loadDataSuccess = (rawFile) => {
+  //   console.log(rawFile);
+  // };
+
   /**
    * 启用、禁用 - 切换事件
    *
@@ -153,17 +167,33 @@
    * 导出
    */
   function handleExport() {
-    jsonToSheetXlsx({
-      data: getDataSource(),
-      // header: getColumns().map((column) => column.title),
-      filename: `设备_${new Date().getTime()}.xls`,
-    });
+    isExportLoading.value = true;
+
+    deviceExport({})
+      .then((response) => {
+        downloadByData(response, `设备_${new Date().getTime()}.xlsx`);
+      })
+      .finally(() => {
+        isExportLoading.value = false;
+      });
   }
 
   /**
    * 导入
    */
-  function handleImport() {}
+  async function handleImport(rawFile) {
+    try {
+      const response = await deviceImport({ file: rawFile });
+
+      if (response.status === 200) {
+        notification.success({ message: '导入成功!' });
+      } else {
+        notification.error({ message: '导入失败!' });
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   /**
    * 新增

@@ -3,9 +3,9 @@
     width="70%"
     v-bind="$attrs"
     @register="registerModal"
-    :showOkBtn="true"
+    :showOkBtn="false"
     :show-cancel-btn="true"
-    :okAuth="'manage:event-trigger:add'"
+    :okAuth="'manage:maintenance-record:process'"
     title="维护记录流程确认"
     okType="primary"
     ok-text="全部提交"
@@ -34,7 +34,7 @@
                   :rules="[{ required: true, message: '工单实施说明内容不能为空!' }]"
                 >
                   <a-textarea
-                    :readonly="isReadOnly(record.stepOneStatus)"
+                    :readonly="isReadOnly(record.stepOneStatus, record.stepOneEnterpriseId)"
                     :rows="4"
                     v-model:value="formState.stepOneRemark"
                     placeholder="请填写工单实施内容..."
@@ -49,7 +49,7 @@
                     :showPreviewNumber="false"
                     :emptyHidePreview="true"
                     :multiple="true"
-                    :disabled="isReadOnly(record.stepOneStatus)"
+                    :disabled="isReadOnly(record.stepOneStatus, record.stepOneEnterpriseId)"
                     @change="handleUploadChange('150', $event)"
                     :api="uploadApi"
                     :value="fileList.fileOne"
@@ -81,7 +81,7 @@
                   :rules="[{ required: true, message: '实施成果说明内容不能为空!' }]"
                 >
                   <a-textarea
-                    :readonly="isReadOnly(record.stepTwoStatus)"
+                    :readonly="isReadOnly(record.stepTwoStatus, record.stepTwoEnterpriseId)"
                     :rows="4"
                     v-model:value="formState.stepTwoRemark"
                     placeholder="请填写实施成果内容..."
@@ -96,7 +96,7 @@
                     :showPreviewNumber="false"
                     :emptyHidePreview="true"
                     :multiple="true"
-                    :disabled="isReadOnly(record.stepTwoStatus)"
+                    :disabled="isReadOnly(record.stepTwoStatus, record.stepTwoEnterpriseId)"
                     @change="handleUploadChange('250', $event)"
                     :api="uploadApi"
                     :value="fileList.fileTwo"
@@ -127,7 +127,7 @@
                   :rules="[{ required: true, message: '完工单说明内容不能为空!' }]"
                 >
                   <a-textarea
-                    :readonly="isReadOnly(record.stepThreeStatus)"
+                    :readonly="isReadOnly(record.stepThreeStatus, record.stepThreeEnterpriseId)"
                     :rows="4"
                     v-model:value="formState.stepThreeRemark"
                     placeholder="请填写完工单内容..."
@@ -142,7 +142,7 @@
                     :showPreviewNumber="false"
                     :emptyHidePreview="true"
                     :multiple="true"
-                    :disabled="isReadOnly(record.stepThreeStatus)"
+                    :disabled="isReadOnly(record.stepThreeStatus, record.stepThreeEnterpriseId)"
                     @change="handleUploadChange('350', $event)"
                     :api="uploadApi"
                     :value="fileList.fileThree"
@@ -196,6 +196,7 @@
     equipmentMaintenanceRecordForm,
     equipmentMaintenanceRecordUpdateState,
   } from '/@/api/manage/equipmentMaintenance';
+  import { getOrganizationId } from '/@/utils/auth';
 
   type FileList = {
     processStep?: string;
@@ -216,6 +217,8 @@
   const fileList = ref(fileState());
 
   const { notification } = useMessage();
+
+  const organizationId = getOrganizationId() as string;
 
   const rules = {};
 
@@ -311,7 +314,11 @@
 
   // 文本框、按钮是否只读
   const isReadOnly = computed(() => {
-    return (status) => {
+    return (status, commitId) => {
+      if (commitId) {
+        return status === '150' || status === '200' || commitId !== organizationId;
+      }
+
       return status === '200' || status === '150';
     };
   });
@@ -358,7 +365,6 @@
       case '350':
         params['stepThreeRemark'] = formState.stepThreeRemark;
         params['stepThreeStatus'] = '150';
-
         break;
     }
 
@@ -367,6 +373,8 @@
       processStep: status,
       ...params,
       list: formState.list,
+      apReceiveFlag: record.value.apReceiveFlag,
+      bpReceiveFlag: record.value.bpReceiveFlag,
     });
 
     record.value = await equipmentMaintenanceRecordForm({ id: idRef.value });
@@ -374,6 +382,8 @@
     formState.stepOneRemark = record.value.stepOneRemark;
     formState.stepTwoRemark = record.value.stepTwoRemark;
     formState.stepThreeRemark = record.value.stepThreeRemark;
+
+    emit('success');
 
     notification.success({ message: `信息提交成功!` });
   }
@@ -393,7 +403,6 @@
         break;
       case '350':
         params['stepThreeStatus'] = '100';
-
         break;
     }
 
@@ -401,7 +410,11 @@
       id: idRef.value,
       processStep: status,
       ...params,
+      apReceiveFlag: record.value.apReceiveFlag,
+      bpReceiveFlag: record.value.bpReceiveFlag,
     });
+
+    emit('success');
 
     record.value = await equipmentMaintenanceRecordForm({ id: idRef.value });
 
@@ -415,23 +428,26 @@
     const params = {};
 
     switch (status) {
-      case '150':
+      case '100':
         params['stepOneStatus'] = '200';
         break;
-      case '250':
+      case '200':
         params['stepTwoStatus'] = '200';
         break;
-      case '350':
+      case '300':
         params['stepThreeStatus'] = '200';
-
         break;
     }
 
     await equipmentMaintenanceRecordUpdateState({
       id: idRef.value,
       processStep: status,
+      apReceiveFlag: record.value.apReceiveFlag,
+      bpReceiveFlag: record.value.bpReceiveFlag,
       ...params,
     });
+
+    emit('success');
 
     record.value = await equipmentMaintenanceRecordForm({ id: idRef.value });
 

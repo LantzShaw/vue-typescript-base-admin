@@ -31,7 +31,7 @@
   import { sensorHistoryData } from '/@/api/manage/sensor';
 
   import { useECharts } from '/@/hooks/web/useECharts';
-  import { getLineData, baseOption } from './data';
+  import { baseOption } from './data';
   import echarts from '/@/utils/lib/echarts';
 
   export default defineComponent({
@@ -53,11 +53,13 @@
       ATypographyText,
       ADivider,
     },
-    setup(props) {
+    setup() {
       const chartRef = ref<HTMLDivElement | null>(null);
+      const lineData = ref<string[]>([]);
+      const category = ref<string[]>([]);
+      const legend = ref<string[]>([]);
 
-      const { setOptions } = useECharts(chartRef as Ref<HTMLDivElement>);
-      const { lineData, category } = getLineData;
+      const { setOptions, getInstance } = useECharts(chartRef as Ref<HTMLDivElement>);
 
       const itemList = ref<number[]>([1, 2, 3, 4]);
 
@@ -65,14 +67,20 @@
 
       const printList = ref<string[]>([]);
 
-      const getChartData = () => {
-        sensorHistoryData({
+      const getChartData = async () => {
+        getInstance()?.showLoading();
+
+        const response = await sensorHistoryData({
           // id: props.id,
           // startDate: '2023-03-18 00:00:00',
           // endDate: '2023-03-19 00:00:00',
-        }).then((res) => {
-          console.log('-------------res-----------', res);
         });
+
+        const { date, value, name } = response;
+
+        lineData.value = value;
+        category.value = date;
+        legend.value = name;
       };
 
       /**
@@ -111,18 +119,18 @@
 
           const seriesOption = {
             legend: {
-              data: ['line1'],
+              data: [legend.value],
             },
-            xAxis: { data: category },
+            xAxis: { data: category.value },
             series: [
               {
-                name: 'line1',
+                name: legend.value,
                 type: 'line',
                 smooth: true,
                 showAllSymbol: 'auto',
                 symbol: 'none',
                 symbolSize: 15,
-                data: lineData,
+                data: lineData.value,
                 animation: false,
               },
             ],
@@ -148,18 +156,18 @@
       const onSetOptions = async () => {
         const seriesOption = {
           legend: {
-            data: ['line'],
+            data: [legend.value],
           },
-          xAxis: { data: category },
+          xAxis: { data: category.value },
           series: [
             {
-              name: 'line1',
+              name: legend.value,
               type: 'line',
               smooth: true,
               showAllSymbol: 'auto',
               symbol: 'none',
               symbolSize: 15,
-              data: lineData,
+              data: lineData.value,
               // animation: false, // NOTE: 如果不设置该属性，折线、柱状等内容将失效, 也可以在最外层设置该属性
             },
           ],
@@ -167,13 +175,15 @@
 
         const mergedOptions = echarts.util.merge(seriesOption, baseOption);
 
-        setOptions(mergedOptions);
+        await setOptions(mergedOptions);
+
+        getInstance()?.hideLoading();
       };
 
-      onMounted(() => {
+      onMounted(async () => {
+        await getChartData();
         onSetOptions();
         generageEchartsDom();
-        getChartData();
       });
 
       return { chartRef, itemList, setRef, onPrint, printList };

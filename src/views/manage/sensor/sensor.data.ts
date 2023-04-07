@@ -54,7 +54,7 @@ export const searchForm: FormProps = {
 
     {
       label: t('传感器名称'),
-      field: 'deviceName',
+      field: 'sensorName',
       component: 'Input',
     },
     // {
@@ -391,21 +391,30 @@ export const inputFormSchemas: FormSchema[] = [
       placeholder: '请输入最高容许浓度',
     },
   },
+  // {
+  //   label: t('位号'),
+  //   field: 'locationNo',
+  //   component: 'ApiSelect',
+  //   componentProps: {
+  //     maxlength: 100,
+  //     placeholder: '请选择位号',
+  //     api: installRegionPage,
+  //     params: {
+  //       pageIndex: 1,
+  //       pageSize: 100000,
+  //     },
+  //     resultField: 'records',
+  //     labelField: 'regionName',
+  //     valueField: 'id',
+  //   },
+  // },
   {
     label: t('位号'),
     field: 'locationNo',
-    component: 'ApiSelect',
+    component: 'Input',
     componentProps: {
       maxlength: 100,
-      placeholder: '请选择位号',
-      api: installRegionPage,
-      params: {
-        pageIndex: 1,
-        pageSize: 100000,
-      },
-      resultField: 'records',
-      labelField: 'regionName',
-      valueField: 'id',
+      placeholder: '请输入位号',
     },
   },
   {

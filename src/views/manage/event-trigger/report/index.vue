@@ -54,7 +54,7 @@
                 </tr>
                 <tr>
                   <td>位 号</td>
-                  <td>XX_1299-2GT2901(丙烯)</td>
+                  <td>--</td>
                   <td>设备名称</td>
                   <td>{{ eventTriggerInformation.sensorName }}</td>
                 </tr>

@@ -153,10 +153,10 @@
     isTreeTable: true,
     pagination: false,
     actionColumn: {
-      width: 130,
+      width: 260,
       title: '操作',
       dataIndex: 'action',
-      fixed: undefined,
+      fixed: 'right',
       auth: 'system:menu:operation',
     },
   });

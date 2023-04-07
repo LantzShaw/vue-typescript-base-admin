@@ -299,9 +299,6 @@ export const useUserStore = defineStore({
 
     async setOrganizationAction() {
       const organizations = await orgTree();
-
-      console.log('组织列表', organizations);
-
       const monitoringUnitOrgIdList: string[] = [],
         externalUserOrgIdList: string[] = [],
         maintainerOrgIdList: string[] = [];

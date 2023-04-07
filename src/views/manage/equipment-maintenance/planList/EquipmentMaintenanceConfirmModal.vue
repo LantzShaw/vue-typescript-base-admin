@@ -5,7 +5,7 @@
     @register="registerModal"
     :showOkBtn="true"
     :show-cancel-btn="true"
-    :okAuth="'manage:event-trigger:add'"
+    :okAuth="'manage:maintenance-record:process'"
     title="维护记录流程确认"
     okType="primary"
     ok-text="全部提交"

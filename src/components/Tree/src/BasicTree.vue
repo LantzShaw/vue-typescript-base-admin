@@ -296,9 +296,6 @@
       watchEffect(
         () => {
           state.checkedKeys = props.checkedKeys;
-          // checkedkeys 初始化无法加载出来，需要设置flush，或者设置BasicTree组件的value为checkedKeys, 例如: :value="item.grantMenuIdList"
-          // 直设置value不行，需同时设置:checkedKeys="item.grantMenuIdList" :value="item.grantMenuIdList"
-          // TODO: 这里如果写一些console.log(state.checkedKeys)则显示正常，而写console.log('------step-----')则显示异常, 不写则初始化的时候会不显示checked
         },
         {
           flush: 'post',

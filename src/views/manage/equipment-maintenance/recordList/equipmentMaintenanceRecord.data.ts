@@ -66,56 +66,55 @@ export const searchForm: FormProps = {
  * 表格字段
  */
 export const tableColumns: BasicColumn[] = [
+  {
+    title: t('计划ID'),
+    dataIndex: 'deviceMaintId',
+    sorter: true,
+    width: 130,
+    align: 'center',
+  },
   // {
-  //   title: t('企业名称'),
-  //   dataIndex: 'enterpriseName',
+  //   title: t('计划内容'),
+  //   dataIndex: 'deviceMaintId',
   //   sorter: true,
   //   width: 130,
   //   align: 'center',
   // },
-  {
-    title: t('计划目标'),
-    dataIndex: 'planContent',
-    sorter: true,
-    width: 160,
-    align: 'center',
-  },
-  {
-    title: t('开始日期'),
-    dataIndex: 'planStartDate',
-    sorter: true,
-    width: 120,
-    align: 'center',
-  },
-  {
-    title: t('结束日期'),
-    dataIndex: 'planEndDate',
-    sorter: true,
-    width: 120,
-    align: 'center',
-  },
-  {
-    title: t('计划周期'),
-    dataIndex: 'planCycle',
-    sorter: true,
-    width: 120,
-    align: 'center',
-  },
+  // {
+  //   title: t('计划目标'),
+  //   dataIndex: 'planContent',
+  //   sorter: true,
+  //   width: 160,
+  //   align: 'center',
+  // },
+  // {
+  //   title: t('开始日期'),
+  //   dataIndex: 'planStartDate',
+  //   sorter: true,
+  //   width: 120,
+  //   align: 'center',
+  // },
+  // {
+  //   title: t('结束日期'),
+  //   dataIndex: 'planEndDate',
+  //   sorter: true,
+  //   width: 120,
+  //   align: 'center',
+  // },
+  // {
+  //   title: t('计划周期'),
+  //   dataIndex: 'planCycle',
+  //   sorter: true,
+  //   width: 120,
+  //   align: 'center',
+  // },
   {
     title: t('维护状态'),
-    dataIndex: 'maintenanceStatusOptions',
+    dataIndex: 'eventStatus',
     sorter: true,
     width: 120,
     align: 'center',
   },
-  // {
-  //   title: t('状态'),
-  //   dataIndex: 'planStatus',
-  //   width: 100,
-  //   align: 'center',
-  //   ellipsis: true,
-  //   sorter: true,
-  // },
 ];
 
 /**

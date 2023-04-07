@@ -3,7 +3,7 @@
     v-bind="$attrs"
     @register="registerModal"
     title="绑定角色"
-    width="75%"
+    width="80%"
     :showCancelBtn="false"
     :showOkBtn="false"
   >
@@ -112,7 +112,7 @@
    *  查询表单字段
    */
   const searchForm: FormProps = {
-    baseColProps: { lg: 6, md: 8 },
+    baseColProps: { lg: 8, md: 8 },
     labelWidth: 90,
     schemas: [
       {

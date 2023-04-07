@@ -11,10 +11,10 @@
         >
           新增
         </a-button>
-        <a-button preIcon="ant-design:download-outlined" @click="handleExport"> 导出 </a-button>
+        <!-- <a-button preIcon="ant-design:download-outlined" @click="handleExport"> 导出 </a-button>
         <a-button type="default" preIcon="ant-design:upload-outlined" @click="handleImport">
           导入
-        </a-button>
+        </a-button> -->
       </template>
       <!-- 表格内容 -->
       <template #bodyCell="{ column, record }">
@@ -141,7 +141,7 @@
     showTableSetting: true,
     showIndexColumn: true,
     actionColumn: {
-      width: 200,
+      width: 240,
       title: '操作',
       dataIndex: 'action',
       // slots: { customRender: 'action' },

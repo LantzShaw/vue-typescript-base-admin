@@ -12,6 +12,7 @@
           新增
         </a-button> -->
         <a-button
+          :loading="isExportLoading"
           v-auth="'manage:sensor:export'"
           preIcon="ant-design:download-outlined"
           @click="handleExport"
@@ -78,7 +79,7 @@
   </PageWrapper>
 </template>
 <script lang="ts" setup>
-  import { onMounted } from 'vue';
+  import { onMounted, ref } from 'vue';
 
   // hooks
   import { useMessage } from '/@/hooks/web/useMessage';
@@ -88,10 +89,9 @@
   import { DictLabel } from '/@/components/DictLabel/index';
   import { useModal } from '/@/components/Modal';
   import SensorModal from './SensorModal.vue';
-  import { jsonToSheetXlsx } from '/@/components/Excel';
 
   // 接口
-  import { sensorPage, sensorDelete } from '/@/api/manage/sensor';
+  import { sensorPage, sensorDelete, sensorExport, sensorImport } from '/@/api/manage/sensor';
   import { optionsListBatchApi } from '/@/api/sys/dict';
   // data
   import {
@@ -102,8 +102,11 @@
     searchForm,
     tableColumns,
   } from './sensor.data';
+  import { downloadByData } from '/@/utils/file/download';
 
   const { notification } = useMessage();
+
+  const isExportLoading = ref<boolean>(false);
 
   /**
    * 构建registerModal
@@ -137,17 +140,39 @@
    * 导出
    */
   function handleExport() {
-    jsonToSheetXlsx({
-      data: getDataSource(),
-      // header: getColumns().map((column) => column.title),
-      filename: `设备传感器_${new Date().getTime()}.xls`,
-    });
+    isExportLoading.value = true;
+
+    sensorExport({})
+      .then((response) => {
+        downloadByData(response, `事件触发_${new Date().getTime()}.xlsx`);
+      })
+      .finally(() => {
+        isExportLoading.value = false;
+      });
+
+    // jsonToSheetXlsx({
+    //   data: getDataSource(),
+    //   // header: getColumns().map((column) => column.title),
+    //   filename: `设备传感器_${new Date().getTime()}.xls`,
+    // });
   }
 
   /**
    * 导入
    */
-  function handleImport() {}
+  async function handleImport(rawFile) {
+    try {
+      const resposne = await sensorImport({ file: rawFile });
+
+      if (resposne.status === 200) {
+        notification.success({ message: '导入成功!' });
+      } else {
+        notification.error({ message: '导入失败!' });
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   /**
    * 新增

@@ -3,8 +3,18 @@
     <!-- <template v-if="maintainerOrgIdList.includes(organizationId)"> -->
     <a-col>
       <a-space>
-        <template v-if="!currentStep || currentStep === '100'">
+        <template
+          v-if="!currentStep || (commitId && organizationId === commitId && currentStep === '100')"
+        >
+          <a-typography-text v-if="commitId && organizationId === commitId" type="danger"
+            >{{ name }}内容已驳回，请重新提交</a-typography-text
+          >
+
           <a-button @click="submitClickHandler" type="primary">{{ submitActionName }}</a-button>
+        </template>
+
+        <template v-if="currentStep === '100' && commitId && organizationId !== commitId">
+          <a-typography-text type="danger">{{ name }}已驳回，等待对方重新提交</a-typography-text>
         </template>
 
         <template v-else-if="currentStep === '150' && organizationId === commitId">

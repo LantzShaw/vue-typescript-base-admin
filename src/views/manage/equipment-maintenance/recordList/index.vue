@@ -3,15 +3,15 @@
     <BasicTable @register="registerTable">
       <!-- 按钮工具栏 -->
       <template #toolbar>
-        <!-- <a-button
-          v-auth="'manage:event-trigger:add'"
+        <a-button
+          v-auth="'manage:maintenance-record:add'"
           type="primary"
           preIcon="ant-design:plus-outlined"
           @click="handleCreate"
         >
           新增
-        </a-button> -->
-        <a-button
+        </a-button>
+        <!-- <a-button
           v-auth="'manage:maintenance-record:export'"
           preIcon="ant-design:download-outlined"
           @click="handleExport"
@@ -25,7 +25,7 @@
           @click="handleImport"
         >
           导入
-        </a-button>
+        </a-button> -->
       </template>
       <!-- 表格内容 -->
       <template #bodyCell="{ column, record }">
@@ -63,16 +63,17 @@
                 label: '形成工单',
                 onClick: handleFirstPartyConfirm.bind(null, record),
                 auth: 'manage:maintenance-record:generate',
+                disabled: record.apReceiveFlag === '1',
                 ifShow:
-                  record.apReceiveFlag === '0' && externalUserOrgIdList.includes(organizationId),
+                  record.eventStatus === '0' && externalUserOrgIdList.includes(organizationId),
               },
               // 乙方 - 维护方形成工单
               {
                 label: '形成工单',
                 onClick: handleSecondPartyConfirm.bind(null, record),
                 auth: 'manage:maintenance-record:generate',
-                ifShow:
-                  record.bpReceiveFlag === '0' && maintainerOrgIdList.includes(organizationId),
+                disabled: record.bpReceiveFlag === '1',
+                ifShow: record.eventStatus === '0' && maintainerOrgIdList.includes(organizationId),
               },
               {
                 label: '流程确认',
@@ -104,7 +105,7 @@
                 disabled: record.eventStatus !== '2',
                 popConfirm: {
                   title: '是否通知监管方',
-                  confirm: handleDelete.bind(null, record),
+                  confirm: handleNotify.bind(null, record),
                 },
               },
               {
@@ -200,7 +201,7 @@
     showTableSetting: true,
     showIndexColumn: true,
     actionColumn: {
-      width: 220,
+      width: 250,
       title: '操作',
       dataIndex: 'action',
       // slots: { customRender: 'action' },
@@ -246,6 +247,15 @@
   }
 
   /**
+   * 通知监管方
+   *
+   * @param record
+   */
+  function handleNotify(record: Recordable) {
+    notification.warning({ message: `该功能还在完善中` });
+  }
+
+  /**
    * 甲方形成工单确认
    *
    * @param record
@@ -256,6 +266,7 @@
     await equipmentMaintenanceRecordUpdateState({
       id: record.id,
       apReceiveFlag: '1',
+      bpReceiveFlag: record.bpReceiveFlag,
       processStep: '000',
     });
 
@@ -273,6 +284,7 @@
     await equipmentMaintenanceRecordUpdateState({
       id: record.id,
       bpReceiveFlag: '1',
+      apReceiveFlag: record.apReceiveFlag,
       processStep: '050',
     });
 

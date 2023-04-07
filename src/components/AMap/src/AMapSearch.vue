@@ -1,6 +1,6 @@
 <template>
   <div id="amap-search-container">
-    <input id="amap-search-field" @change="changeHandler" />
+    <!-- <input id="amap-search-field" @change="changeHandler" /> -->
   </div>
 </template>
 

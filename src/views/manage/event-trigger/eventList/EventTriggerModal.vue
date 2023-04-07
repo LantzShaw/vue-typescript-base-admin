@@ -4,7 +4,7 @@
     v-bind="$attrs"
     @register="registerModal"
     showFooter
-    :okAuth="'manage:event-trigger:add'"
+    :okAuth="'manage:event:add'"
     :title="getTitle"
     :centered="true"
     @ok="handleSubmit"

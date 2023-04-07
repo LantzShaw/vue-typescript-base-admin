@@ -3,9 +3,9 @@
     width="70%"
     v-bind="$attrs"
     @register="registerModal"
-    :showOkBtn="true"
+    :showOkBtn="false"
     :show-cancel-btn="true"
-    :okAuth="'manage:event-trigger:add'"
+    :okAuth="'manage:event:process'"
     title="事件触发流程确认"
     okType="primary"
     ok-text="全部提交"
@@ -34,7 +34,7 @@
                   :rules="[{ required: true, message: '信息核实说明内容不能为空!' }]"
                 >
                   <a-textarea
-                    :readonly="isReadOnly(record.stepOneStatus)"
+                    :readonly="isReadOnly(record.stepOneStatus, record.stepOneEnterpriseId)"
                     :rows="4"
                     v-model:value="formState.stepOneRemark"
                     placeholder="请填写信息核实内容..."
@@ -49,7 +49,7 @@
                     :showPreviewNumber="false"
                     :emptyHidePreview="true"
                     :multiple="true"
-                    :disabled="isReadOnly(record.stepOneStatus)"
+                    :disabled="isReadOnly(record.stepOneStatus, record.stepOneEnterpriseId)"
                     @change="handleUploadChange('150', $event)"
                     :api="uploadApi"
                     :value="fileList.fileOne"
@@ -82,7 +82,7 @@
                   :rules="[{ required: true, message: '查找原因说明内容不能为空!' }]"
                 >
                   <a-textarea
-                    :readonly="isReadOnly(record.stepTwoStatus)"
+                    :readonly="isReadOnly(record.stepTwoStatus, record.stepTwoEnterpriseId)"
                     :rows="4"
                     v-model:value="formState.stepTwoRemark"
                     placeholder="请填写查找原因内容..."
@@ -97,7 +97,7 @@
                     :showPreviewNumber="false"
                     :emptyHidePreview="true"
                     :multiple="true"
-                    :disabled="isReadOnly(record.stepTwoStatus)"
+                    :disabled="isReadOnly(record.stepTwoStatus, record.stepTwoEnterpriseId)"
                     @change="handleUploadChange('250', $event)"
                     :api="uploadApi"
                     :value="fileList.fileTwo"
@@ -129,7 +129,7 @@
                   :rules="[{ required: true, message: '应对措施说明内容不能为空!' }]"
                 >
                   <a-textarea
-                    :readonly="isReadOnly(record.stepThreeStatus)"
+                    :readonly="isReadOnly(record.stepThreeStatus, record.stepThreeEnterpriseId)"
                     :rows="4"
                     v-model:value="formState.stepThreeRemark"
                     placeholder="请填写应对措施内容..."
@@ -144,7 +144,7 @@
                     :showPreviewNumber="false"
                     :emptyHidePreview="true"
                     :multiple="true"
-                    :disabled="isReadOnly(record.stepThreeStatus)"
+                    :disabled="isReadOnly(record.stepThreeStatus, record.stepThreeEnterpriseId)"
                     @change="handleUploadChange('350', $event)"
                     :api="uploadApi"
                     :value="fileList.fileThree"
@@ -177,7 +177,7 @@
                   :rules="[{ required: true, message: '措施落实说明内容不能为空!' }]"
                 >
                   <a-textarea
-                    :readonly="isReadOnly(record.stepFourStatus)"
+                    :readonly="isReadOnly(record.stepFourStatus, record.stepFourEnterpriseId)"
                     :rows="4"
                     v-model:value="formState.stepFourRemark"
                     placeholder="请填写措施落实内容..."
@@ -192,7 +192,7 @@
                     :showPreviewNumber="false"
                     :emptyHidePreview="true"
                     :multiple="true"
-                    :disabled="isReadOnly(record.stepFourStatus)"
+                    :disabled="isReadOnly(record.stepFourStatus, record.stepFourEnterpriseId)"
                     @change="handleUploadChange('450', $event)"
                     :api="uploadApi"
                     :value="fileList.fileFour"
@@ -224,7 +224,7 @@
                   :rules="[{ required: true, message: '原因分析说明内容不能为空!' }]"
                 >
                   <a-textarea
-                    :readonly="isReadOnly(record.stepFiveStatus)"
+                    :readonly="isReadOnly(record.stepFiveStatus, record.stepFiveEnterpriseId)"
                     :rows="4"
                     v-model:value="formState.stepFiveRemark"
                     placeholder="请填写原因分析内容..."
@@ -239,7 +239,7 @@
                     :showPreviewNumber="false"
                     :emptyHidePreview="true"
                     :multiple="false"
-                    :disabled="isReadOnly(record.stepFiveStatus)"
+                    :disabled="isReadOnly(record.stepFiveStatus, record.stepFiveEnterpriseId)"
                     @change="handleUploadChange('550', $event)"
                     :api="uploadApi"
                     :value="fileList.fileFive"
@@ -271,7 +271,7 @@
                   :rules="[{ required: true, message: '举一反三说明内容不能为空!' }]"
                 >
                   <a-textarea
-                    :readonly="isReadOnly(record.stepSixStatus)"
+                    :readonly="isReadOnly(record.stepSixStatus, record.stepSixEnterpriseId)"
                     :rows="4"
                     v-model:value="formState.stepSixRemark"
                     placeholder="请填写举一反三相关内容..."
@@ -286,7 +286,7 @@
                     :showPreviewNumber="false"
                     :emptyHidePreview="true"
                     :multiple="false"
-                    :disabled="isReadOnly(record.stepSixStatus)"
+                    :disabled="isReadOnly(record.stepSixStatus, record.stepSixEnterpriseId)"
                     @change="handleUploadChange('650', $event)"
                     :api="uploadApi"
                     :value="fileList.fileSix"
@@ -318,7 +318,7 @@
                   :rules="[{ required: true, message: '结果确认说明内容不能为空!' }]"
                 >
                   <a-textarea
-                    :readonly="isReadOnly(record.stepSevenStatus)"
+                    :readonly="isReadOnly(record.stepSevenStatus, record.stepSevenEnterpriseId)"
                     :rows="4"
                     v-model:value="formState.stepSevenRemark"
                     placeholder="请填写结果确认内容..."
@@ -333,7 +333,7 @@
                     :showPreviewNumber="false"
                     :emptyHidePreview="true"
                     :multiple="false"
-                    :disabled="isReadOnly(record.stepSevenStatus)"
+                    :disabled="isReadOnly(record.stepSevenStatus, record.stepSevenEnterpriseId)"
                     @change="handleUploadChange('750', $event)"
                     :api="uploadApi"
                     :value="fileList.fileSeven"
@@ -386,6 +386,7 @@
   import { uploadApi } from '/@/api/sys/upload';
 
   import { eventTriggerUpdateState, eventTriggerEventDetail } from '/@/api/manage/eventTrigger';
+  import { getOrganizationId } from '/@/utils/auth';
 
   type FileList = {
     processStep?: string;
@@ -411,6 +412,8 @@
   const fileList = ref(fileState());
 
   const { notification } = useMessage();
+
+  const organizationId = getOrganizationId() as string;
 
   const rules = {};
 
@@ -539,7 +542,11 @@
 
   // 文本框、按钮是否只读
   const isReadOnly = computed(() => {
-    return (status) => {
+    return (status, commitId) => {
+      if (commitId) {
+        return status === '150' || status === '200' || commitId !== organizationId;
+      }
+
       return status === '200' || status === '150';
     };
   });
@@ -611,7 +618,6 @@
       case '850':
         params['stepEightRemark'] = formState.stepEightRemark;
         params['stepEightStatus'] = '150';
-
         break;
     }
 
@@ -620,7 +626,11 @@
       processStep: status,
       ...params,
       list: formState.list,
+      apReceiveFlag: record.value.apReceiveFlag,
+      bpReceiveFlag: record.value.bpReceiveFlag,
     });
+
+    emit('success');
 
     record.value = await eventTriggerEventDetail({ id: idRef.value });
 
@@ -651,31 +661,33 @@
         break;
       case '350':
         params['stepThreeStatus'] = '100';
-
         break;
       case '450':
         params['stepFourStatus'] = '100';
-
         break;
       case '550':
         params['stepFiveStatus'] = '100';
-
         break;
       case '650':
         params['stepSixStatus'] = '100';
-
         break;
       case '750':
         params['stepSevenStatus'] = '100';
-
         break;
       case '850':
         params['stepEightStatus'] = '100';
-
         break;
     }
 
-    await eventTriggerUpdateState({ id: idRef.value, processStep: status, ...params });
+    await eventTriggerUpdateState({
+      id: idRef.value,
+      processStep: status,
+      ...params,
+      apReceiveFlag: record.value.apReceiveFlag,
+      bpReceiveFlag: record.value.bpReceiveFlag,
+    });
+
+    emit('success');
 
     record.value = await eventTriggerEventDetail({ id: idRef.value });
 
@@ -697,31 +709,33 @@
         break;
       case '300':
         params['stepThreeStatus'] = '200';
-
         break;
       case '400':
         params['stepFourStatus'] = '200';
-
         break;
       case '500':
         params['stepFiveStatus'] = '200';
-
         break;
       case '600':
         params['stepSixStatus'] = '200';
-
         break;
       case '700':
         params['stepSevenStatus'] = '200';
-
         break;
       case '800':
         params['stepEightStatus'] = '200';
-
         break;
     }
 
-    await eventTriggerUpdateState({ id: idRef.value, processStep: status, ...params });
+    await eventTriggerUpdateState({
+      id: idRef.value,
+      processStep: status,
+      ...params,
+      apReceiveFlag: record.value.apReceiveFlag,
+      bpReceiveFlag: record.value.bpReceiveFlag,
+    });
+
+    emit('success');
 
     record.value = await eventTriggerEventDetail({ id: idRef.value });
 

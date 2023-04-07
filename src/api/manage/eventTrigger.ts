@@ -1,4 +1,6 @@
+import { useGlobSetting } from '/@/hooks/setting';
 import { defHttp } from '/@/utils/http/axios';
+const { apiUrl } = useGlobSetting();
 
 enum Api {
   EventTriggerPage = '/biz/devicealarm/getpagelist',
@@ -7,6 +9,8 @@ enum Api {
   EventTriggerUpdate = '/biz/devicealarm/edit',
   EventTriggerList = '/biz/devicealarm/list',
   EventTriggerForm = '/biz/devicealarm/querybyid',
+  EventTriggerExport = '/biz/devicealarm/export',
+  EventTriggerImport = '/biz/devicealarm/importexcel',
 
   EventTriggerUpdateEventState = '/biz/workflow/statecheck',
   EventTriggerAddToEvent = '/biz/workflow/add',
@@ -33,3 +37,21 @@ export const eventTriggerUpdateEvent = (params?: any) =>
 
 export const eventTriggerEventDetail = (params?: any) =>
   defHttp.get({ url: Api.EventTriggerEventDetail, params });
+
+export const eventTriggerExport = (params?: any) =>
+  defHttp.get(
+    {
+      url: Api.EventTriggerExport,
+      params,
+      responseType: 'blob',
+    },
+    { isTransformResponse: false },
+  );
+
+export const eventTriggerImport = (params?: any) =>
+  defHttp.uploadFile(
+    {
+      url: `${apiUrl}${Api.EventTriggerImport}`,
+    },
+    params,
+  );

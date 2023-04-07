@@ -198,15 +198,15 @@ export const inputFormSchemas: FormSchema[] = [
     defaultValue: '1',
   },
   {
-    label: t('计划周期'),
+    label: t('周期数值'),
     field: 'planCycleArgument',
     component: 'InputNumber',
     required: true,
   },
   {
-    label: t('计划周期'),
+    label: t('状态'),
     field: 'status',
-    component: 'Select',
+    component: 'RadioButtonGroup',
     required: true,
     componentProps: {
       options: [
@@ -214,6 +214,7 @@ export const inputFormSchemas: FormSchema[] = [
         { label: '停用', value: '1' },
       ],
     },
+    defaultValue: '0',
     colProps: { span: 8 },
   },
 ];

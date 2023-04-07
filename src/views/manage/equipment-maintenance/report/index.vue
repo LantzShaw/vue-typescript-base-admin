@@ -31,13 +31,13 @@
           <span class="border-line">{{ maintenanceInformation.id }}</span>
         </div>
         <div class="text-lg h-12 leading-12">
-          <span class="tracking-4px">甲方: </span>
-          <span class="border-line">adsfasd</span>
+          <span class="tracking-4px">甲方</span>
+          <span class="border-line">浙江盛基智能科技有限公司</span>
           <span>：</span>
         </div>
         <div class="h-12 leading-10 pl-10">
           <span class="tracking-4px">乙方根据</span>
-          <span class="border-line">23412341234</span>
+          <span class="border-line">嘉兴大衡精密仪器有限公司</span>
           <span class="tracking-4px">对甲方气体检测报警器开展技术服务，</span>
         </div>
         <div class="h-8 leading-8 tracking-4px"> 具体内容如下： </div>
@@ -53,42 +53,48 @@
               <tr style="height: 140px">
                 <td>开始时间</td>
                 <td>
-                  <span class="border-line">2023</span>
+                  <span class="border-line">{{
+                    formatToDate(maintenanceInformation.stepOneSubmitDate, 'YYYY')
+                  }}</span>
                   <span>年</span>
-                  <span class="border-line">12</span>
+                  <span class="border-line">{{
+                    formatToDate(maintenanceInformation.stepOneSubmitDate, 'MM')
+                  }}</span>
                   <span>月</span>
-                  <span class="border-line">11</span>
+                  <span class="border-line">{{
+                    formatToDate(maintenanceInformation.stepOneSubmitDate, 'DD')
+                  }}</span>
                   <span>日</span>
                 </td>
                 <td>预计时长</td>
                 <td>
-                  <span class="border-line">2023</span>
+                  <span class="border-line">{{ maintenanceDays }}</span>
                   <span>天</span>
                 </td>
               </tr>
               <tr style="height: 140px">
                 <td>实施人员</td>
                 <td>
-                  <span class="border-line">2023</span>
+                  <!-- <span class="border-line">2023</span>
                   <span>年</span>
                   <span class="border-line">12</span>
                   <span>月</span>
                   <span class="border-line">11</span>
-                  <span>日</span>
+                  <span>日</span> -->
                 </td>
                 <td>陪同人员</td>
                 <td>
-                  <span class="border-line">2023</span>
+                  <!-- <span class="border-line">2023</span>
                   <span>年</span>
                   <span class="border-line">12</span>
                   <span>月</span>
                   <span class="border-line">11</span>
-                  <span>日</span>
+                  <span>日</span> -->
                 </td>
               </tr>
               <tr style="height: 100px">
                 <td> 备注 </td>
-                <td colspan="3">一些备注信息</td>
+                <td colspan="3">{{ maintenanceInformation.stepThreeRemark }}</td>
               </tr>
             </tbody>
           </table>
@@ -98,14 +104,14 @@
         </div>
         <div class="text-right h-28 leading-36 pr-10">
           <span class="mr-2">派 单 人 员:</span>
-          <span class="border-line">dasd</span>
+          <span class="border-line">{{ maintenanceInformation.stepOneBy }}</span>
         </div>
         <div class="text-right">
-          <span class="border-line">2023</span>
+          <span class="border-line">{{ formatToDate(new Date(), 'YYYY') }}</span>
           <span>年</span>
-          <span class="border-line">12</span>
+          <span class="border-line">{{ formatToDate(new Date(), 'MM') }}</span>
           <span>月</span>
-          <span class="border-line">11</span>
+          <span class="border-line">{{ formatToDate(new Date(), 'DD') }}</span>
           <span>日</span>
         </div>
       </div>
@@ -117,10 +123,11 @@
   import { toPng } from 'html-to-image';
   import printJS from 'print-js';
   import { jsPDF } from 'jspdf';
-  import { onMounted, reactive, ref } from 'vue';
+  import { computed, onMounted, reactive, ref } from 'vue';
   import { Space as ASpace } from 'ant-design-vue';
   import { useRoute } from 'vue-router';
   import { useGo } from '/@/hooks/web/usePage';
+  import { formatToDate, dateUtil } from '/@/utils/dateUtil';
   import { equipmentMaintenanceRecordForm } from '/@/api/manage/equipmentMaintenance';
 
   type MaintenanceInformation = {
@@ -130,6 +137,7 @@
     stepOneEnterpriseId?: string; // 确认企业id
     stepOneRemark?: string; // 说明内容
     stepOneImageUrlList?: string[]; // 图片
+    stepOneSubmitDate?: string; // 开始时间
     stepTwoBy?: string; // 确认人
     stepTwoEnterpriseId?: string; // 确认企业id
     stepTwoRemark?: string; // 说明内容
@@ -138,6 +146,7 @@
     stepThreeEnterpriseId?: string; // 确认企业id
     stepThreeRemark?: string; // 说明内容
     stepThreeImageUrlList?: string[]; // 图片
+    stepThreeAffirmDate?: string; // 结束时间
   };
 
   const go = useGo();
@@ -167,12 +176,14 @@
       stepOneBy,
       stepOneEnterpriseId,
       stepOneRemark,
+      stepOneSubmitDate,
       stepTwoBy,
       stepTwoEnterpriseId,
       stepTwoRemark,
       stepThreeBy,
       stepThreeEnterpriseId,
       stepThreeRemark,
+      stepThreeAffirmDate,
     } = response;
 
     console.log('-------response--------', response);
@@ -182,6 +193,7 @@
     maintenanceInformation.stepOneBy = stepOneBy;
     maintenanceInformation.stepTwoBy = stepTwoBy;
     maintenanceInformation.stepThreeBy = stepThreeBy;
+    maintenanceInformation.stepOneSubmitDate = stepOneSubmitDate;
 
     maintenanceInformation.stepOneEnterpriseId = stepOneEnterpriseId;
     maintenanceInformation.stepTwoEnterpriseId = stepTwoEnterpriseId;
@@ -190,6 +202,8 @@
     maintenanceInformation.stepOneRemark = stepOneRemark;
     maintenanceInformation.stepTwoRemark = stepTwoRemark;
     maintenanceInformation.stepThreeRemark = stepThreeRemark;
+
+    maintenanceInformation.stepThreeAffirmDate = stepThreeAffirmDate;
 
     list.forEach((item) => {
       switch (item.processStep) {
@@ -208,6 +222,13 @@
 
     isLoading.value = false;
   }
+
+  const maintenanceDays = computed(() => {
+    return dateUtil(maintenanceInformation.stepThreeAffirmDate).diff(
+      maintenanceInformation.stepOneSubmitDate,
+      'days',
+    );
+  });
 
   /**
    * 下载PDF

@@ -7,6 +7,7 @@
     :title="getTitle"
     :centered="true"
     @ok="handleSubmit"
+    :okAuth="'manage:maintenance-record:add'"
   >
     <div style="padding-left: 10px; padding-right: 10px">
       <BasicForm autoFocusFirstItem @register="registerForm" />
