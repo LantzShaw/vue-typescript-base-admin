@@ -2,7 +2,7 @@
   <a-card title="历史曲线" :bordered="false">
     <template #extra>
       <a-typography-text style="margin-right: 12px" strong type="secondary"
-        >时间: 2023-03-18 12:00:00</a-typography-text
+        >时间: {{ displayDate }}</a-typography-text
       >
       <a-divider type="vertical" style="background-color: #ddd" />
       <a-button @click="onPrint" type="link" postIcon="ant-design:printer-outlined">
@@ -20,7 +20,7 @@
   </a-card>
 </template>
 <script lang="ts">
-  import { defineComponent, PropType, ref, Ref, onMounted } from 'vue';
+  import { defineComponent, PropType, ref, Ref, onMounted, watch } from 'vue';
   import {
     Card as ACard,
     TypographyText as ATypographyText,
@@ -42,10 +42,12 @@
       },
       height: {
         type: String as PropType<string>,
-        default: 'calc(100vh - 78px)',
+        default: '400px',
       },
-      id: {
-        type: String as PropType<string>,
+      ids: {
+        // type: Array as PropType<string[] | number[]>,
+        type: Array<string | number>,
+        default: [],
       },
     },
     components: {
@@ -53,15 +55,17 @@
       ATypographyText,
       ADivider,
     },
-    setup() {
+    setup(props) {
       const chartRef = ref<HTMLDivElement | null>(null);
       const lineData = ref<string[]>([]);
       const category = ref<string[]>([]);
       const legend = ref<string[]>([]);
+      const displayDate = ref<string>('');
 
       const { setOptions, getInstance } = useECharts(chartRef as Ref<HTMLDivElement>);
 
-      const itemList = ref<number[]>([1, 2, 3, 4]);
+      // const itemList = ref<number[]>(Array.from({ length: props.ids.length }, (v, i) => i));
+      const itemList = ref<number[]>([]);
 
       const echartsRef = ref<HTMLDivElement[]>([]);
 
@@ -70,17 +74,37 @@
       const getChartData = async () => {
         getInstance()?.showLoading();
 
+        // TODO: 展示没有数据
         const response = await sensorHistoryData({
-          // id: props.id,
+          ids: props.ids,
+          // ids: [
+          //   '1635874344712802304',
+          //   '1635874345341816832',
+          //   '1635874345002078208',
+          //   '1635874345199472640',
+          //   '1635874345271955456',
+          //   '1635874345585217536',
+          // ],
           // startDate: '2023-03-18 00:00:00',
           // endDate: '2023-03-19 00:00:00',
         });
 
-        const { date, value, name } = response;
+        const { date = [], list = [] } = response;
 
-        lineData.value = value;
+        displayDate.value = date.length > 0 ? `${date[0]} ~ ${date[date.length - 1]}` : '--';
+
         category.value = date;
-        legend.value = name;
+        // lineData.value = list;
+        // legend.value = name;
+
+        list.forEach((item, index) => {
+          if (item) {
+            legend.value.push(item?.name);
+            lineData.value.push(item?.value);
+
+            itemList.value.push(index);
+          }
+        });
       };
 
       /**
@@ -100,7 +124,7 @@
         printJS({
           printable: printList.value,
           type: 'image',
-          documentTitle: '大衡精密仪器设备管理平台',
+          documentTitle: '嘉兴港区气体泄漏检测管理平台',
           header: '历史曲线',
           // targetStyles: ['*'],
           // style,
@@ -112,29 +136,33 @@
        * 动态生成 echarts初始化依赖的DOM，并绘制图表，生成图片URL数据
        */
       const generageEchartsDom = () => {
-        echartsRef.value.forEach((item) => {
+        echartsRef.value.forEach((item, index) => {
           const chart = echarts.init(item as HTMLDivElement, 'light', {
             renderer: 'canvas',
           });
 
-          const seriesOption = {
+          const seriesOption: any = {
             legend: {
-              data: [legend.value],
+              data: [],
             },
             xAxis: { data: category.value },
-            series: [
-              {
-                name: legend.value,
-                type: 'line',
-                smooth: true,
-                showAllSymbol: 'auto',
-                symbol: 'none',
-                symbolSize: 15,
-                data: lineData.value,
-                animation: false,
-              },
-            ],
+            series: [],
           };
+
+          lineData.value.forEach((data) => {
+            seriesOption.legend.data = [legend.value[index]];
+
+            seriesOption.series.push({
+              name: legend.value[index],
+              type: 'line',
+              smooth: true,
+              showAllSymbol: 'auto',
+              symbol: 'none',
+              symbolSize: 15,
+              data,
+              // animation: false, // NOTE: 如果不设置该属性，折线、柱状等内容将失效, 也可以在最外层设置该属性
+            });
+          });
 
           const mergedOptions = echarts.util.merge(seriesOption, baseOption);
 
@@ -154,24 +182,26 @@
        * 设置echarts option
        */
       const onSetOptions = async () => {
-        const seriesOption = {
+        const seriesOption: any = {
           legend: {
-            data: [legend.value],
+            data: legend.value,
           },
           xAxis: { data: category.value },
-          series: [
-            {
-              name: legend.value,
-              type: 'line',
-              smooth: true,
-              showAllSymbol: 'auto',
-              symbol: 'none',
-              symbolSize: 15,
-              data: lineData.value,
-              // animation: false, // NOTE: 如果不设置该属性，折线、柱状等内容将失效, 也可以在最外层设置该属性
-            },
-          ],
+          series: [],
         };
+
+        lineData.value.forEach((item, index) => {
+          seriesOption.series.push({
+            name: legend.value[index],
+            type: 'line',
+            smooth: true,
+            showAllSymbol: 'auto',
+            symbol: 'none',
+            symbolSize: 15,
+            data: item,
+            // animation: false, // NOTE: 如果不设置该属性，折线、柱状等内容将失效, 也可以在最外层设置该属性
+          });
+        });
 
         const mergedOptions = echarts.util.merge(seriesOption, baseOption);
 
@@ -180,13 +210,22 @@
         getInstance()?.hideLoading();
       };
 
+      watch(
+        () => props.ids,
+        async () => {
+          await getChartData();
+          onSetOptions();
+          generageEchartsDom();
+        },
+      );
+
       onMounted(async () => {
         await getChartData();
         onSetOptions();
         generageEchartsDom();
       });
 
-      return { chartRef, itemList, setRef, onPrint, printList };
+      return { chartRef, itemList, displayDate, setRef, onPrint, printList };
     },
   });
 </script>

@@ -7,7 +7,7 @@
     width="50%"
     @ok="handleSubmit"
   >
-    <div style="padding-left: 10px; padding-right: 10px">
+    <div style="padding-right: 10px; padding-left: 10px">
       <BasicForm @register="registerForm" />
     </div>
   </BasicModal>

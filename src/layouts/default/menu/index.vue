@@ -33,7 +33,7 @@
       isHorizontal: propTypes.bool,
       // menu Mode
       menuMode: {
-        type: [String] as PropType<Nullable<MenuModeEnum>>,
+        type: [String] as PropType<MenuModeEnum | null>,
         default: '',
       },
     },
@@ -111,13 +111,6 @@
        */
 
       function handleMenuClick(path: string) {
-        // NOTE: 路由跳转 新的tab页面打开
-        if (path === '/dataview') {
-          window.open(path, '_blank');
-
-          return;
-        }
-
         go(path);
       }
 
@@ -196,7 +189,7 @@
     &--mobile {
       .@{logo-prefix-cls} {
         &__title {
-          opacity: 100%;
+          opacity: 1;
         }
       }
     }

@@ -3,7 +3,7 @@
     v-bind="$attrs"
     @register="registerDrawer"
     showFooter
-    :okAuth="'system:org:edit'"
+    :okAuth="okAuth"
     :title="getTitle"
     width="50%"
     @ok="handleSubmit"
@@ -22,7 +22,7 @@
   import { userAdd, userUpdate, userForm, userOwnOrganization } from '/@/api/system/user';
   // data
   import { isUpdate, idRef, record, inputFormSchemas } from './employee.data';
-
+  const okAuth = ref(['system:org:edit']);
   const emit = defineEmits(['success', 'register']);
 
   const { notification } = useMessage();

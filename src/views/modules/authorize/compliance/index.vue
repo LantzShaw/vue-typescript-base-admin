@@ -97,6 +97,7 @@
       title: '操作',
       dataIndex: 'action',
       fixed: 'right',
+      auth: 'authorize:compliance:operation',
     },
   });
 

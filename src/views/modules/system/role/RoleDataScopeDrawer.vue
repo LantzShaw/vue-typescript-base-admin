@@ -3,7 +3,7 @@
     v-bind="$attrs"
     @register="registerDrawer"
     showFooter
-    :okAuth="'system:role:grant'"
+    :okAuth="okAuth"
     :title="getTitle"
     width="50%"
     @ok="handleSubmit"
@@ -32,7 +32,7 @@
   import { optionsListBatchApi } from '/@/api/sys/dict';
   // data
   import { idRef, dataScopeTypeOptions } from './role.data';
-
+  const okAuth = ref(['system:role:grant']);
   const emit = defineEmits(['success', 'register']);
 
   const authorityTreeData = ref<TreeItem[]>([]);

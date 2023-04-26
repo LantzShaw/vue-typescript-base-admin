@@ -23,7 +23,7 @@
   import { usePermission } from '/@/hooks/web/usePermission';
   import { useMessage } from '/@/hooks/web/useMessage';
   import { Card } from 'ant-design-vue';
-  import { Icon } from '/@/components/Icon';
+  import Icon from '@/components/Icon/Icon.vue';
   import { DictLabel } from '/@/components/DictLabel/index';
   import { useUserStore } from '/@/store/modules/user';
 

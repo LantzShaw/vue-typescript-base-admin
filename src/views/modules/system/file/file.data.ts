@@ -3,9 +3,8 @@ import { ref, h } from 'vue';
 import { useI18n } from '/@/hooks/web/useI18n';
 // 公共组件
 import { Tag } from 'ant-design-vue';
-import { FormProps } from '/@/components/Form';
+import { FormProps, FormSchema } from '/@/components/Form';
 import { BasicColumn } from '/@/components/Table';
-import { FormSchema } from '/@/components/Form';
 // 接口
 import { optionsListApi } from '/@/api/sys/dict';
 import { checkConfKey } from '/@/api/system/config';
@@ -23,7 +22,7 @@ const { t } = useI18n();
  *  查询表单字段
  */
 export const searchForm: FormProps = {
-  baseColProps: { lg: 6, md: 8 },
+  baseColProps: { lg: 8, md: 8 },
   labelWidth: 90,
   schemas: [
     {

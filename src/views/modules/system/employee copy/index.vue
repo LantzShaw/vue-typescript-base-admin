@@ -100,6 +100,9 @@
   import { optionsListBatchApi } from '/@/api/sys/dict';
   // data
   import { dataItemStatusOptions, treeData, searchForm, tableColumns } from './employee.data';
+</script>
+<script lang="ts">
+  import { Divider, Empty, Descriptions, Steps, Tabs, Card, Row, Col } from 'ant-design-vue';
 
   const { t } = useI18n();
   const { notification } = useMessage();
@@ -138,7 +141,7 @@
       title: '操作',
       dataIndex: 'action',
       slots: { customRender: 'action' },
-      fixed: undefined,
+      fixed: 'right',
     },
   });
 
@@ -260,9 +263,6 @@
     initDict();
     fetchTree();
   });
-</script>
-<script lang="ts">
-  import { Divider, Empty, Descriptions, Steps, Tabs, Card, Row, Col } from 'ant-design-vue';
 
   export default defineComponent({
     components: {

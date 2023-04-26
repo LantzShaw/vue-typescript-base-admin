@@ -1,7 +1,7 @@
 <template>
   <PageWrapper contentFullHeight fixedHeight>
     <a-layout>
-      <a-layout-sider style="background: #fff; margin-right: 16px" width="300">
+      <a-layout-sider style=" margin-right: 16px;background: #fff" width="300">
         <a-card title="权限模块" class="mosd">
           <template #extra>
             <a-button type="text" @click="onCreatePermModuleClick">
@@ -83,7 +83,7 @@
   import { useI18n } from '/@/hooks/web/useI18n';
   import { useMessage } from '/@/hooks/web/useMessage';
   import { usePermission } from '/@/hooks/web/usePermission';
-  import { useWindowSizeFn } from '/@/hooks/event/useWindowSizeFn';
+  import { useWindowSizeFn } from '@vben/hooks';
   import { useLayoutHeight } from '/@/layouts/default/content/useContentViewHeight';
 
   // 组件
@@ -366,16 +366,16 @@
 
   .ant-card-head {
     padding: 0 15px;
-    font-size: 14px;
     border-bottom: 1px solid #ebeef5;
+    font-size: 14px;
   }
 
   .mosd :deep(.ant-card-body) {
-    padding: 5px 0px 0px 0px;
+    padding: 5px 0 0;
   }
 
   .vben-basic-table-form-container {
-    padding: 0px 0px 0px 16px;
+    padding: 0 0 0 16px;
   }
 
   .module-node-item {

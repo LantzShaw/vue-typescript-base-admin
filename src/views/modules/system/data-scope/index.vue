@@ -42,6 +42,12 @@
                 auth: 'system:data-scope:edit',
               },
               {
+                label: '复制',
+                color: 'warning',
+                onClick: handleCopy.bind(null, record),
+                auth: 'system:data-scope:add',
+              },
+              {
                 label: '删除',
                 color: 'error',
                 popConfirm: {
@@ -133,6 +139,16 @@
     openModal(true, {
       record,
       isUpdate: true,
+    });
+  }
+
+  /**
+   * 复制
+   */
+  function handleCopy(record: Recordable) {
+    openModal(true, {
+      record,
+      isUpdate: false,
     });
   }
 

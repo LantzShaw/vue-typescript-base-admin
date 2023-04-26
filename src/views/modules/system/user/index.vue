@@ -120,7 +120,14 @@
   import UserChangePasswordModal from './UserChangePasswordModal.vue';
   import UserRoleModal from './UserRoleModal.vue';
   import { Dropdown, Menu, Divider, Alert, Tree, Spin, Empty } from 'ant-design-vue';
-  import { Icon } from '/@/components/Icon';
+  import Icon from '@/components/Icon/Icon.vue';
+  // 接口
+  import { userPage, userDelete, userBatchDelete } from '/@/api/system/user';
+  import { roleSelect } from '/@/api/system/role';
+  import { optionsListBatchApi } from '/@/api/sys/dict';
+  // data
+  import { roleOptions, dataItemStatusOptions, searchForm, tableColumns } from './user.data';
+
   const ADropdown = Dropdown;
   const AMenu = Menu;
   const AMenuItem = Menu.Item;
@@ -129,12 +136,6 @@
   const ATree = Tree;
   const AEmpty = Empty;
   const ASpin = Spin;
-  // 接口
-  import { userPage, userDelete, userBatchDelete } from '/@/api/system/user';
-  import { roleSelect } from '/@/api/system/role';
-  import { optionsListBatchApi } from '/@/api/sys/dict';
-  // data
-  import { roleOptions, dataItemStatusOptions, searchForm, tableColumns } from './user.data';
 
   const { t } = useI18n();
   const { createMessage, notification } = useMessage();
@@ -174,7 +175,8 @@
         width: 200,
         title: '操作',
         dataIndex: 'action',
-        fixed: undefined,
+        fixed: 'right',
+        auth: 'system:user:operation',
       },
     });
 

@@ -35,7 +35,7 @@ export const findAvailableApplicationResourceList = (params?: any) =>
 
 export const fileDownload = (params?: any) =>
   defHttp.get(
-    { url: '/base/file/download1', params, responseType: 'blob' },
+    { url: '/biz/common/download', params, responseType: 'blob' },
     {
       isTransformResponse: false,
     },
@@ -43,7 +43,7 @@ export const fileDownload = (params?: any) =>
 
 export const fileShow = (fileName?: any) =>
   defHttp.get(
-    { url: '/base/file/show/' + fileName, responseType: 'arraybuffer' },
+    { url: '/biz/common/show/' + fileName, responseType: 'arraybuffer' },
     {
       isTransformResponse: false,
     },

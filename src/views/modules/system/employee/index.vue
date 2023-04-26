@@ -4,7 +4,7 @@
       <!-- 按钮工具栏 -->
       <template #toolbar>
         <a-button
-          v-auth="'system:role:add'"
+          v-auth="'system:employee:add'"
           type="primary"
           preIcon="ant-design:plus-outlined"
           @click="handleCreate"
@@ -33,19 +33,19 @@
               {
                 label: '编辑',
                 onClick: handleEdit.bind(null, record),
-                auth: 'system:role:edit',
+                auth: 'system:employee:edit',
               },
               {
                 label: '生成账号',
                 onClick: handleAuthorize.bind(null, record),
-                auth: 'system:role:edit',
+                auth: 'system:employee:edit',
                 ifShow: (_action) => {
                   return record['sysUser'] === null;
                 },
               },
               {
                 label: '账号信息',
-                onClick: handleAuthorize.bind(null, record),
+                onClick: handleViewUser.bind(null, record),
                 auth: 'system:role:edit',
                 ifShow: () => {
                   return record['sysUser'] !== null;
@@ -54,6 +54,7 @@
               {
                 label: '删除',
                 color: 'error',
+                auth: 'system:employee:delete',
                 popConfirm: {
                   title: '是否确认删除',
                   confirm: handleDelete.bind(null, record),
@@ -65,8 +66,7 @@
       </template>
     </BasicTable>
     <EmployeeModal @register="registerModal" @success="handleSuccess" />
-    <RoleMenuDrawer @register="registerRoleMenuDrawer" @success="handleSuccess" />
-    <RoleAuthorityDrawer @register="registerRoleAuthorityDrawer" @success="handleSuccess" />
+    <UserModal @register="registerUserModal" @success="handleSuccess" />
   </div>
 </template>
 <script lang="ts" setup>
@@ -77,11 +77,10 @@
   // 组件
   import { BasicTable, useTable, TableAction } from '/@/components/Table';
   import { DictLabel } from '/@/components/DictLabel/index';
-  import { useDrawer } from '/@/components/Drawer';
+
   import { useModal } from '/@/components/Modal';
   import EmployeeModal from './EmployeeModal.vue';
-  import RoleMenuDrawer from './RoleMenuDrawer.vue';
-  import RoleAuthorityDrawer from './RoleAuthorityDrawer.vue';
+  import UserModal from './UserModal.vue';
 
   // 接口
   import { employeePage, employeeDelete, employeeAuthorize } from '/@/api/system/employee';
@@ -102,12 +101,8 @@
    * 构建registerDrawer
    */
   const [registerModal, { openModal }] = useModal();
+  const [registerUserModal, { openModal: openModalUserModal }] = useModal();
 
-  /**
-   * 构建registerRoleMenuDrawer
-   */
-  const [registerRoleMenuDrawer, { openDrawer: openRoleMenuDrawer }] = useDrawer();
-  const [registerRoleAuthorityDrawer, { openDrawer: openRoleAuthorityDrawer }] = useDrawer();
   /**
    * 构建registerTable
    */
@@ -125,6 +120,7 @@
       title: '操作',
       dataIndex: 'action',
       fixed: 'right',
+      auth: 'system:employee:operation',
     },
   });
 
@@ -153,6 +149,12 @@
     handleSuccess();
   }
 
+  function handleViewUser(record: Recordable) {
+    openModalUserModal(true, {
+      record,
+      isUpdate: true,
+    });
+  }
   /**
    * 复制
    */
@@ -177,26 +179,6 @@
    */
   function handleSuccess() {
     reload();
-  }
-
-  /**
-   * 授权菜单
-   */
-  function handleGrantMenu(record: Recordable) {
-    openRoleMenuDrawer(true, {
-      record,
-      isUpdate: true,
-    });
-  }
-
-  /**
-   * 授权权限
-   */
-  function handleGrantAuthority(record: Recordable) {
-    openRoleAuthorityDrawer(true, {
-      record,
-      isUpdate: true,
-    });
   }
 
   /**

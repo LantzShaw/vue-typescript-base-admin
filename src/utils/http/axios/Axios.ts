@@ -1,4 +1,10 @@
-import type { AxiosRequestConfig, AxiosInstance, AxiosResponse, AxiosError } from 'axios';
+import type {
+  AxiosRequestConfig,
+  AxiosInstance,
+  AxiosResponse,
+  AxiosError,
+  InternalAxiosRequestConfig,
+} from 'axios';
 import type { RequestOptions, Result, UploadFileParams } from '/#/axios';
 import type { CreateAxiosOptions } from './axiosTransform';
 import axios from 'axios';
@@ -6,8 +12,7 @@ import qs from 'qs';
 import { AxiosCanceler } from './axiosCancel';
 import { isFunction } from '/@/utils/is';
 import { cloneDeep } from 'lodash-es';
-import { ContentTypeEnum } from '/@/enums/httpEnum';
-import { RequestEnum } from '/@/enums/httpEnum';
+import { ContentTypeEnum, RequestEnum } from '/@/enums/httpEnum';
 
 export * from './axiosTransform';
 
@@ -64,7 +69,11 @@ export class VAxios {
    * @description: Interceptor configuration 拦截器配置
    */
   private setupInterceptors() {
-    const transform = this.getTransform();
+    // const transform = this.getTransform();
+    const {
+      axiosInstance,
+      options: { transform },
+    } = this;
     if (!transform) {
       return;
     }
@@ -77,29 +86,26 @@ export class VAxios {
 
     const axiosCanceler = new AxiosCanceler();
 
-    // Request interceptor configuration processing
-    this.axiosInstance.interceptors.request.use((config: AxiosRequestConfig) => {
+    // 请求侦听器配置处理
+    this.axiosInstance.interceptors.request.use((config: InternalAxiosRequestConfig) => {
       // If cancel repeat request is turned on, then cancel repeat request is prohibited
-      // @ts-ignore
-      const { ignoreCancelToken } = config.requestOptions;
-      const ignoreCancel =
-        ignoreCancelToken !== undefined
-          ? ignoreCancelToken
-          : this.options.requestOptions?.ignoreCancelToken;
+      const { requestOptions } = this.options;
+      const ignoreCancelToken = requestOptions?.ignoreCancelToken ?? true;
 
-      !ignoreCancel && axiosCanceler.addPending(config);
+      !ignoreCancelToken && axiosCanceler.addPending(config);
+
       if (requestInterceptors && isFunction(requestInterceptors)) {
         config = requestInterceptors(config, this.options);
       }
       return config;
     }, undefined);
 
-    // Request interceptor error capture
+    // 请求拦截器错误捕获
     requestInterceptorsCatch &&
       isFunction(requestInterceptorsCatch) &&
       this.axiosInstance.interceptors.request.use(undefined, requestInterceptorsCatch);
 
-    // Response result interceptor processing
+    // 响应结果拦截器处理
     this.axiosInstance.interceptors.response.use((res: AxiosResponse<any>) => {
       res && axiosCanceler.removePending(res.config);
       if (responseInterceptors && isFunction(responseInterceptors)) {
@@ -108,17 +114,16 @@ export class VAxios {
       return res;
     }, undefined);
 
-    // Response result interceptor error capture
+    // 响应结果拦截器错误捕获
     responseInterceptorsCatch &&
       isFunction(responseInterceptorsCatch) &&
       this.axiosInstance.interceptors.response.use(undefined, (error) => {
-        // @ts-ignore
-        return responseInterceptorsCatch(this.axiosInstance, error);
+        return responseInterceptorsCatch(axiosInstance, error);
       });
   }
 
   /**
-   * @description:  File Upload
+   * @description:  文件上传
    */
   uploadFile<T = any>(config: AxiosRequestConfig, params: UploadFileParams) {
     const formData = new window.FormData();
@@ -156,7 +161,7 @@ export class VAxios {
     });
   }
 
-  // support form-data
+  // 支持表单数据
   supportFormData(config: AxiosRequestConfig) {
     const headers = config.headers || this.options.headers;
     const contentType = headers?.['Content-Type'] || headers?.['content-type'];

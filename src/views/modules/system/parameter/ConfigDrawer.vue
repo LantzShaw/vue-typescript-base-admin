@@ -3,7 +3,7 @@
     v-bind="$attrs"
     @register="registerDrawer"
     showFooter
-    :okAuth="'system:config:edit'"
+    :okAuth="okAuth"
     :title="getTitle"
     width="50%"
     @ok="handleSubmit"
@@ -12,7 +12,7 @@
   </BasicDrawer>
 </template>
 <script lang="ts" setup>
-  import { computed, unref } from 'vue';
+import {computed, ref, unref} from 'vue';
   // hooks
   import { useMessage } from '/@/hooks/web/useMessage';
   // 组件
@@ -22,7 +22,7 @@
   import { configForm, configAdd, configUpdate } from '/@/api/system/config';
   // data
   import { isUpdate, idRef, record, inputFormSchemas } from './config.data';
-
+  const okAuth = ref(['system:config:edit']);
   const emit = defineEmits(['success', 'register']);
 
   const { notification } = useMessage();

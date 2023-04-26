@@ -5,14 +5,14 @@
     @register="registerModal"
     :showOkBtn="false"
     :show-cancel-btn="true"
-    :okAuth="'manage:event:process'"
-    title="事件触发流程确认"
+    :okAuth="okAuth"
+    title="事件触发流程处理"
     okType="primary"
     ok-text="全部提交"
     :centered="true"
     @ok="handleSubmitAll"
   >
-    <div style="padding-left: 10px; padding-right: 10px">
+    <div style="padding-right: 10px; padding-left: 10px">
       <a-form
         :model="formState"
         name="basic"
@@ -24,10 +24,9 @@
         <a-tabs v-model:active-key="activeKey">
           <a-tab-pane key="0" tab="信息核实">
             <!-- 信息核实 -->
-            <a-row>
+            <a-row style="height: 350px">
               <a-col :span="24">
                 <div class="ml-2 mb-2 text-md text-black font-bold">信息核实</div>
-
                 <a-form-item
                   label="说明内容"
                   name="stepOneRemark"
@@ -61,21 +60,28 @@
                   @onSubmit="onSubmitHandler"
                   @onReject="onRejectHandler"
                   @onConfirm="onConfirmHandler"
+                  :submitLoading="isSubmitLoading"
+                  :rejectLoading="isRejectLoading"
+                  :confirmLoading="isConfirmLoading"
+                  :isDisabledCommit="!formState.stepOneRemark"
                   :status="['100', '150', '200']"
                   name="信息核实"
                   :current-step="record.stepOneStatus"
                   :commit-id="record.stepOneEnterpriseId"
                   :confirm-id="record.stepOneAffirmEnterpriseId"
+                  :commit-date="record.stepOneSubmitDate"
+                  :commit-person="record.stepOneBy"
+                  :confirm-date="record.stepOneAffirmDate"
+                  :confirm-person="record.stepOneAffirmBy"
                 />
               </a-col>
             </a-row>
           </a-tab-pane>
           <a-tab-pane key="1" tab="查找原因">
             <!-- 查找原因 -->
-            <a-row>
+            <a-row style="height: 350px">
               <a-col :span="24">
                 <div class="ml-2 mb-2 text-md text-black font-bold">查找原因</div>
-
                 <a-form-item
                   label="说明内容"
                   name="stepTwoRemark"
@@ -109,18 +115,26 @@
                   @onSubmit="onSubmitHandler"
                   @onReject="onRejectHandler"
                   @onConfirm="onConfirmHandler"
+                  :submitLoading="isSubmitLoading"
+                  :rejectLoading="isRejectLoading"
+                  :confirmLoading="isConfirmLoading"
+                  :isDisabledCommit="!formState.stepTwoRemark"
                   :status="['200', '250', '300']"
                   name="查找原因"
                   :current-step="record.stepTwoStatus"
                   :commit-id="record.stepTwoEnterpriseId"
                   :confirm-id="record.stepTwoAffirmEnterpriseId"
+                  :commit-date="record.stepTwoSubmitDate"
+                  :commit-person="record.stepTwoBy"
+                  :confirm-date="record.stepTwoAffirmDate"
+                  :confirm-person="record.stepTwoAffirmBy"
                 />
               </a-col>
             </a-row>
           </a-tab-pane>
           <a-tab-pane key="2" tab="应对措施">
             <!-- 应对措施 -->
-            <a-row>
+            <a-row style="height: 350px">
               <a-col :span="24">
                 <div class="ml-2 mb-2 text-md text-black font-bold">应对措施</div>
                 <a-form-item
@@ -156,11 +170,19 @@
                   @onSubmit="onSubmitHandler"
                   @onReject="onRejectHandler"
                   @onConfirm="onConfirmHandler"
+                  :submitLoading="isSubmitLoading"
+                  :rejectLoading="isRejectLoading"
+                  :confirmLoading="isConfirmLoading"
+                  :isDisabledCommit="!formState.stepThreeRemark"
                   :status="['300', '350', '400']"
                   name="应对措施"
                   :current-step="record.stepThreeStatus"
                   :commit-id="record.stepThreeEnterpriseId"
                   :confirm-id="record.stepThreeAffirmEnterpriseId"
+                  :commit-date="record.stepThreeSubmitDate"
+                  :commit-person="record.stepThreeBy"
+                  :confirm-date="record.stepThreeAffirmDate"
+                  :confirm-person="record.stepThreeAffirmBy"
                 />
               </a-col>
             </a-row>
@@ -168,7 +190,7 @@
 
           <a-tab-pane key="3" tab="措施落实">
             <!-- 措施落实 -->
-            <a-row>
+            <a-row style="height: 350px">
               <a-col :span="24">
                 <div class="ml-2 mb-2 text-md text-black font-bold">措施落实</div>
                 <a-form-item
@@ -204,18 +226,26 @@
                   @onSubmit="onSubmitHandler"
                   @onReject="onRejectHandler"
                   @onConfirm="onConfirmHandler"
+                  :submitLoading="isSubmitLoading"
+                  :rejectLoading="isRejectLoading"
+                  :confirmLoading="isConfirmLoading"
+                  :isDisabledCommit="!formState.stepFourRemark"
                   :status="['400', '450', '500']"
                   name="措施落实"
                   :current-step="record.stepFourStatus"
                   :commit-id="record.stepFourEnterpriseId"
                   :confirm-id="record.stepFourAffirmEnterpriseId"
+                  :commit-date="record.stepFourSubmitDate"
+                  :commit-person="record.stepFourBy"
+                  :confirm-date="record.stepFourAffirmDate"
+                  :confirm-person="record.stepFourAffirmBy"
                 />
               </a-col>
             </a-row>
           </a-tab-pane>
           <a-tab-pane key="4" tab="原因分析">
             <!-- 原因分析 -->
-            <a-row>
+            <a-row style="height: 350px">
               <a-col :span="24">
                 <div class="ml-2 mb-2 text-md text-black font-bold">原因分析</div>
                 <a-form-item
@@ -251,18 +281,26 @@
                   @onSubmit="onSubmitHandler"
                   @onReject="onRejectHandler"
                   @onConfirm="onConfirmHandler"
+                  :submitLoading="isSubmitLoading"
+                  :rejectLoading="isRejectLoading"
+                  :confirmLoading="isConfirmLoading"
+                  :isDisabledCommit="!formState.stepFiveRemark"
                   :status="['500', '550', '600']"
                   name="原因分析"
                   :current-step="record.stepFiveStatus"
                   :commit-id="record.stepFiveEnterpriseId"
                   :confirm-id="record.stepFiveAffirmEnterpriseId"
+                  :commit-date="record.stepFiveSubmitDate"
+                  :commit-person="record.stepFiveBy"
+                  :confirm-date="record.stepFiveAffirmDate"
+                  :confirm-person="record.stepFiveAffirmBy"
                 />
               </a-col>
             </a-row>
           </a-tab-pane>
           <a-tab-pane key="5" tab="举一反三">
             <!-- 举一反三 -->
-            <a-row>
+            <a-row style="height: 350px">
               <a-col :span="24">
                 <div class="ml-2 mb-2 text-md text-black font-bold">举一反三</div>
                 <a-form-item
@@ -298,17 +336,25 @@
                   @onSubmit="onSubmitHandler"
                   @onReject="onRejectHandler"
                   @onConfirm="onConfirmHandler"
+                  :submitLoading="isSubmitLoading"
+                  :rejectLoading="isRejectLoading"
+                  :confirmLoading="isConfirmLoading"
+                  :isDisabledCommit="!formState.stepSixRemark"
                   :status="['600', '650', '700']"
                   name="举一反三"
                   :current-step="record.stepSixStatus"
                   :commit-id="record.stepSixEnterpriseId"
                   :confirm-id="record.stepSixAffirmEnterpriseId"
+                  :commit-date="record.stepSixSubmitDate"
+                  :commit-person="record.stepSixBy"
+                  :confirm-date="record.stepSixAffirmDate"
+                  :confirm-person="record.stepSixAffirmBy"
                 />
               </a-col>
             </a-row>
           </a-tab-pane>
           <a-tab-pane key="6" tab="结果确认">
-            <a-row>
+            <a-row style="height: 350px">
               <!-- 结果确认 -->
               <a-col :span="24">
                 <div class="ml-2 mb-2 text-md text-black font-bold">结果确认</div>
@@ -345,12 +391,22 @@
                   @onSubmit="onSubmitHandler"
                   @onReject="onRejectHandler"
                   @onConfirm="onConfirmHandler"
+                  :submitLoading="isSubmitLoading"
+                  :rejectLoading="isRejectLoading"
+                  :confirmLoading="isConfirmLoading"
+                  :isDisabledCommit="!formState.stepSevenRemark"
+                  :isDisabledConfirm="!isDisabledConfirm(record)"
                   :status="['700', '750', '800']"
                   confirm-action-text=""
                   name="结果确认"
                   :current-step="record.stepSevenStatus"
                   :commit-id="record.stepSevenEnterpriseId"
                   :confirm-id="record.stepSevenAffirmEnterpriseId"
+                  :commit-date="record.stepSevenSubmitDate"
+                  :commit-person="record.stepSevenBy"
+                  :confirm-date="record.stepSevenAffirmDate"
+                  :confirm-person="record.stepSevenAffirmBy"
+                  :showTips="true"
                 />
               </a-col>
             </a-row>
@@ -376,6 +432,7 @@
   import { useMessage } from '/@/hooks/web/useMessage';
   // 组件
   import { BasicModal, useModalInner } from '/@/components/Modal';
+
   // data
   import { isUpdate, idRef, record } from './eventTrigger.data';
 
@@ -385,7 +442,24 @@
 
   import { uploadApi } from '/@/api/sys/upload';
 
-  import { eventTriggerUpdateState, eventTriggerEventDetail } from '/@/api/manage/eventTrigger';
+  import {
+    eventTriggerStepOneSubmit,
+    eventTriggerStepOneAffirm,
+    eventTriggerStepTwoSubmit,
+    eventTriggerStepTwoAffirm,
+    eventTriggerStepThreeSubmit,
+    eventTriggerStepThreeAffirm,
+    eventTriggerStepFourSubmit,
+    eventTriggerStepFourAffirm,
+    eventTriggerStepFiveSubmit,
+    eventTriggerStepFiveAffirm,
+    eventTriggerStepSixSubmit,
+    eventTriggerStepSixAffirm,
+    eventTriggerStepSevenSubmit,
+    eventTriggerStepSevenAffirm,
+    eventTriggerUpdateState,
+    eventTriggerEventDetail,
+  } from '/@/api/manage/alarmDealRecord';
   import { getOrganizationId } from '/@/utils/auth';
 
   type FileList = {
@@ -409,6 +483,10 @@
 
   const activeKey = ref('0');
 
+  const isSubmitLoading = ref<boolean>(false);
+  const isRejectLoading = ref<boolean>(false);
+  const isConfirmLoading = ref<boolean>(false);
+
   const fileList = ref(fileState());
 
   const { notification } = useMessage();
@@ -416,6 +494,8 @@
   const organizationId = getOrganizationId() as string;
 
   const rules = {};
+
+  const okAuth = ['manage:event:process'];
 
   const formState = reactive<FormState>({
     stepOneRemark: '',
@@ -452,7 +532,7 @@
   /**
    * 构建Modal
    */
-  const [registerModal, { setModalProps, closeModal }] = useModalInner(async (data) => {
+  const [registerModal, { setModalProps }] = useModalInner(async (data) => {
     resetForm();
 
     // resetFields();
@@ -461,15 +541,44 @@
     // 判断是否是更新
     isUpdate.value = !!data?.isUpdate;
     if (unref(isUpdate)) {
+      console.log('record', data.record);
+
       // 请求数据
-      record.value = ((await eventTriggerEventDetail({ id: data?.record?.dealRecordId })) ||
-        {}) as Recordable;
-      idRef.value = data.record.dealRecordId;
+      record.value = ((await eventTriggerEventDetail({
+        id: data?.record?.id,
+      })) || {}) as any;
+      idRef.value = data.record.id;
     } else {
       idRef.value = '';
     }
 
-    activeKey.value = '0';
+    const {
+      stepOneStatus,
+      stepTwoStatus,
+      stepThreeStatus,
+      stepFourStatus,
+      stepFiveStatus,
+      stepSixStatus,
+      stepSevenStatus,
+    } = record.value;
+
+    const tempArr = [
+      stepOneStatus,
+      stepTwoStatus,
+      stepThreeStatus,
+      stepFourStatus,
+      stepFiveStatus,
+      stepSixStatus,
+      stepSevenStatus,
+    ];
+
+    const index = tempArr.findIndex(
+      (item) => item === undefined || item === '100' || item === '150',
+    );
+
+    if (index !== -1) {
+      activeKey.value = index + '';
+    }
 
     formState.stepOneRemark = record.value.stepOneRemark;
     formState.stepTwoRemark = record.value.stepTwoRemark;
@@ -479,8 +588,6 @@
     formState.stepSixRemark = record.value.stepSixRemark;
     formState.stepSevenRemark = record.value.stepSevenRemark;
     formState.stepEightRemark = record.value.stepEightRemark;
-
-    console.log('-----------list------------', record.value.list);
 
     if (record.value?.list.length > 0) {
       record.value.list.forEach((item) => {
@@ -551,6 +658,20 @@
     };
   });
 
+  // 最后一步结果确认，只有前面几个步骤都已完成，方可点击
+  const isDisabledConfirm = computed(() => {
+    return (record) => {
+      return (
+        record.stepOneStatus === '200' &&
+        record.stepTwoStatus === '200' &&
+        record.stepThreeStatus === '200' &&
+        record.stepFourStatus === '200' &&
+        record.stepFiveStatus === '200' &&
+        record.stepSixStatus === '200'
+      );
+    };
+  });
+
   /**
    * 提交表单
    */
@@ -579,56 +700,99 @@
    * 流程提交
    */
   async function onSubmitHandler(status) {
-    let params = {};
+    isSubmitLoading.value = true;
+
+    let params = {
+      id: idRef.value,
+      processStep: status,
+      list: formState.list,
+      apReceiveFlag: record.value.apReceiveFlag,
+      bpReceiveFlag: record.value.bpReceiveFlag,
+    };
 
     switch (status) {
       case '150':
         params['stepOneRemark'] = formState.stepOneRemark;
         params['stepOneStatus'] = '150';
+
+        await eventTriggerStepOneSubmit({
+          ...params,
+        });
+
         break;
       case '250':
         params['stepTwoRemark'] = formState.stepTwoRemark;
         params['stepTwoStatus'] = '150';
+
+        await eventTriggerStepTwoSubmit({
+          ...params,
+        });
+
         break;
       case '350':
         params['stepThreeRemark'] = formState.stepThreeRemark;
         params['stepThreeStatus'] = '150';
+
+        await eventTriggerStepThreeSubmit({
+          ...params,
+        });
 
         break;
       case '450':
         params['stepFourRemark'] = formState.stepFourRemark;
         params['stepFourStatus'] = '150';
 
+        await eventTriggerStepFourSubmit({
+          ...params,
+        });
+
         break;
       case '550':
         params['stepFiveRemark'] = formState.stepFiveRemark;
         params['stepFiveStatus'] = '150';
+
+        await eventTriggerStepFiveSubmit({
+          ...params,
+        });
 
         break;
       case '650':
         params['stepSixRemark'] = formState.stepSixRemark;
         params['stepSixStatus'] = '150';
 
+        await eventTriggerStepSixSubmit({
+          ...params,
+        });
+
         break;
       case '750':
         params['stepSevenRemark'] = formState.stepSevenRemark;
         params['stepSevenStatus'] = '150';
 
+        await eventTriggerStepSevenSubmit({
+          ...params,
+        });
+
         break;
       case '850':
         params['stepEightRemark'] = formState.stepEightRemark;
         params['stepEightStatus'] = '150';
+
+        // await eventTriggerStepSevenSubmit({
+        //   ...params,
+        // });
+
         break;
     }
 
-    await eventTriggerUpdateState({
-      id: idRef.value,
-      processStep: status,
-      ...params,
-      list: formState.list,
-      apReceiveFlag: record.value.apReceiveFlag,
-      bpReceiveFlag: record.value.bpReceiveFlag,
-    });
+    // await eventTriggerUpdateState({
+    //   id: idRef.value,
+    //   processStep: status,
+    //   ...params,
+    //   list: formState.list,
+    //   apReceiveFlag: record.value.apReceiveFlag,
+    //   bpReceiveFlag: record.value.bpReceiveFlag,
+    // });
 
     emit('success');
 
@@ -644,17 +808,22 @@
     formState.stepEightRemark = record.value.stepEightRemark;
 
     notification.success({ message: `信息提交成功!` });
+
+    isSubmitLoading.value = false;
   }
 
   /**
    * 流程驳回
    */
   async function onRejectHandler(status) {
+    isRejectLoading.value = true;
+
     const params = {};
 
     switch (status) {
       case '150':
         params['stepOneStatus'] = '100';
+
         break;
       case '250':
         params['stepTwoStatus'] = '100';
@@ -692,53 +861,99 @@
     record.value = await eventTriggerEventDetail({ id: idRef.value });
 
     notification.success({ message: `驳回提交成功!` });
+
+    isRejectLoading.value = false;
   }
 
   /**
    * 流程确认
    */
   async function onConfirmHandler(status) {
-    const params = {};
+    isConfirmLoading.value = true;
+
+    const params = {
+      id: idRef.value,
+      processStep: status,
+      apReceiveFlag: record.value.apReceiveFlag,
+      bpReceiveFlag: record.value.bpReceiveFlag,
+    };
 
     switch (status) {
       case '100':
         params['stepOneStatus'] = '200';
+
+        await eventTriggerStepOneAffirm({
+          ...params,
+        });
+
         break;
       case '200':
         params['stepTwoStatus'] = '200';
+
+        await eventTriggerStepTwoAffirm({
+          ...params,
+        });
+
         break;
       case '300':
         params['stepThreeStatus'] = '200';
+
+        await eventTriggerStepThreeAffirm({
+          ...params,
+        });
+
         break;
       case '400':
         params['stepFourStatus'] = '200';
+
+        await eventTriggerStepFourAffirm({
+          ...params,
+        });
+
         break;
       case '500':
         params['stepFiveStatus'] = '200';
+
+        await eventTriggerStepFiveAffirm({
+          ...params,
+        });
+
         break;
       case '600':
         params['stepSixStatus'] = '200';
+
+        await eventTriggerStepSixAffirm({
+          ...params,
+        });
+
         break;
       case '700':
         params['stepSevenStatus'] = '200';
+
+        await eventTriggerStepSevenAffirm({
+          ...params,
+        });
+
         break;
       case '800':
         params['stepEightStatus'] = '200';
         break;
     }
 
-    await eventTriggerUpdateState({
-      id: idRef.value,
-      processStep: status,
-      ...params,
-      apReceiveFlag: record.value.apReceiveFlag,
-      bpReceiveFlag: record.value.bpReceiveFlag,
-    });
+    // await eventTriggerUpdateState({
+    //   id: idRef.value,
+    //   processStep: status,
+    //   ...params,
+    //   apReceiveFlag: record.value.apReceiveFlag,
+    //   bpReceiveFlag: record.value.bpReceiveFlag,
+    // });
 
     emit('success');
 
     record.value = await eventTriggerEventDetail({ id: idRef.value });
 
     notification.success({ message: `确认成功!` });
+
+    isConfirmLoading.value = false;
   }
 </script>

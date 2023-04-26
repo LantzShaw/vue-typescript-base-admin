@@ -1,4 +1,4 @@
-import { ref, unref } from 'vue';
+import { ref } from 'vue';
 // hooks
 import { useI18n } from '/@/hooks/web/useI18n';
 // 公共组件
@@ -21,6 +21,7 @@ export const dataItemStatusOptions = ref<any[]>([]);
 export const tfOptions = ref<any[]>([]);
 export const grantTypesOptions = ref<any[]>([]);
 export const scopeOptions = ref<any[]>([]);
+export const deviceGroupOptions = ref<any[]>([]);
 
 const { t } = useI18n();
 
@@ -33,20 +34,11 @@ export const searchForm: FormProps = {
   schemas: [
     {
       label: t('设备组'),
-      field: 'dtuipGroupId',
-      component: 'ApiSelect',
-      required: false,
+      field: 'groupId',
+      component: 'Select',
       componentProps: {
-        maxlength: 100,
         placeholder: '请选择设备分组',
-        api: deviceGroupPage,
-        params: {
-          pageIndex: 1,
-          pageSize: 100000,
-        },
-        resultField: 'records',
-        labelField: 'groupName',
-        valueField: 'dtuipId',
+        options: deviceGroupOptions,
       },
     },
     {
@@ -107,8 +99,7 @@ export const searchForm: FormProps = {
 export const tableColumns: BasicColumn[] = [
   {
     title: t('设备分组名称'),
-    dataIndex: 'groupName',
-    sorter: true,
+    dataIndex: 'bizDeviceGroup',
     width: 130,
     align: 'center',
   },
@@ -188,36 +179,36 @@ export const tableColumns: BasicColumn[] = [
  * 表单字段
  */
 export const inputFormSchemas: FormSchema[] = [
-  {
-    label: t('设备名称'),
-    field: 'deviceName',
-    component: 'Input',
-    required: true,
-    componentProps: {
-      maxlength: 100,
-      placeholder: '请输入设备名称',
-    },
-  },
-  {
-    label: t('设备编号'),
-    field: 'deviceNo',
-    component: 'Input',
-    required: true,
-    componentProps: {
-      maxlength: 100,
-      placeholder: '请输入设备编号',
-    },
-  },
-  {
-    label: t('协议类型'),
-    field: 'dtuipLinktype',
-    component: 'Input',
-    required: true,
-    componentProps: {
-      maxlength: 100,
-      placeholder: '请输入协议类型',
-    },
-  },
+  // {
+  //   label: t('设备名称'),
+  //   field: 'deviceName',
+  //   component: 'Input',
+  //   required: true,
+  //   componentProps: {
+  //     maxlength: 100,
+  //     placeholder: '请输入设备名称',
+  //   },
+  // },
+  // {
+  //   label: t('设备编号'),
+  //   field: 'deviceNo',
+  //   component: 'Input',
+  //   required: true,
+  //   componentProps: {
+  //     maxlength: 100,
+  //     placeholder: '请输入设备编号',
+  //   },
+  // },
+  // {
+  //   label: t('协议类型'),
+  //   field: 'dtuipLinktype',
+  //   component: 'Input',
+  //   required: true,
+  //   componentProps: {
+  //     maxlength: 100,
+  //     placeholder: '请输入协议类型',
+  //   },
+  // },
   {
     label: t('经度'),
     field: 'dtuipLng',
@@ -238,17 +229,4 @@ export const inputFormSchemas: FormSchema[] = [
       placeholder: '请输入维度',
     },
   },
-
-  // {
-  //   label: t('应用类型'),
-  //   field: 'applicationType',
-  //   component: 'ApiSelect',
-  //   required: true,
-  //   componentProps: {
-  //     api: optionsListApi,
-  //     params: {
-  //       dictCode: 'application_type',
-  //     },
-  //   },
-  // },
 ];

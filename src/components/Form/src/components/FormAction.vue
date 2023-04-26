@@ -46,7 +46,7 @@
   //import type { ButtonProps } from 'ant-design-vue/es/button/buttonTypes';
   import { defineComponent, computed, PropType } from 'vue';
   import { Form, Col } from 'ant-design-vue';
-  import { Icon } from '/@/components/Icon';
+  import Icon from '@/components/Icon/Icon.vue';
   import { Button, ButtonProps } from '/@/components/Button';
   import { BasicArrow } from '/@/components/Basic';
   import { useFormContext } from '../hooks/useFormContext';

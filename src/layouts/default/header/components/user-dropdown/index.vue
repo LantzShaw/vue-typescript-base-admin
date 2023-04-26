@@ -24,12 +24,7 @@
           :text="t('layout.header.dropdownItemSwitchDepart')"
           icon="ant-design:cluster-outlined"
         />
-        <MenuItem
-          v-if="getUseLockPage"
-          key="lock"
-          :text="t('layout.header.tooltipLock')"
-          icon="ion:lock-closed-outline"
-        />
+
         <MenuItem
           key="logout"
           :text="t('layout.header.dropdownItemLoginOut')"
@@ -38,7 +33,7 @@
       </Menu>
     </template>
   </Dropdown>
-  <LockAction @register="register" />
+
   <DepartSelect @register="registerModal" />
 </template>
 <script lang="ts">
@@ -72,7 +67,6 @@
       Menu,
       MenuItem: createAsyncComponent(() => import('./DropMenuItem.vue')),
       MenuDivider: Menu.Divider,
-      LockAction: createAsyncComponent(() => import('../lock/LockModal.vue')),
       DepartSelect: createAsyncComponent(() => import('./DepartSelect.vue')),
     },
     props: {
@@ -82,7 +76,7 @@
       const { prefixCls } = useDesign('header-user-dropdown');
       const { t } = useI18n();
       const go = useGo();
-      const { getShowDoc, getUseLockPage } = useHeaderSetting();
+      const { getShowDoc } = useHeaderSetting();
       const userStore = useUserStore();
 
       const getUserInfo = computed(() => {
@@ -90,14 +84,8 @@
         return { realName, avatar: avatar || headerImg, desc };
       });
 
-      const [register, { openModal }] = useModal();
-
       function handleToSettings() {
         go('/account/settings');
-      }
-
-      function handleLock() {
-        openModal(true);
       }
 
       //  login out
@@ -134,9 +122,6 @@
           case 'doc':
             openDoc();
             break;
-          case 'lock':
-            handleLock();
-            break;
           case 'depart':
             updateCurrentDepart();
             break;
@@ -149,8 +134,6 @@
         getUserInfo,
         handleMenuClick,
         getShowDoc,
-        register,
-        getUseLockPage,
         registerModal,
       };
     },
@@ -160,13 +143,13 @@
   @prefix-cls: ~'@{namespace}-header-user-dropdown';
 
   .@{prefix-cls} {
+    align-items: center;
     height: @header-height;
     padding: 0 0 0 10px;
     padding-right: 10px;
     overflow: hidden;
     font-size: 12px;
     cursor: pointer;
-    align-items: center;
 
     img {
       width: 24px;

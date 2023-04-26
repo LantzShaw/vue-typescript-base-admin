@@ -3,18 +3,18 @@
     v-bind="$attrs"
     @register="registerModal"
     showFooter
-    :okAuth="'system:config:edit'"
+    :okAuth="okAuth"
     :title="getTitle"
     width="50%"
     @ok="handleSubmit"
   >
-    <div style="padding-left: 10px; padding-right: 10px">
+    <div style="padding-right: 10px; padding-left: 10px">
       <BasicForm @register="registerForm" />
     </div>
   </BasicModal>
 </template>
 <script lang="ts" setup>
-  import { computed, unref } from 'vue';
+  import { computed, ref, unref } from 'vue';
   // hooks
   import { useMessage } from '/@/hooks/web/useMessage';
   // 组件
@@ -30,6 +30,7 @@
   // data
   import { isUpdate, idRef, record, inputFormSchemas, roleOptions } from './securityAttribute.data';
 
+  const okAuth = ref(['system:security-attribute:edit']);
   const emit = defineEmits(['success', 'register']);
 
   const { notification } = useMessage();

@@ -1,4 +1,5 @@
-import { ref, unref } from 'vue';
+import { ref } from 'vue';
+import { Tooltip as ATooltip } from 'ant-design-vue';
 // hooks
 import { useI18n } from '/@/hooks/web/useI18n';
 // 公共组件
@@ -17,6 +18,7 @@ export const deleteStatusOptions = ref<any[]>([]);
 export const alarmStatusOptions = ref<any[]>([]);
 export const sensorTypeOptions = ref<any[]>([]);
 export const eventTriggerStatusOptions = ref<any[]>([]);
+export const gasTypeOptions = ref<any[]>([]);
 export const tfOptions = ref<any[]>([]);
 export const grantTypesOptions = ref<any[]>([]);
 export const scopeOptions = ref<any[]>([]);
@@ -77,25 +79,54 @@ export const searchForm: FormProps = {
  */
 export const tableColumns: BasicColumn[] = [
   {
-    title: t('设备名称'),
-    dataIndex: 'dtuipDeviceName',
-    sorter: true,
-    width: 130,
+    title: t('使用单位'),
+    dataIndex: 'bizEnterprise',
+    width: 120,
+    ellipsis: true,
     align: 'center',
+    // customRender: ({ record }) => {
+    //   return (
+    //     <a-Tooltip placement="top">
+    //       <template #title>
+    //         <span>{{ record }}</span>
+    //       </template>
+    //       <span>{{ record.bizEnterprise }}</span>
+    //     </a-Tooltip>
+    //   )
+
+    //   // return thumbUrl && <ThumbUrl fileUrl={thumbUrl} />;
+    // },
   },
   {
-    title: t('传感器名称'),
-    dataIndex: 'dtuipSensorName',
-    sorter: true,
+    title: t('所属区域'),
+    dataIndex: 'bizInstallRegion',
     width: 120,
     align: 'center',
   },
-  // {
-  //   title: t('报警内容'),
-  //   dataIndex: 'dtuipTriggerContent',
-  //   width: 200,
-  //   align: 'center',
-  // },
+  {
+    title: t('安装位置'),
+    dataIndex: 'installLocation',
+    width: 120,
+    align: 'center',
+  },
+  {
+    title: t('位号'),
+    dataIndex: 'locationNo',
+    width: 120,
+    align: 'center',
+  },
+  {
+    title: t('气体类型'),
+    dataIndex: 'gasType',
+    width: 120,
+    align: 'center',
+  },
+  {
+    title: t('气体名称'),
+    dataIndex: 'gasName',
+    width: 120,
+    align: 'center',
+  },
   {
     title: t('触发时间'),
     dataIndex: 'dtuipTriggerDate',
@@ -117,8 +148,6 @@ export const tableColumns: BasicColumn[] = [
     dataIndex: 'eventStatus',
     width: 90,
     align: 'center',
-    ellipsis: true,
-    sorter: true,
   },
   {
     title: t('是否删除'),

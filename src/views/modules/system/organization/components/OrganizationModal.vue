@@ -3,7 +3,7 @@
     v-bind="$attrs"
     @register="registerModal"
     showFooter
-    :okAuth="'system:org:edit'"
+    :okAuth="okAuth"
     :title="getTitle"
     width="50%"
     @ok="handleSubmit"
@@ -13,11 +13,6 @@
     </div>
   </BasicModal>
 </template>
-<script lang="ts">
-  export default defineComponent({
-    name: 'ViewsSysMenuForm',
-  });
-</script>
 <script lang="ts" setup>
   import { defineComponent, ref, unref, computed, nextTick } from 'vue';
   // hooks
@@ -35,7 +30,7 @@
     inputFormSchemas,
     organizationTreeOptions,
   } from '../organization.data';
-
+  const okAuth = ref(['system:org:edit']);
   const emit = defineEmits(['success', 'register']);
 
   const { notification } = useMessage();

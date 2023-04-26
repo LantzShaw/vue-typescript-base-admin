@@ -4,18 +4,18 @@
     v-bind="$attrs"
     @register="registerModal"
     showFooter
-    :okAuth="'system:application:add'"
+    :okAuth="okAuth"
     :title="getTitle"
     :centered="true"
     @ok="handleSubmit"
   >
-    <div style="padding-left: 10px; padding-right: 10px">
+    <div style="padding-right: 10px; padding-left: 10px">
       <BasicForm autoFocusFirstItem @register="registerForm" />
     </div>
   </BasicModal>
 </template>
 <script lang="ts" setup>
-  import { computed, unref } from 'vue';
+  import { computed, ref, unref } from 'vue';
   // hooks
   import { useMessage } from '/@/hooks/web/useMessage';
   // 组件
@@ -26,6 +26,7 @@
   // data
   import { isUpdate, idRef, record, inputFormSchemas } from './application.data';
 
+  const okAuth = ref(['system:application:add', 'system:application:edit']);
   const emit = defineEmits(['success', 'register']);
 
   const { notification } = useMessage();

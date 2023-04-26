@@ -31,17 +31,18 @@
               {
                 label: '启动',
                 onClick: handlerResume.bind(null, record),
-                auth: 'system:dict:item',
+                auth: 'system:quartz:start',
                 ifShow: () => record.state === '0',
               },
               {
                 label: '停止',
                 onClick: handlerPause.bind(null, record),
-                auth: 'system:dict:item',
+                auth: 'system:quartz:stop',
                 ifShow: () => record.state === '1',
               },
               {
                 label: '立即执行',
+                auth: 'system:quartz:execute',
                 popConfirm: {
                   title: '是否立即执行任务',
                   confirm: handlerExecute.bind(null, record),
@@ -50,6 +51,7 @@
               {
                 label: '日志',
                 onClick: handleLog.bind(null, record),
+                auth: 'system:quartz:log',
               },
               {
                 label: '编辑',
@@ -124,7 +126,7 @@
     showTableSetting: true,
     showIndexColumn: false,
     actionColumn: {
-      width: 140,
+      width: 200,
       title: '操作',
       dataIndex: 'action',
       fixed: 'right',

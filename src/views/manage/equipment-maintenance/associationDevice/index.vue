@@ -1,20 +1,31 @@
 <template>
-  <PageWrapper dense contentFullHeight>
+  <PageWrapper :title="`配置关联设备`" contentFullHeight dense @back="goBack">
+    <template #headerContent>
+      <a-descriptions :column="2">
+        <a-descriptions-item label="计划编号">
+          {{ bizWorkflowDeviceMaintPlan.planNo }}
+        </a-descriptions-item>
+        <a-descriptions-item label="关联企业">
+          {{ bizEnterprise.enterpriseName }}
+        </a-descriptions-item>
+        <a-descriptions-item label="生效日期">
+          {{ bizWorkflowDeviceMaintPlan.planStartDate }}
+          -
+          {{ bizWorkflowDeviceMaintPlan.planEndDate }}
+        </a-descriptions-item>
+      </a-descriptions>
+    </template>
     <BasicTable @register="registerTable">
       <!-- 按钮工具栏 -->
       <template #toolbar>
         <a-button
-          v-auth="'manage:event-trigger:add'"
+          v-auth="'manage:association-device:add'"
           type="primary"
           preIcon="ant-design:plus-outlined"
           @click="handleCreate"
         >
           新增
         </a-button>
-        <!-- <a-button preIcon="ant-design:download-outlined" @click="handleExport"> 导出 </a-button>
-        <a-button type="default" preIcon="ant-design:upload-outlined" @click="handleImport">
-          导入
-        </a-button> -->
       </template>
       <!-- 表格内容 -->
       <template #bodyCell="{ column, record }">
@@ -23,15 +34,10 @@
           <TableAction
             stopButtonPropagation
             :actions="[
-              // {
-              //   label: '编辑',
-              //   onClick: handleEdit.bind(null, record),
-              //   auth: 'manage:event-trigger:edit',
-              // },
               {
                 label: '删除',
                 color: 'error',
-                auth: 'manage:event-trigger:delete',
+                auth: 'manage:association-device:delete',
                 popConfirm: {
                   title: '是否确认删除',
                   confirm: handleDelete.bind(null, record),
@@ -46,24 +52,21 @@
   </PageWrapper>
 </template>
 <script lang="ts" setup>
-  import { onMounted } from 'vue';
+  import { onMounted, unref, ref } from 'vue';
+  import { useRouter, useRoute } from 'vue-router';
   // hooks
   import { useMessage } from '/@/hooks/web/useMessage';
   // 组件
+  import { Descriptions } from 'ant-design-vue';
   import { PageWrapper } from '/@/components/Page';
   import { BasicTable, TableAction, useTable } from '/@/components/Table';
-  import { DictLabel } from '/@/components/DictLabel/index';
   import { useModal } from '/@/components/Modal';
   import AssociationDeviceModal from './AssociationDeviceModal.vue';
-  import { jsonToSheetXlsx } from '/@/components/Excel';
-
-  import { formatToDate } from '/@/utils/dateUtil';
 
   // 接口
-  import {
-    associationDevicePage,
-    associationDeviceDelete,
-  } from '/@/api/manage/equipmentMaintenance';
+  import { companyForm } from '/@/api/manage/company';
+  import { workflowDeviceMaintPlanForm } from '/@/api/manage/workflowDeviceMaintPlan';
+  import { associationDevicePage, associationDeviceDelete } from '/@/api/manage/associationDevice';
   import { optionsListBatchApi } from '/@/api/sys/dict';
   // data
   import {
@@ -74,19 +77,22 @@
     planPeriodTypeOptions,
     searchForm,
     tableColumns,
-    planId,
   } from './associationDevice.data';
   import { useGo } from '/@/hooks/web/usePage';
-  import { useRoute } from 'vue-router';
+  import { useTabs } from '/@/hooks/web/useTabs';
 
-  const route = useRoute();
-
+  const ADescriptions = Descriptions;
+  const ADescriptionsItem = Descriptions.Item;
   const go = useGo();
+  const { closeCurrent } = useTabs();
+  const { currentRoute } = useRouter();
 
+  const bizWorkflowDeviceMaintPlan = ref<Recordable>({});
+  const bizEnterprise = ref<Recordable>({});
   const { notification } = useMessage();
 
-  planId.value = route?.params?.id as string;
-
+  const planId = unref(currentRoute).params?.id ?? '';
+  const organizationId = unref(currentRoute).query?.organizationId ?? '';
   /**
    * 构建registerModal
    */
@@ -96,7 +102,7 @@
   /**
    * 构建registerTable
    */
-  const [registerTable, { reload, getDataSource }] = useTable({
+  const [registerTable, { reload }] = useTable({
     title: '',
     api: associationDevicePage,
     columns: tableColumns,
@@ -109,28 +115,10 @@
       width: 100,
       title: '操作',
       dataIndex: 'action',
-      // slots: { customRender: 'action' },
       fixed: 'right',
-      // fixed: undefined,
       // auth: 'system:application:operation',
     },
   });
-
-  /**
-   * 导出
-   */
-  function handleExport() {
-    jsonToSheetXlsx({
-      data: getDataSource(),
-      // header: getColumns().map((column) => column.title),
-      filename: `设备维护计划列表_${new Date().getTime()}.xls`,
-    });
-  }
-
-  /**
-   * 导入
-   */
-  function handleImport() {}
 
   /**
    * 新增
@@ -138,16 +126,6 @@
   function handleCreate() {
     openAssociationDeviceModal(true, {
       isUpdate: false,
-    });
-  }
-
-  /**
-   * 编辑
-   */
-  function handleEdit(record: Recordable) {
-    openAssociationDeviceModal(true, {
-      record,
-      isUpdate: true,
     });
   }
 
@@ -167,6 +145,22 @@
     reload();
   }
 
+  function goBack() {
+    const path = unref(currentRoute).path;
+    var paths = path.split('/item/');
+    go(paths[0]);
+    closeCurrent();
+  }
+
+  async function getBizWorkflowDeviceMaintPlan() {
+    bizWorkflowDeviceMaintPlan.value = ((await workflowDeviceMaintPlanForm({
+      id: planId,
+    })) || {}) as Recordable;
+
+    bizEnterprise.value = ((await companyForm({
+      id: organizationId,
+    })) || {}) as Recordable;
+  }
   /**
    * 初始化字典数据
    */
@@ -187,14 +181,15 @@
   }
 
   onMounted(() => {
+    getBizWorkflowDeviceMaintPlan();
     initDict();
   });
 </script>
 
 <style lang="less" scoped>
-  .dict-label {
-    :deep(.ant-tag) {
-      margin: 4px;
-    }
-  }
+  // .dict-label {
+  //   :deep(.ant-tag) {
+  //     margin: 4px;
+  //   }
+  // }
 </style>

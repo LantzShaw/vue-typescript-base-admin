@@ -1,10 +1,10 @@
 <template>
   <PageWrapper dense contentFullHeight contentClass="flex">
     <div class="w-1/4">
-      <div class="m-4 mr-0 p-2 overflow-hidden bg-white">
+      <div class="m-2 mr-0 p-2 overflow-hidden bg-white">
         <BasicTree
           ref="treeRef"
-          title=""
+          title="组织机构"
           toolbar
           search
           :clickRowToExpand="false"
@@ -23,7 +23,7 @@
       <!-- 按钮工具栏 -->
       <template #toolbar>
         <a-button
-          v-auth="'system:menu:add'"
+          v-auth="'system:ownership:config'"
           type="primary"
           preIcon="ant-design:plus-outlined"
           @click="handleConfig"
@@ -48,7 +48,7 @@
                   title: '是否确认删除归属',
                   confirm: handleDelete.bind(null, record),
                 },
-                auth: 'system:menu:delete',
+                auth: 'system:ownership:delete',
               },
             ]"
           />
@@ -119,21 +119,13 @@
     showTableSetting: true,
 
     actionColumn: {
-      width: 120,
+      width: 100,
       title: '操作',
       dataIndex: 'action',
       fixed: 'right',
-      auth: 'system:menu:operation',
+      auth: 'system:ownership:operation',
     },
   });
-
-  // 单位变更
-  function handleChange(value) {
-    searchInfo.organizationId = value;
-    getTree().setSelectedKeys([]);
-    fetchTree();
-    reload();
-  }
 
   // 部门选中
   function handleSelect(keys: string[]) {
@@ -146,7 +138,7 @@
    * 配置人员归属
    */
   function handleConfig() {
-    if (organizationId.value == '') {
+    if (organizationId.value == '' || organizationId.value == undefined) {
       createMessage.warning('请选择部门');
     } else {
       const path = unref(currentRoute).path;

@@ -12,71 +12,42 @@
       <!-- 按钮工具栏 -->
       <template #toolbar>
         <a-button
-          v-auth="'system:dict:add'"
+          v-auth="'system:quartz-log:delete'"
+          preIcon="ant-design:clear-outlined"
           type="primary"
-          preIcon="ant-design:plus-outlined"
-          @click="handleCreate"
+          @click="handleDelete"
         >
-          新增
+          清空日志
         </a-button>
       </template>
       <!-- 表格内容 -->
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'jobName'">
-          <a @click="handleEdit(record)" :title="record.jobName">
-            {{ record.jobName }}
-          </a>
+          {{ record.jobName }}
         </template>
-
         <template v-else-if="column.key === 'success'">
           <dict-label :options="quartzLogStateOptions" :value="record.success" />
         </template>
         <!-- 表格按钮 -->
-        <template v-else-if="column.key === 'action'">
-          <TableAction
-            stopButtonPropagation
-            :actions="[
-              {
-                label: '编辑',
-                onClick: handleEdit.bind(null, record),
-                auth: 'system:dict:edit',
-              },
-              {
-                label: '删除',
-                color: 'error',
-                popConfirm: {
-                  title: '是否确认删除',
-                  confirm: handleDelete.bind(null, record),
-                },
-                auth: 'system:dict:delete',
-              },
-            ]"
-          />
-        </template>
       </template>
     </BasicTable>
-
-    <QuartzModal @register="registerModal" @success="handleSuccess" />
   </PageWrapper>
 </template>
 
 <script lang="ts" setup>
-  import { onMounted, unref } from 'vue';
+  import { h, onMounted, unref } from 'vue';
   import { useRouter, useRoute } from 'vue-router';
   // hooks
   import { useI18n } from '/@/hooks/web/useI18n';
   import { useMessage } from '/@/hooks/web/useMessage';
   import { useGo } from '/@/hooks/web/usePage';
   import { useTabs } from '/@/hooks/web/useTabs';
-  import { usePermission } from '/@/hooks/web/usePermission';
 
   // 组件
   import { Descriptions } from 'ant-design-vue';
   import { PageWrapper } from '/@/components/Page';
-  import { BasicTable, TableAction, useTable } from '/@/components/Table';
+  import { BasicTable, useTable } from '/@/components/Table';
   import { DictLabel } from '/@/components/DictLabel/index';
-  import { useModal } from '/@/components/Modal';
-  import QuartzModal from './QuartzModal.vue';
 
   // 接口
   import { quartzForm } from '/@/api/system/quartz';
@@ -84,23 +55,19 @@
   import { optionsListBatchApi } from '/@/api/sys/dict';
   // data
   import { quartzLogStateOptions, searchForm, tableColumns, record } from './quartzLog.data';
+
   const ADescriptions = Descriptions;
   const ADescriptionsItem = Descriptions.Item;
   const go = useGo();
   const { closeCurrent } = useTabs();
   const { t } = useI18n();
-  const { notification } = useMessage();
-  const { hasPermission } = usePermission();
+  const { notification, createConfirm } = useMessage();
+
   const { currentRoute } = useRouter();
   const route = useRoute();
 
-  // 通过路由获取字典code
+  // 通过路由获取ID
   const jobId = unref(currentRoute).params?.jobId ?? '';
-
-  /**
-   * 构建registerModal
-   */
-  const [registerModal, { openModal }] = useModal();
 
   /**
    * 构建registerTable
@@ -118,41 +85,22 @@
     canResize: false,
     showTableSetting: true,
     showIndexColumn: false,
-    actionColumn: {
-      width: 140,
-      title: '操作',
-      dataIndex: 'action',
-      fixed: 'right',
-      auth: 'system:dict:operation',
-    },
   });
-
-  /**
-   * 新增
-   */
-  function handleCreate() {
-    openModal(true, {
-      isUpdate: false,
-    });
-  }
-
-  /**
-   * 编辑
-   */
-  function handleEdit(record: Recordable) {
-    openModal(true, {
-      record,
-      isUpdate: true,
-    });
-  }
 
   /**
    * 删除
    */
-  async function handleDelete(record: Recordable) {
-    await quartzLogDelete(record);
-    notification.success({ message: `执行成功` });
-    handleSuccess();
+  async function handleDelete() {
+    createConfirm({
+      iconType: 'warning',
+      title: () => h('span', t('sys.app.logoutTip')),
+      content: () => h('span', t('确认清空日志')),
+      onOk: async () => {
+        await quartzLogDelete({ jobId: jobId });
+        notification.success({ message: `执行成功` });
+        handleSuccess();
+      },
+    });
   }
 
   /**

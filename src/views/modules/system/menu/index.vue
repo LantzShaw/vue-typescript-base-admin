@@ -1,7 +1,7 @@
 <template>
   <PageWrapper dense contentFullHeight contentClass="flex">
     <div class="w-1/4 xl:w-1/5">
-      <div class="m-4 mr-0 p-2 overflow-hidden bg-white">
+      <div class="m-2 mr-0 p-2 overflow-hidden bg-white">
         <Select
           :options="applicationOptions"
           v-model:value="applicationId"
@@ -153,7 +153,7 @@
     isTreeTable: true,
     pagination: false,
     actionColumn: {
-      width: 260,
+      width: 200,
       title: '操作',
       dataIndex: 'action',
       fixed: 'right',

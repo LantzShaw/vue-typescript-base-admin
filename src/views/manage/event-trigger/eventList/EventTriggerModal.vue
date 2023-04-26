@@ -1,54 +1,61 @@
 <template>
   <BasicModal
-    width="50%"
+    width="70%"
     v-bind="$attrs"
     @register="registerModal"
     showFooter
-    :okAuth="'manage:event:add'"
-    :title="getTitle"
+    :show-cancel-btn="false"
+    :show-ok-btn="false"
+    :okAuth="okAuth"
+    title="详情"
     :centered="true"
-    @ok="handleSubmit"
   >
     <div style="padding-left: 10px; padding-right: 10px">
-      <BasicForm autoFocusFirstItem @register="registerForm" />
+      <div class="h-12 leading-12 text-center bg-gray-100 font-bold">事件信息</div>
+      <a-descriptions bordered>
+        <a-descriptions-item label="设备名称" :span="2">{{
+          record.dtuipSensorName ?? '--'
+        }}</a-descriptions-item>
+
+        <a-descriptions-item label="触发值" :span="2">{{
+          record.dtuipTriggerVal
+        }}</a-descriptions-item>
+        <a-descriptions-item label="触发时间" :span="2">
+          {{ record.dtuipTriggerDate ?? '--' }}
+        </a-descriptions-item>
+
+        <a-descriptions-item label="事件状态" :span="2">
+          <dict-label :options="eventTriggerStatusOptions" :value="record.eventStatus" />
+        </a-descriptions-item>
+
+        <a-descriptions-item label="异常情况" :span="4">
+          <div v-html="record.dtuipTriggerContent ?? '--'"> </div>
+        </a-descriptions-item>
+      </a-descriptions>
     </div>
   </BasicModal>
 </template>
 <script lang="ts" setup>
-  import { computed, unref } from 'vue';
-  // hooks
-  import { useMessage } from '/@/hooks/web/useMessage';
-  // 组件
-  import { BasicForm, useForm } from '/@/components/Form/index';
-  import { BasicModal, useModalInner } from '/@/components/Modal';
-  // 接口
+import {ref, unref} from 'vue';
   import {
-    eventTriggerForm,
-    eventTriggerAdd,
-    eventTriggerUpdate,
-  } from '/@/api/manage/eventTrigger';
+    Descriptions as ADescriptions,
+    DescriptionsItem as ADescriptionsItem,
+  } from 'ant-design-vue';
+
+  // 组件
+  import { BasicModal, useModalInner } from '/@/components/Modal';
+  import { DictLabel } from '/@/components/DictLabel/index';
+
+  // 接口
+  import { eventTriggerForm } from '/@/api/manage/eventTrigger';
+
   // data
-  import { isUpdate, idRef, record, inputFormSchemas } from './eventTrigger.data';
-
-  const emit = defineEmits(['success', 'register']);
-
-  const { notification } = useMessage();
-
-  /**
-   * 构建表单
-   */
-  const [registerForm, { resetFields, setFieldsValue, validate }] = useForm({
-    labelWidth: 110,
-    schemas: inputFormSchemas,
-    showActionButtonGroup: false,
-    baseColProps: { lg: 24, md: 24 },
-  });
-
+  import { isUpdate, idRef, record, eventTriggerStatusOptions } from './eventTrigger.data';
+  const okAuth = ref(['manage:event:view']);
   /**
    * 构建Drawer
    */
-  const [registerModal, { setModalProps, closeModal }] = useModalInner(async (data) => {
-    resetFields();
+  const [registerModal, { setModalProps }] = useModalInner(async (data) => {
     setModalProps({ loading: true, confirmLoading: true });
 
     // 判断是否是更新
@@ -58,38 +65,10 @@
     if (unref(isUpdate)) {
       // 请求数据
       record.value = ((await eventTriggerForm({ id: data?.record?.id })) || {}) as Recordable;
-      idRef.value = data.record.id;
     } else {
       idRef.value = '';
     }
-    setFieldsValue({
-      ...record.value,
-    });
 
     setModalProps({ loading: false, confirmLoading: false });
   });
-
-  /**
-   * 提交表单
-   */
-  async function handleSubmit() {
-    try {
-      const values = await validate();
-      setModalProps({ loading: true, confirmLoading: true });
-      if (unref(isUpdate)) {
-        await eventTriggerAdd({ ...values, id: idRef.value });
-      } else {
-        await eventTriggerUpdate({ ...values });
-      }
-      notification.success({ message: `执行成功` });
-      closeModal();
-      emit('success');
-    } finally {
-      setModalProps({ loading: false, confirmLoading: false });
-    }
-  }
-  /**
-   * 标题
-   */
-  const getTitle = computed(() => (!unref(isUpdate) ? '新增' : '编辑'));
 </script>

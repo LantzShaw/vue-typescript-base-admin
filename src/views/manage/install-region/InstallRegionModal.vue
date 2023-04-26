@@ -4,26 +4,23 @@
     v-bind="$attrs"
     @register="registerModal"
     showFooter
-    :okAuth="'system:device:add'"
     :title="getTitle"
     :centered="true"
     @ok="handleSubmit"
   >
-    <div style="padding-left: 10px; padding-right: 10px">
+    <div style="padding-right: 10px; padding-left: 10px">
       <BasicForm autoFocusFirstItem @register="registerForm" />
-
-      <!-- <AMapSearch v-model:position="currentPosition" /> -->
     </div>
   </BasicModal>
 </template>
 <script lang="ts" setup>
-  import { computed, unref } from 'vue';
+  import { computed, ref, unref } from 'vue';
   // hooks
   import { useMessage } from '/@/hooks/web/useMessage';
   // 组件
+  import { Select } from 'ant-design-vue';
   import { BasicForm, useForm } from '/@/components/Form/index';
   import { BasicModal, useModalInner } from '/@/components/Modal';
-  // import { AMapSearch } from '/@/components/AMap';
   // 接口
   import {
     installRegionForm,
@@ -57,23 +54,13 @@
   const [registerModal, { setModalProps, closeModal }] = useModalInner(async (data) => {
     resetFields();
     setModalProps({ loading: true, confirmLoading: true });
-    const enterpriseOptions = (await enterpriseSelect({})) || [];
+    record.value = ((await installRegionForm({ id: data?.record?.id })) || {}) as Recordable;
+
     // 判断是否是更新
     isUpdate.value = !!data?.isUpdate;
-    record.value = [];
-
-    updateSchema([
-      {
-        field: 'organizationId',
-        componentProps: {
-          options: enterpriseOptions,
-        },
-      },
-    ]);
 
     if (unref(isUpdate)) {
       // 请求数据
-      record.value = ((await installRegionForm({ id: data?.record?.id })) || {}) as Recordable;
       idRef.value = data.record.id;
     } else {
       idRef.value = '';
@@ -104,15 +91,9 @@
       setModalProps({ loading: false, confirmLoading: false });
     }
   }
+
   /**
    * 标题
    */
   const getTitle = computed(() => (!unref(isUpdate) ? '新增' : '编辑'));
-
-  // watch(currentPosition, (newValue) => {
-  //   setFieldsValue({
-  //     dtuipLng: newValue[0],
-  //     dtuipLat: newValue[1],
-  //   });
-  // });
 </script>

@@ -11,7 +11,7 @@
       @click="handleOk"
       :loading="confirmLoading"
       v-bind="okButtonProps"
-      v-if="showOkBtn"
+      v-if="showOkBtn && getOkAuth"
     >
       <Icon icon="ant-design:check-outlined" />
       {{ okText }}
@@ -20,16 +20,23 @@
   </div>
 </template>
 <script lang="ts">
-  import { defineComponent } from 'vue';
-  import { Icon } from '/@/components/Icon';
-
+  import { defineComponent, computed } from 'vue';
+  import Icon from '@/components/Icon/Icon.vue';
+  import { usePermission } from '/@/hooks/web/usePermission';
   import { basicProps } from '../props';
+
   export default defineComponent({
     name: 'BasicModalFooter',
     components: { Icon },
     props: basicProps,
     emits: ['ok', 'cancel'],
-    setup(_, { emit }) {
+    setup(props, { emit }) {
+      const { hasPermission } = usePermission();
+
+      const getOkAuth = computed(() => {
+        return hasPermission(props.okAuth);
+      });
+
       function handleOk(e: Event) {
         emit('ok', e);
       }
@@ -38,7 +45,7 @@
         emit('cancel', e);
       }
 
-      return { handleOk, handleCancel };
+      return { getOkAuth, handleOk, handleCancel };
     },
   });
 </script>

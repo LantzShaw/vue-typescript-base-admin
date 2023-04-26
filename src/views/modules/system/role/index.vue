@@ -19,9 +19,7 @@
             {{ record.roleName }}
           </a>
         </template>
-        <template v-else-if="column.key === 'dataScopeType'">
-          <dict-label :options="dataScopeTypeOptions" :value="record.dataScopeType" />
-        </template>
+
         <template v-else-if="column.key === 'status'">
           <dict-label :options="dataItemStatusOptions" :value="record.status" />
         </template>
@@ -63,7 +61,7 @@
         </template>
       </template>
     </BasicTable>
-    <RoleDrawer @register="registerDrawer" @success="handleSuccess" />
+    <RoleModal @register="registerModal" @success="handleSuccess" />
     <RoleMenuDrawer @register="registerRoleMenuDrawer" @success="handleSuccess" />
     <RoleAuthorityDrawer @register="registerRoleAuthorityDrawer" @success="handleSuccess" />
     <RoleDataScopeDrawer @register="registerRoleDataScopeDrawer" @success="handleSuccess" />
@@ -77,8 +75,9 @@
   // 组件
   import { BasicTable, useTable, TableAction } from '/@/components/Table';
   import { DictLabel } from '/@/components/DictLabel/index';
+  import { useModal } from '/@/components/Modal';
   import { useDrawer } from '/@/components/Drawer';
-  import RoleDrawer from './RoleDrawer.vue';
+  import RoleModal from './RoleModal.vue';
   import RoleMenuDrawer from './RoleMenuDrawer.vue';
   import RoleAuthorityDrawer from './RoleAuthorityDrawer.vue';
   import RoleDataScopeDrawer from './RoleDataScopeDrawer.vue';
@@ -87,13 +86,7 @@
   import { rolePage, roleDelete } from '/@/api/system/role';
   import { optionsListBatchApi } from '/@/api/sys/dict';
   // data
-  import {
-    tfOptions,
-    dataItemStatusOptions,
-    dataScopeTypeOptions,
-    searchForm,
-    tableColumns,
-  } from './role.data';
+  import { tfOptions, dataItemStatusOptions, searchForm, tableColumns } from './role.data';
 
   const { t } = useI18n();
   const { notification } = useMessage();
@@ -101,7 +94,7 @@
   /**
    * 构建registerDrawer
    */
-  const [registerDrawer, { openDrawer }] = useDrawer();
+  const [registerModal, { openModal }] = useModal();
 
   /**
    * 构建registerRoleMenuDrawer
@@ -126,6 +119,7 @@
       title: '操作',
       dataIndex: 'action',
       fixed: 'right',
+      auth: 'system:role:operation',
     },
   });
 
@@ -133,7 +127,7 @@
    * 新增
    */
   function handleCreate() {
-    openDrawer(true, {
+    openModal(true, {
       isUpdate: false,
     });
   }
@@ -142,19 +136,9 @@
    * 编辑
    */
   function handleEdit(record: Recordable) {
-    openDrawer(true, {
+    openModal(true, {
       record,
       isUpdate: true,
-    });
-  }
-
-  /**
-   * 复制
-   */
-  function handleCopy(record: Recordable) {
-    openDrawer(true, {
-      record,
-      isUpdate: false,
     });
   }
 
@@ -205,14 +189,8 @@
    * 初始化字典数据
    */
   async function initDict() {
-    const { tf, data_scope_type, data_item_status } = await optionsListBatchApi([
-      'tf',
-      'data_scope_type',
-      'data_item_status',
-    ]);
-
+    const { tf, data_item_status } = await optionsListBatchApi(['tf', 'data_item_status']);
     tfOptions.value = tf || [];
-    dataScopeTypeOptions.value = data_scope_type || [];
     dataItemStatusOptions.value = data_item_status || [];
   }
 

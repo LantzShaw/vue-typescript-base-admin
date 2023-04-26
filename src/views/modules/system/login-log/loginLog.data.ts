@@ -20,7 +20,7 @@ const { t } = useI18n();
  *  查询表单字段
  */
 export const searchForm: FormProps = {
-  baseColProps: { lg: 6, md: 8 },
+  baseColProps: { lg: 8, md: 8 },
   labelWidth: 90,
   schemas: [
     {

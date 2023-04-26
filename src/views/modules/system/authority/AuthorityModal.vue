@@ -5,9 +5,10 @@
     @register="registerModal"
     :title="getTitle"
     :centered="true"
+    :okAuth="okAuth"
     @ok="handleSubmit"
   >
-    <div style="padding-left: 10px; padding-right: 10px">
+    <div style="padding-right: 10px; padding-left: 10px">
       <BasicForm autoFocusFirstItem @register="registerForm" />
     </div>
   </BasicModal>
@@ -30,6 +31,7 @@
   // data
   import { isUpdate, idRef, record, inputFormSchemas } from './authority.data';
 
+  const okAuth = ref(['system:authority:add', 'system:authority:edit']);
   const emit = defineEmits(['success', 'register']);
 
   const { notification } = useMessage();

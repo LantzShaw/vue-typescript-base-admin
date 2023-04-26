@@ -1,4 +1,4 @@
-import { ref, unref } from 'vue';
+import { ref } from 'vue';
 // hooks
 import { useI18n } from '/@/hooks/web/useI18n';
 // 公共组件
@@ -8,8 +8,6 @@ import { FormSchema } from '/@/components/Form';
 // 接口
 import { optionsListApi } from '/@/api/sys/dict';
 
-import { devicePage } from '/@/api/manage/device';
-import { companyPage } from '/@/api/manage/company';
 import { installRegionPage } from '/@/api/manage/installRegion';
 
 export const isUpdate = ref(true);
@@ -23,6 +21,9 @@ export const sensorTypeOptions = ref<any[]>([]);
 export const tfOptions = ref<any[]>([]);
 export const grantTypesOptions = ref<any[]>([]);
 export const scopeOptions = ref<any[]>([]);
+export const deviceOptions = ref<any[]>([]);
+export const enterpriseOptions = ref<any[]>([]);
+export const regionOptions = ref<any[]>([]);
 
 const { t } = useI18n();
 
@@ -33,53 +34,6 @@ export const searchForm: FormProps = {
   baseColProps: { lg: 8, md: 8 },
   labelWidth: 90,
   schemas: [
-    {
-      label: t('绑定设备'),
-      field: 'deviceId',
-      component: 'ApiSelect',
-      required: false,
-      componentProps: {
-        maxlength: 100,
-        placeholder: '请输入选择设备',
-        api: devicePage,
-        params: {
-          pageIndex: 1,
-          pageSize: 100000,
-        },
-        resultField: 'records',
-        labelField: 'deviceName',
-        valueField: 'id',
-      },
-    },
-
-    {
-      label: t('传感器名称'),
-      field: 'sensorName',
-      component: 'Input',
-    },
-    // {
-    //   label: t('传感器编号'),
-    //   field: 'sensorNo',
-    //   component: 'Input',
-    // },
-    {
-      label: t('是否报警'),
-      field: 'dtuipIsAlarms',
-      component: 'Select',
-      componentProps: {
-        options: alarmStatusOptions,
-        allowClear: true,
-      },
-    },
-    // {
-    //   label: t('是否删除'),
-    //   field: 'dtuipIsDelete',
-    //   component: 'Select',
-    //   componentProps: {
-    //     options: deleteStatusOptions,
-    //     allowClear: true,
-    //   },
-    // },
     {
       label: t('是否在线'),
       field: 'dtuipIsLine',
@@ -98,6 +52,50 @@ export const searchForm: FormProps = {
         allowClear: true,
       },
     },
+
+    {
+      label: t('传感器名称'),
+      field: 'sensorName',
+      component: 'Input',
+    },
+    {
+      label: t('关联企业'),
+      field: 'orgName',
+      component: 'Input',
+    },
+    // {
+    //   label: t('传感器编号'),
+    //   field: 'sensorNo',
+    //   component: 'Input',
+    // },
+    // {
+    //   label: t('绑定设备'),
+    //   field: 'deviceId',
+    //   component: 'Select',
+    //   required: false,
+    //   componentProps: {
+    //     placeholder: '请选择绑定设备',
+    //     options: deviceOptions,
+    //   },
+    // },
+    // {
+    //   label: t('是否报警'),
+    //   field: 'dtuipIsAlarms',
+    //   component: 'Select',
+    //   componentProps: {
+    //     options: alarmStatusOptions,
+    //     allowClear: true,
+    //   },
+    // },
+    // {
+    //   label: t('是否删除'),
+    //   field: 'dtuipIsDelete',
+    //   component: 'Select',
+    //   componentProps: {
+    //     options: deleteStatusOptions,
+    //     allowClear: true,
+    //   },
+    // },
   ],
 };
 
@@ -112,32 +110,25 @@ export const tableColumns: BasicColumn[] = [
     width: 130,
     align: 'center',
   },
-  // {
-  //   title: t('传感器编号'),
-  //   dataIndex: 'sensorNo',
-  //   sorter: true,
-  //   width: 100,
-  //   align: 'center',
-  // },
   {
-    title: t('心跳包时间'),
-    dataIndex: 'dtuipHeartbeatDate',
+    title: t('关联企业'),
+    dataIndex: 'enterpriseName',
     sorter: true,
-    width: 160,
+    width: 130,
     align: 'center',
   },
   {
-    title: t('数据最后上报时间'),
-    dataIndex: 'dtuipUpdateDate',
+    title: t('所属区域'),
+    dataIndex: 'regionName',
     sorter: true,
-    width: 160,
+    width: 130,
     align: 'center',
   },
-
   {
-    title: t('数值'),
-    dataIndex: 'dtuipValue',
-    width: 110,
+    title: t('位号'),
+    dataIndex: 'locationNo',
+    sorter: true,
+    width: 130,
     align: 'center',
   },
   {
@@ -155,9 +146,10 @@ export const tableColumns: BasicColumn[] = [
     align: 'center',
   },
   {
-    title: t('是否报警'),
-    dataIndex: 'dtuipIsAlarms',
-    width: 90,
+    title: t('数据最后上报时间'),
+    dataIndex: 'dtuipUpdateDate',
+    sorter: true,
+    width: 160,
     align: 'center',
   },
   {
@@ -166,6 +158,25 @@ export const tableColumns: BasicColumn[] = [
     width: 90,
     align: 'center',
   },
+  // {
+  //   title: t('心跳包时间'),
+  //   dataIndex: 'dtuipHeartbeatDate',
+  //   sorter: true,
+  //   width: 160,
+  //   align: 'center',
+  // },
+  // {
+  //   title: t('数值'),
+  //   dataIndex: 'dtuipValue',
+  //   width: 110,
+  //   align: 'center',
+  // },
+  // {
+  //   title: t('是否报警'),
+  //   dataIndex: 'dtuipIsAlarms',
+  //   width: 90,
+  //   align: 'center',
+  // },
 ];
 
 /**
@@ -173,23 +184,22 @@ export const tableColumns: BasicColumn[] = [
  */
 export const inputFormSchemas: FormSchema[] = [
   {
-    label: t('绑定设备'),
-    field: 'deviceId',
-    component: 'ApiSelect',
-    required: false,
-    componentProps: {
-      maxlength: 100,
-      placeholder: '请输入选择设备',
-      api: devicePage,
-      params: {
-        pageIndex: 1,
-        pageSize: 10,
-      },
-      resultField: 'records',
-      labelField: 'deviceName',
-      valueField: 'id',
-    },
+    label: t('基本信息'),
+    field: 'router',
+    component: 'Divider',
+    colProps: { lg: 24, md: 24 },
+    // ifShow: ({ values }) => !isButton(values.type),
   },
+  // {
+  //   label: t('绑定设备'),
+  //   field: 'deviceId',
+  //   component: 'Select',
+  //   required: false,
+  //   componentProps: {
+  //     placeholder: '请选择绑定设备',
+  //     options: deviceOptions,
+  //   },
+  // },
   {
     label: t('传感器名称'),
     field: 'sensorName',
@@ -216,6 +226,9 @@ export const inputFormSchemas: FormSchema[] = [
     component: 'ApiSelect',
     required: true,
     componentProps: {
+      placeholder: '请选择传感器类型',
+      // options: sensorTypeOptions,
+      readonly: true,
       api: optionsListApi,
       params: {
         dictCode: 'sensor_type',
@@ -223,25 +236,67 @@ export const inputFormSchemas: FormSchema[] = [
     },
   },
   {
-    label: t('所属单位'),
+    label: t('关联企业'),
     field: 'organizationId',
-    component: 'ApiSelect',
+    component: 'Select',
+    // required: true,
+    // colSlot: 'organizationId',
     componentProps: {
-      maxlength: 100,
-      placeholder: '请输入所属单位',
-      api: companyPage,
-      params: {
-        pageIndex: 1,
-        pageSize: 100000,
-      },
-      resultField: 'records',
-      labelField: 'enterpriseName',
-      valueField: 'id',
+      disabled: true,
+      placeholder: '请选择使用单位',
+      options: enterpriseOptions,
     },
   },
+  // {
+  //   label: t('使用单位'),
+  //   field: 'organizationId',
+  //   component: 'Select',
+  //   componentProps: ({ formModel, formActionType }) => {
+  //     console.log('---------enterpriseOptions--------', enterpriseOptions);
+  //     // const provincesOptions = [
+  //     //   {
+  //     //     id: 'guangdong',
+  //     //     label: '广东省',
+  //     //     value: '1',
+  //     //     key: '1',
+  //     //   },
+  //     //   {
+  //     //     id: 'jiangsu',
+  //     //     label: '江苏省',
+  //     //     value: '2',
+  //     //     key: '2',
+  //     //   },
+  //     // ];
+
+  //     return {
+  //       options: enterpriseOptions.value,
+  //       placeholder: '省份与城市联动',
+  //       onChange: (e: any) => {
+  //         console.log('e', e);
+  //         // let citiesOptions =
+  //         //   e == 1
+  //         //     ? citiesOptionsData[provincesOptions[0].id]
+  //         //     : citiesOptionsData[provincesOptions[1].id];
+  //         // // console.log(citiesOptions)
+  //         // if (e === undefined) {
+  //         //   citiesOptions = [];
+  //         // }
+  //         // formModel.city = undefined; //  reset city value
+  //         // const { updateSchema } = formActionType;
+  //         // updateSchema({
+  //         //   field: 'city',
+  //         //   componentProps: {
+  //         //     options: citiesOptions,
+  //         //   },
+  //         // });
+  //       },
+  //     };
+  //   },
+  // },
   {
     label: t('采样方式'),
     field: 'samplingMode',
+    required: true,
     component: 'ApiSelect',
     componentProps: {
       api: optionsListApi,
@@ -253,6 +308,7 @@ export const inputFormSchemas: FormSchema[] = [
   {
     label: t('气体类型'),
     field: 'gasType',
+    required: true,
     component: 'ApiSelect',
     componentProps: {
       api: optionsListApi,
@@ -264,6 +320,7 @@ export const inputFormSchemas: FormSchema[] = [
   {
     label: t('气体名称'),
     field: 'gasName',
+    required: true,
     component: 'Input',
     componentProps: {
       maxlength: 100,
@@ -273,28 +330,31 @@ export const inputFormSchemas: FormSchema[] = [
   {
     label: t('现场声光'),
     field: 'liveSoundLight',
+    required: true,
     component: 'ApiSelect',
     componentProps: {
       api: optionsListApi,
       params: {
-        dictCode: 'tf',
+        dictCode: 'hn',
       },
     },
   },
   {
     label: t('现场显示'),
     field: 'liveDisplay',
+    required: true,
     component: 'ApiSelect',
     componentProps: {
       api: optionsListApi,
       params: {
-        dictCode: 'tf',
+        dictCode: 'hn',
       },
     },
   },
   {
     label: t('型号规格'),
     field: 'specifications',
+    required: true,
     component: 'Input',
     componentProps: {
       maxlength: 100,
@@ -304,6 +364,7 @@ export const inputFormSchemas: FormSchema[] = [
   {
     label: t('测量范围'),
     field: 'measuringRange',
+    required: true,
     component: 'Input',
     componentProps: {
       maxlength: 100,
@@ -313,6 +374,7 @@ export const inputFormSchemas: FormSchema[] = [
   {
     label: t('出厂编号'),
     field: 'factoryNumber',
+    required: true,
     component: 'Input',
     componentProps: {
       maxlength: 100,
@@ -321,7 +383,8 @@ export const inputFormSchemas: FormSchema[] = [
   },
   {
     label: t('制造厂家'),
-    field: 'factoryNumber',
+    field: 'manufacturer',
+    required: true,
     component: 'Input',
     componentProps: {
       maxlength: 100,
@@ -344,15 +407,6 @@ export const inputFormSchemas: FormSchema[] = [
     componentProps: {
       maxlength: 100,
       placeholder: '请输入防爆合格',
-    },
-  },
-  {
-    label: t('探测器类型'),
-    field: 'probeType',
-    component: 'Input',
-    componentProps: {
-      maxlength: 100,
-      placeholder: '请输入探测器类型',
     },
   },
   {
@@ -409,15 +463,6 @@ export const inputFormSchemas: FormSchema[] = [
   //   },
   // },
   {
-    label: t('位号'),
-    field: 'locationNo',
-    component: 'Input',
-    componentProps: {
-      maxlength: 100,
-      placeholder: '请输入位号',
-    },
-  },
-  {
     label: t('短时间接触容许浓度'),
     field: 'shortTimeConc',
     component: 'Input',
@@ -446,13 +491,33 @@ export const inputFormSchemas: FormSchema[] = [
   },
 
   {
-    label: t('所属区域'),
-    field: 'installRegion',
+    label: t('安装信息'),
+    field: 'router',
+    component: 'Divider',
+    colProps: { lg: 24, md: 24 },
+    // ifShow: ({ values }) => !isButton(values.type),
+  },
+  {
+    label: t('位号'),
+    field: 'locationNo',
+    required: true,
     component: 'Input',
     componentProps: {
       maxlength: 100,
-      placeholder: '请输入所属区域',
+      placeholder: '请输入位号',
     },
+  },
+  {
+    label: t('所属区域'),
+    field: 'regionId',
+    required: true,
+    component: 'ApiSelect',
+    // componentProps: {
+    //   options: regionOptions,
+    // },
+    // component: 'Select',
+    // colSlot: 'regionId',
+    slot: 'regionId',
   },
   {
     label: t('安装位置'),
@@ -461,6 +526,15 @@ export const inputFormSchemas: FormSchema[] = [
     componentProps: {
       maxlength: 100,
       placeholder: '请输入安装位置',
+    },
+  },
+  {
+    label: t('安装高度'),
+    field: 'installHeight',
+    component: 'Input',
+    componentProps: {
+      maxlength: 100,
+      placeholder: '请输入安装高度',
     },
   },
   {
@@ -486,6 +560,13 @@ export const inputFormSchemas: FormSchema[] = [
     },
   },
   {
+    label: t('接入信息'),
+    field: 'router',
+    component: 'Divider',
+    colProps: { lg: 24, md: 24 },
+    // ifShow: ({ values }) => !isButton(values.type),
+  },
+  {
     label: t('IOT序号'),
     field: 'iotNo',
     component: 'Input',
@@ -508,12 +589,9 @@ export const inputFormSchemas: FormSchema[] = [
   {
     label: t('使用状态'),
     field: 'useStatus',
-    component: 'ApiSelect',
+    component: 'Input',
     componentProps: {
-      api: optionsListApi,
-      params: {
-        dictCode: 'access_status',
-      },
+      placeholder: '请输入使用状态',
     },
   },
 ];

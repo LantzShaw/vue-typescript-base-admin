@@ -47,7 +47,6 @@
   // 组件
   import { PageWrapper } from '/@/components/Page';
   import { BasicTable, TableAction, useTable } from '/@/components/Table';
-  import { DictLabel } from '/@/components/DictLabel/index';
   import { useModal } from '/@/components/Modal';
   import CompanyModal from './CompanyModal.vue';
   // 接口

@@ -1,14 +1,16 @@
 import { useGlobSetting } from '/@/hooks/setting';
 import { defHttp } from '/@/utils/http/axios';
+
 const { apiUrl } = useGlobSetting();
 
 enum Api {
+  // SensorPage = '/biz/device-sensor/page',
   SensorPage = '/biz/device-sensor/page',
   SensorDelete = '/biz/device-sensor/delete',
   SensorAdd = '/biz/device-sensor/add',
   SensorUpdate = '/biz/device-sensor/edit',
   SensorList = '/biz/device-sensor/list',
-  SensorForm = '/biz/device-sensor/form',
+  SensorForm = '/biz/device-sensor/getbyid',
   SensorExport = '/biz/device-sensor/export',
   SensorImport = '/biz/device-sensor/importexcel',
   SensorHistoryData = '/biz/device-sensor/getfigure',
@@ -19,8 +21,7 @@ export const sensorDelete = (params?: any) => defHttp.get({ url: Api.SensorDelet
 export const sensorAdd = (data?: any) => defHttp.post({ url: Api.SensorAdd, data });
 export const sensorUpdate = (data?: any) => defHttp.post({ url: Api.SensorUpdate, data });
 export const sensorForm = (params?: any) => defHttp.get({ url: Api.SensorForm, params });
-export const sensorHistoryData = (params?: any) =>
-  defHttp.get({ url: Api.SensorHistoryData, params });
+export const sensorHistoryData = (data?: any) => defHttp.post({ url: Api.SensorHistoryData, data });
 
 export const sensorExport = (params?: any) =>
   defHttp.get(

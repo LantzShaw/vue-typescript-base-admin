@@ -76,6 +76,7 @@
 
   import { rolePage, roleDelete } from '/@/api/system/role';
   import { userOwnRole, userBindRole, userUnbindRole, userRolePage } from '/@/api/system/user';
+
   const idRef = ref('');
 
   const roleIds = reactive([] as any[]);
@@ -117,7 +118,7 @@
    *  查询表单字段
    */
   const searchForm: FormProps = {
-    baseColProps: { lg: 6, md: 8 },
+    baseColProps: { lg: 8, md: 8 },
     labelWidth: 90,
     schemas: [
       {
@@ -183,7 +184,7 @@
         title: '操作',
         dataIndex: 'action',
         slots: { customRender: 'action' },
-        fixed: undefined,
+        fixed: 'right',
       },
     });
 

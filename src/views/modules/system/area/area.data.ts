@@ -2,9 +2,8 @@ import { ref } from 'vue';
 // hooks
 import { useI18n } from '/@/hooks/web/useI18n';
 // 公共组件
-import { FormProps } from '/@/components/Form';
+import { FormProps, FormSchema } from '/@/components/Form';
 import { BasicColumn } from '/@/components/Table';
-import { FormSchema } from '/@/components/Form';
 import { TreeItem } from '/@/components/Tree/index';
 
 // 接口

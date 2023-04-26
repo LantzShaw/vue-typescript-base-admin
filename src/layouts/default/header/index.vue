@@ -5,10 +5,11 @@
       <!-- logo -->
       <AppLogo
         v-if="getShowHeaderLogo || getIsMobile"
-        :class="`${prefixCls}-logo`"
         :theme="getHeaderTheme"
         :style="getLogoWidth"
       />
+      <!-- :class="`${prefixCls}-logo`" -->
+
       <LayoutTrigger
         v-if="
           (getShowContent && getShowHeaderTrigger && !getSplit && !getIsMixSidebar) || getIsMobile
@@ -38,9 +39,11 @@
 
       <ErrorAction v-if="getUseErrorHandle" :class="`${prefixCls}-action__item error-action`" />
 
-      <Notify v-if="getShowNotice" :class="`${prefixCls}-action__item notify-item`" />
+      <!-- <Notify v-if="getShowNotice" :class="`${prefixCls}-action__item notify-item`" /> -->
 
       <FullScreen v-if="getShowFullScreen" :class="`${prefixCls}-action__item fullscreen-item`" />
+
+      <LockScreen v-if="getUseLockPage" />
 
       <AppLocalePicker
         v-if="getShowLocalePicker"
@@ -61,11 +64,9 @@
   import { propTypes } from '/@/utils/propTypes';
 
   import { Layout } from 'ant-design-vue';
-  import { AppLogo } from '/@/components/Application';
+  import { AppLogo, AppSearch, AppLocalePicker } from '/@/components/Application';
   import LayoutMenu from '../menu/index.vue';
   import LayoutTrigger from '../trigger/index.vue';
-
-  import { AppSearch } from '/@/components/Application';
 
   import { useHeaderSetting } from '/@/hooks/setting/useHeaderSetting';
   import { useMenuSetting } from '/@/hooks/setting/useMenuSetting';
@@ -73,7 +74,6 @@
 
   import { MenuModeEnum, MenuSplitTyeEnum } from '/@/enums/menuEnum';
   import { SettingButtonPositionEnum } from '/@/enums/appEnum';
-  import { AppLocalePicker } from '/@/components/Application';
 
   import {
     UserDropDown,
@@ -82,6 +82,7 @@
     FullScreen,
     Notify,
     ErrorAction,
+    LockScreen,
   } from './components';
   import { useAppInject } from '/@/hooks/web/useAppInject';
   import { useDesign } from '/@/hooks/web/useDesign';
@@ -104,6 +105,7 @@
       Notify,
       AppSearch,
       ErrorAction,
+      LockScreen,
       SettingDrawer: createAsyncComponent(() => import('/@/layouts/default/setting/index.vue'), {
         loading: true,
       }),
@@ -133,6 +135,7 @@
         getShowHeaderLogo,
         getShowHeader,
         getShowSearch,
+        getUseLockPage,
       } = useHeaderSetting();
 
       const { getShowLocalePicker } = useLocale();
@@ -201,10 +204,11 @@
         getShowSettingButton,
         getShowSetting,
         getShowSearch,
+        getUseLockPage,
       };
     },
   });
 </script>
 <style lang="less">
-  @import './index.less';
+  @import url('./index.less');
 </style>

@@ -56,7 +56,7 @@
 </template>
 <script lang="ts" setup>
   import { Tag, Badge } from 'ant-design-vue';
-  import { Icon } from '/@/components/Icon';
+  import Icon from '@/components/Icon/Icon.vue';
   import { propTypes } from '/@/utils/propTypes';
   import { computed } from 'vue';
   const props = defineProps({

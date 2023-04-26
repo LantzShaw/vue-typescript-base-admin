@@ -18,36 +18,31 @@
       </template>
       <!-- 表格内容 -->
       <template #bodyCell="{ column, record }">
-        <template v-if="column.key === 'sensorName'">
-          <a @click="handleEdit(record)" :title="record.sensorName">
-            {{ record.sensorName }}
+        <template v-if="column.key === 'planNo'">
+          <a @click="handleEdit(record)" :title="record.planNo">
+            {{ record.planNo }}
           </a>
         </template>
 
+        <template v-else-if="column.key === 'bizEnterprise'">
+          <span v-if="record.bizEnterprise?.enterpriseNo">
+            [{{ record.bizEnterprise?.enterpriseNo }}] {{ record.bizEnterprise?.enterpriseName }}
+          </span>
+        </template>
         <template v-else-if="column.key === 'planStartDate'">
-          {{ formatToDate(record.planStartDate) }}
+          {{ record.planStartDate }}
+          -
+          {{ record.planEndDate }}
         </template>
-        <template v-else-if="column.key === 'planEndDate'">
-          {{ formatToDate(record.planEndDate) }}
-        </template>
-        <template v-else-if="column.key === 'dtuipSensorTypeId'">
-          <dict-label :options="sensorTypeOptions" :value="record.dtuipSensorTypeId" />
-        </template>
-        <template v-else-if="column.key === 'dtuipIsAlarms'">
-          <dict-label :options="alarmStatusOptions" :value="record.dtuipIsAlarms" />
-        </template>
-        <template v-else-if="column.key === 'dtuipIsDelete'">
-          <dict-label :options="deleteStatusOptions" :value="record.dtuipIsDelete" />
-        </template>
-        <template v-else-if="column.key === 'dtuipIsLine'">
-          <dict-label :options="onlineStatusOptions" :value="record.dtuipIsLine" />
-        </template>
+
         <template v-else-if="column.key === 'planCycle'">
-          <dict-label :options="planPeriodTypeOptions" :value="record.planCycle" />
+          {{ record.planCycleArgument }}
+          <dict-label :options="planCycleOptions" :value="record.planCycle" />
         </template>
-        <!-- <template v-else-if="column.key === 'status'">
-          <dict-label :options="onlineStatusOptions" :value="record.dtuipIsLine" />
-        </template> -->
+
+        <template v-else-if="column.key === 'status'">
+          <dict-label :options="dataItemStatusOptions" :value="record.status" />
+        </template>
 
         <!-- 表格按钮 -->
         <template v-else-if="column.key === 'action'">
@@ -89,14 +84,13 @@
   // hooks
   import { useMessage } from '/@/hooks/web/useMessage';
   // 组件
+
   import { PageWrapper } from '/@/components/Page';
   import { BasicTable, TableAction, useTable } from '/@/components/Table';
   import { DictLabel } from '/@/components/DictLabel/index';
   import { useModal } from '/@/components/Modal';
   import EquipmentMaintenancePlanModal from './EquipmentMaintenancePlanModal.vue';
   import { jsonToSheetXlsx } from '/@/components/Excel';
-
-  import { formatToDate } from '/@/utils/dateUtil';
 
   // 接口
   import {
@@ -106,11 +100,8 @@
   import { optionsListBatchApi } from '/@/api/sys/dict';
   // data
   import {
-    alarmStatusOptions,
-    deleteStatusOptions,
-    onlineStatusOptions,
-    sensorTypeOptions,
-    planPeriodTypeOptions,
+    planCycleOptions,
+    dataItemStatusOptions,
     searchForm,
     tableColumns,
   } from './equipmentMaintenancePlan.data';
@@ -141,7 +132,7 @@
     showTableSetting: true,
     showIndexColumn: true,
     actionColumn: {
-      width: 240,
+      width: 140,
       title: '操作',
       dataIndex: 'action',
       // slots: { customRender: 'action' },
@@ -155,7 +146,7 @@
    * 跳转至关联设备
    */
   function navigateToAssociationDevice(record: Recordable) {
-    go(`/association/device/${record.id}`);
+    go(`/association/device/${record.id}?organizationId=${record.organizationId}`);
   }
 
   /**
@@ -213,19 +204,13 @@
    * 初始化字典数据
    */
   async function initDict() {
-    const { alarm_status, delete_status, online_status, sensor_type, plan_period_type } =
-      await optionsListBatchApi([
-        'alarm_status',
-        'delete_status',
-        'online_status',
-        'sensor_type',
-        'plan_period_type',
-      ]);
-    alarmStatusOptions.value = alarm_status || [];
-    deleteStatusOptions.value = delete_status || [];
-    onlineStatusOptions.value = online_status || [];
-    sensorTypeOptions.value = sensor_type || [];
-    planPeriodTypeOptions.value = plan_period_type || [];
+    const { plan_cycle, data_item_status } = await optionsListBatchApi([
+      'plan_cycle',
+      'data_item_status',
+    ]);
+
+    planCycleOptions.value = plan_cycle || [];
+    dataItemStatusOptions.value = data_item_status || [];
   }
 
   onMounted(() => {

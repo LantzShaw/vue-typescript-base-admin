@@ -3,14 +3,6 @@
     <BasicTable @register="registerTable">
       <!-- 按钮工具栏 -->
       <template #toolbar>
-        <!-- <a-button
-          v-auth="'manage:device:add'"
-          type="primary"
-          preIcon="ant-design:plus-outlined"
-          @click="handleCreate"
-        >
-          新增
-        </a-button> -->
         <a-button
           :loading="isExportLoading"
           v-auth="'manage:device:export'"
@@ -30,7 +22,10 @@
       </template>
       <!-- 表格内容 -->
       <template #bodyCell="{ column, record }">
-        <template v-if="column.key === 'deviceName'">
+        <template v-if="column.key === 'bizDeviceGroup'">
+          {{ record.bizDeviceGroup?.groupName }}
+        </template>
+        <template v-else-if="column.key === 'deviceName'">
           <a @click="handleEdit(record)" :title="record.deviceName">
             {{ record.deviceName }}
           </a>
@@ -55,27 +50,6 @@
           <dict-label :options="onlineStatusOptions" :value="record.dtuipIsLine" />
         </template>
         <!-- 表格按钮 -->
-        <template v-else-if="column.key === 'action'">
-          <TableAction
-            stopButtonPropagation
-            :actions="[
-              {
-                label: '编辑',
-                onClick: handleEdit.bind(null, record),
-                auth: 'manage:device:edit',
-              },
-              // {
-              //   label: '删除',
-              //   color: 'error',
-              //   auth: 'manage:device:delete',
-              //   popConfirm: {
-              //     title: '是否确认删除',
-              //     confirm: handleDelete.bind(null, record),
-              //   },
-              // },
-            ]"
-          />
-        </template>
       </template>
     </BasicTable>
     <DeviceModal @register="registerModal" @success="handleSuccess" />
@@ -111,10 +85,12 @@
     deleteStatusOptions,
     onlineStatusOptions,
     dataItemStatusOptions,
+    deviceGroupOptions,
     searchForm,
     tableColumns,
   } from './device.data';
   import { downloadByData } from '/@/utils/file/download';
+  import { deviceGroupPage } from '/@/api/manage/deviceGroup';
 
   const { notification } = useMessage();
 
@@ -137,20 +113,7 @@
     canResize: false,
     showTableSetting: true,
     showIndexColumn: false,
-    actionColumn: {
-      width: 120,
-      title: '操作',
-      dataIndex: 'action',
-      // slots: { customRender: 'action' },
-      fixed: 'right',
-      // fixed: undefined,
-      // auth: 'system:application:operation',
-    },
   });
-
-  // const loadDataSuccess = (rawFile) => {
-  //   console.log(rawFile);
-  // };
 
   /**
    * 启用、禁用 - 切换事件
@@ -231,6 +194,20 @@
   }
 
   /**
+   * 获取设备分组列表
+   */
+  async function getDeviceGroup() {
+    const response = await deviceGroupPage({ pageIndex: 1, pageSize: 100000 });
+
+    deviceGroupOptions.value = response.records.map((deviceGroup) => {
+      return {
+        label: deviceGroup.groupName,
+        value: deviceGroup.id,
+      };
+    });
+  }
+
+  /**
    * 初始化字典数据
    */
   async function initDict() {
@@ -249,6 +226,7 @@
 
   onMounted(() => {
     initDict();
+    getDeviceGroup();
   });
 </script>
 

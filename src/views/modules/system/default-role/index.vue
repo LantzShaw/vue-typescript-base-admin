@@ -52,16 +52,13 @@
   </PageWrapper>
 </template>
 <script lang="ts" setup>
-  import { onMounted } from 'vue';
   // hooks
   import { useI18n } from '/@/hooks/web/useI18n';
   import { useMessage } from '/@/hooks/web/useMessage';
   // 组件
   import { PageWrapper } from '/@/components/Page';
   import { BasicTable, useTable, TableAction } from '/@/components/Table';
-  import { DictLabel } from '/@/components/DictLabel/index';
   import { useModal } from '/@/components/Modal';
-
   import DefaultRoleModal from './DefaultRoleModal.vue';
   // 接口
   import { defaultRolePage, defaultRoleDelete } from '/@/api/system/defaultRole';
@@ -132,8 +129,4 @@
     reload();
   }
 </script>
-<style lang="less" scoped>
-  .default-role-container {
-    padding: 16px;
-  }
-</style>
+<style lang="less" scoped></style>

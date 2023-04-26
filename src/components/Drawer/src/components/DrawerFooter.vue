@@ -13,7 +13,7 @@
         v-bind="okButtonProps"
         class="mr-2"
         :loading="confirmLoading"
-        v-if="showOkBtn"
+        v-if="showOkBtn && getOkAuth"
       >
         <Icon icon="ant-design:check-outlined" />
         {{ okText }}
@@ -30,9 +30,11 @@
   import type { CSSProperties } from 'vue';
   import { defineComponent, computed } from 'vue';
   import { useDesign } from '/@/hooks/web/useDesign';
-  import { Icon } from '/@/components/Icon';
+  import { usePermission } from '/@/hooks/web/usePermission';
+  import Icon from '@/components/Icon/Icon.vue';
 
   import { footerProps } from '../props';
+
   export default defineComponent({
     name: 'BasicDrawerFooter',
     components: { Icon },
@@ -45,6 +47,7 @@
     },
     emits: ['ok', 'close'],
     setup(props, { emit }) {
+      const { hasPermission } = usePermission();
       const { prefixCls } = useDesign('basic-drawer-footer');
 
       const getStyle = computed((): CSSProperties => {
@@ -55,6 +58,9 @@
         };
       });
 
+      const getOkAuth = computed(() => {
+        return hasPermission(props.okAuth);
+      });
       function handleOk() {
         emit('ok');
       }
@@ -62,7 +68,7 @@
       function handleClose() {
         emit('close');
       }
-      return { handleOk, prefixCls, handleClose, getStyle };
+      return { getOkAuth, handleOk, prefixCls, handleClose, getStyle };
     },
   });
 </script>
@@ -75,9 +81,9 @@
     bottom: 0;
     width: 100%;
     padding: 0 12px 0 20px;
-    text-align: right;
-    background-color: @component-background;
     border-top: 1px solid @border-color-base;
+    background-color: @component-background;
+    text-align: right;
 
     > * {
       margin-right: 8px;

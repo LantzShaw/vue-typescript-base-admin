@@ -4,7 +4,7 @@
       <!-- 按钮工具栏 -->
       <template #toolbar>
         <a-button
-          v-auth="'system:dict:add'"
+          v-auth="'system:authority:add'"
           type="primary"
           preIcon="ant-design:plus-outlined"
           @click="handleCreate"
@@ -33,7 +33,7 @@
               {
                 label: '编辑',
                 onClick: handleEdit.bind(null, record),
-                auth: 'system:dict:edit',
+                auth: 'system:authority:edit',
               },
 
               {
@@ -43,7 +43,7 @@
                   title: '是否确认删除',
                   confirm: handleDelete.bind(null, record),
                 },
-                auth: 'system:dict:delete',
+                auth: 'system:authority:delete',
               },
             ]"
           />
@@ -111,7 +111,7 @@
       title: '操作',
       dataIndex: 'action',
       fixed: 'right',
-      auth: 'system:application:operation',
+      auth: 'system:authority:operation',
     },
   });
 

@@ -1,6 +1,6 @@
 <template>
-  <div style="background-color: #fff; height: auto; padding: 20px">
-    <div style="text-align: right">
+  <div style="height: auto; padding: 20px; background-color: #fff">
+    <div style="text-align: right; margin-top: 20px">
       <a-space>
         <a-button :loading="isButtonLoading" @click="exportAsPDF" postIcon="ant-design:save-filled"
           >保存为PDF</a-button
@@ -8,7 +8,6 @@
         <a-button @click="onPrint" postIcon="ant-design:printer-filled">打印</a-button>
       </a-space>
     </div>
-
     <template v-if="isLoading">
       <div
         style="height: calc(100vh - 152px)"
@@ -21,14 +20,14 @@
     <template v-else>
       <div
         class="text-lg tracking-2px"
-        style="padding-top: 18px; padding-left: 45px; padding-right: 45px"
-        id="report"
+        style="padding-top: 18px; padding-right: 45px; padding-left: 45px"
+        id="eventReport"
       >
         <!-- <div class="perpage"> -->
         <div id="firstPage">
           <div style="height: 100%">
-            <div class="flex border-b-2 mt-2" style="justify-content: space-between">
-              <div> {{ eventTriggerInformation.departName }} </div>
+            <div class="flex border-b-2 mt-2" style="justify-content: end">
+              <!-- <div> {{ eventTriggerInformation.departName }} </div> -->
               <div>
                 <span>表单编号: </span>
                 <span>{{ eventTriggerInformation.id }}</span>
@@ -49,21 +48,31 @@
                 <tr>
                   <td>所属单位</td>
                   <td>{{ eventTriggerInformation.enterpriseName }}</td>
-                  <td>信息来源</td>
-                  <td>应急管理处</td>
+                  <!-- <td>信息来源</td>
+                  <td>应急管理处</td> -->
                 </tr>
-                <tr>
+                <!-- <tr>
                   <td>位 号</td>
                   <td>--</td>
                   <td>设备名称</td>
                   <td>{{ eventTriggerInformation.sensorName }}</td>
-                </tr>
+                </tr> -->
                 <tr style="height: 100px">
                   <td>异常情况</td>
                   <td colspan="3">
-                    <!-- <div class="mb-3">□离线√数据异常□低报□高报</div>
-                  <div class="text-left">其他：系统显示-0.0883%LEL</div> -->
-                    <div v-html="eventTriggerInformation.triggerContent"> </div>
+                    <div
+                      ><ReportCheckBoxList
+                        :data="reportCheckBoxDataList"
+                        :value="eventTriggerInformation.alarmType"
+                    /></div>
+                    <div class="text-left pl-4">
+                      <div><span>传感器名称: </span>{{ eventTriggerInformation.locationNo }}</div>
+                      <div><span>位号: </span>{{ eventTriggerInformation.sensorName ?? '--' }}</div>
+                      <div
+                        ><span>当前值: </span
+                        ><span>{{ eventTriggerInformation.triggerVal }}</span></div
+                      >
+                    </div>
                   </td>
                 </tr>
                 <tr>
@@ -103,7 +112,7 @@
                       <div>
                         {{ eventTriggerInformation.stepOneRemark }}
                       </div>
-                      <div class="flex" style="justify-content: space-between; align-items: end">
+                      <div class="flex" style="align-items: end; justify-content: space-between">
                         <div>
                           <template v-if="eventTriggerInformation.stepOneImageUrlList">
                             <a-space>
@@ -119,7 +128,16 @@
                             </a-space>
                           </template>
                         </div>
-                        <div class="pr-20">确认人员: {{ eventTriggerInformation.stepOneBy }}</div>
+                        <div class="pr-20">
+                          <div>
+                            <span>确认人员: </span>
+                            <span>{{ eventTriggerInformation.stepOneAffirmByName }}</span>
+                          </div>
+                          <div>
+                            <span>确认时间: </span
+                            ><span>{{ eventTriggerInformation.stepOneAffirmDate }}</span>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </td>
@@ -132,7 +150,7 @@
                       <div>
                         {{ eventTriggerInformation.stepTwoRemark }}
                       </div>
-                      <div class="flex" style="justify-content: space-between; align-items: end">
+                      <div class="flex" style="align-items: end; justify-content: space-between">
                         <div>
                           <template v-if="eventTriggerInformation.stepTwoImageUrlList">
                             <a-space>
@@ -148,7 +166,18 @@
                             </a-space>
                           </template>
                         </div>
-                        <div class="pr-20">确认人员: {{ eventTriggerInformation.stepTwoBy }}</div>
+                        <div class="pr-20">
+                          <div>
+                            <span> 确认人员: </span>
+                            <span>
+                              {{ eventTriggerInformation.stepTwoAffirmByName }}
+                            </span>
+                          </div>
+                          <div>
+                            <span>确认时间: </span
+                            ><span>{{ eventTriggerInformation.stepTwoAffirmDate }}</span>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </td>
@@ -161,7 +190,7 @@
                       <div>
                         {{ eventTriggerInformation.stepThreeRemark }}
                       </div>
-                      <div class="flex" style="justify-content: space-between; align-items: end">
+                      <div class="flex" style="align-items: end; justify-content: space-between">
                         <div>
                           <template v-if="eventTriggerInformation.stepThreeImageUrlList">
                             <a-space>
@@ -177,7 +206,18 @@
                             </a-space>
                           </template>
                         </div>
-                        <div class="pr-20">确认人员: {{ eventTriggerInformation.stepThreeBy }}</div>
+                        <div class="pr-20">
+                          <div>
+                            <span> 确认人员: </span>
+                            <span>
+                              {{ eventTriggerInformation.stepThreeAffirmByName }}
+                            </span>
+                          </div>
+                          <div>
+                            <span>确认时间: </span
+                            ><span>{{ eventTriggerInformation.stepThreeAffirmDate }}</span>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </td>
@@ -187,10 +227,10 @@
           </div>
           <div
             style="
-              height: 100px;
               display: flex;
               align-items: center;
               justify-content: space-between;
+              height: 100px;
             "
           >
             <div> 发布日期: {{ formatToDate(new Date(), 'YYYY年MM月DD日') }} </div>
@@ -204,8 +244,8 @@
 
         <p style="margin: 30px 0"></p>
         <div id="secondPage" style="padding: 2px">
-          <div class="flex border-b-2 mb-10" style="justify-content: space-between">
-            <div> {{ eventTriggerInformation.departName }} </div>
+          <div class="flex border-b-2 mb-10" style="justify-content: end">
+            <!-- <div> {{ eventTriggerInformation.departName }} </div> -->
             <div>
               <span>表单编号: </span>
               <span>{{ eventTriggerInformation.id }}</span>
@@ -221,7 +261,7 @@
                     <div>
                       {{ eventTriggerInformation.stepFourRemark }}
                     </div>
-                    <div class="flex" style="justify-content: space-between; align-items: end">
+                    <div class="flex" style="align-items: end; justify-content: space-between">
                       <div>
                         <template v-if="eventTriggerInformation.stepFourImageUrlList">
                           <a-space>
@@ -237,7 +277,19 @@
                           </a-space>
                         </template>
                       </div>
-                      <div class="pr-20">确认人员: {{ eventTriggerInformation.stepFourBy }}</div>
+                      <div class="pr-20">
+                        <div>
+                          <span>确认人员: </span>
+                          <span>
+                            {{ eventTriggerInformation.stepFourAffirmByName }}
+                          </span>
+                        </div>
+
+                        <div>
+                          <span>确认时间: </span
+                          ><span>{{ eventTriggerInformation.stepFourAffirmDate }}</span>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </td>
@@ -250,7 +302,7 @@
                     <div>
                       {{ eventTriggerInformation.stepFiveRemark }}
                     </div>
-                    <div class="flex" style="justify-content: space-between; align-items: end">
+                    <div class="flex" style="align-items: end; justify-content: space-between">
                       <div>
                         <template v-if="eventTriggerInformation.stepFiveImageUrlList">
                           <a-space>
@@ -266,7 +318,19 @@
                           </a-space>
                         </template>
                       </div>
-                      <div class="pr-20">确认人员: {{ eventTriggerInformation.stepFiveBy }}</div>
+                      <div class="pr-20">
+                        <div>
+                          <span>确认人员: </span>
+                          <span>
+                            {{ eventTriggerInformation.stepFiveAffirmByName }}
+                          </span>
+                        </div>
+
+                        <div>
+                          <span>确认时间: </span
+                          ><span>{{ eventTriggerInformation.stepFiveAffirmDate }}</span>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </td>
@@ -279,7 +343,7 @@
                     <div>
                       {{ eventTriggerInformation.stepSixRemark }}
                     </div>
-                    <div class="flex" style="justify-content: space-between; align-items: end">
+                    <div class="flex" style="align-items: end; justify-content: space-between">
                       <div>
                         <template v-if="eventTriggerInformation.stepSixImageUrlList">
                           <a-space>
@@ -295,7 +359,16 @@
                           </a-space>
                         </template>
                       </div>
-                      <div class="pr-20">确认人员: {{ eventTriggerInformation.stepSixBy }}</div>
+                      <div class="pr-20">
+                        <div>
+                          <span>确认人员: </span>
+                          <span>{{ eventTriggerInformation.stepSixAffirmByName }}</span>
+                        </div>
+                        <div>
+                          <span>确认时间: </span
+                          ><span>{{ eventTriggerInformation.stepSixAffirmDate }}</span>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </td>
@@ -309,7 +382,7 @@
                     <div>
                       {{ eventTriggerInformation.stepSevenRemark }}
                     </div>
-                    <div class="flex" style="justify-content: space-between; align-items: end">
+                    <div class="flex" style="align-items: end; justify-content: space-between">
                       <div>
                         <template v-if="eventTriggerInformation.stepSevenImageUrlList">
                           <a-space>
@@ -325,7 +398,19 @@
                           </a-space>
                         </template>
                       </div>
-                      <div class="pr-20">确认人员: {{ eventTriggerInformation.stepSevenBy }}</div>
+                      <div class="pr-20">
+                        <div>
+                          <span> 确认人员: </span>
+                          <span>
+                            {{ eventTriggerInformation.stepSevenAffirmByName }}
+                          </span>
+                        </div>
+
+                        <div>
+                          <span>确认时间: </span
+                          ><span>{{ eventTriggerInformation.stepSevenAffirmDate }}</span>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </td>
@@ -335,10 +420,10 @@
 
           <div
             style="
-              height: 110px;
               display: flex;
               align-items: center;
               justify-content: space-between;
+              height: 110px;
             "
           >
             <div> 发布日期: {{ formatToDate(new Date(), 'YYYY年MM月DD日') }} </div>
@@ -355,7 +440,7 @@
 </template>
 
 <script lang="ts" setup>
-  import { toPng } from 'html-to-image';
+  import { toPng, toSvg } from 'html-to-image';
   import printJS from 'print-js';
   import { jsPDF } from 'jspdf';
   import { onMounted, reactive, ref } from 'vue';
@@ -363,17 +448,25 @@
   import { useRoute } from 'vue-router';
   import { formatToDate } from '/@/utils/dateUtil';
   import { useGo } from '/@/hooks/web/usePage';
-  import { eventTriggerEventDetail } from '/@/api/manage/eventTrigger';
+  import { eventTriggerEventDetail } from '/@/api/manage/alarmDealRecord';
 
   import { AuthImage } from '/@/components/Upload';
 
+  import {
+    ReportCheckBoxList,
+    type ReportCheckBoxDataList,
+  } from '/@/components/ReportCheckBoxList';
+
   type EventTriggerInformation = {
+    alarmType?: string;
     id?: string; // 表单编号
     deviceAlarmId?: string; // 单号
     maintainer?: string; // 维保单位联系人
     userName?: string; // 使用单位联系人
     triggerContent?: string; // 异常情况
     sensorName?: string; // 设备名称
+    locationNo?: string; // 位号
+    triggerVal?: string; // 当前触发值
     enterpriseName?: string; // 所属单位
     departName?: string; // 部门
     stepOneSubmitDate?: string; // 信息核实提交时间
@@ -383,30 +476,44 @@
     stepOneEnterpriseId?: string; // 确认企业id
     stepOneRemark?: string; // 说明内容
     stepOneImageUrlList?: string[]; // 图片
+    stepOneAffirmByName?: string; // 确认人
+    stepOneAffirmDate?: string; // 确认时间
     stepTwoBy?: string; // 确认人
     stepTwoEnterpriseId?: string; // 确认企业id
     stepTwoRemark?: string; // 说明内容
     stepTwoImageUrlList?: string[]; // 图片
+    stepTwoAffirmByName?: string; // 确认人
+    stepTwoAffirmDate?: string; // 确认时间
     stepThreeBy?: string; // 确认人
     stepThreeEnterpriseId?: string; // 确认企业id
     stepThreeRemark?: string; // 说明内容
     stepThreeImageUrlList?: string[]; // 图片
+    stepThreeAffirmByName?: string; // 确认人
+    stepThreeAffirmDate?: string; // 确认时间
     stepFourBy?: string; // 确认人
     stepFourEnterpriseId?: string; // 确认企业id
     stepFourRemark?: string; // 说明内容
     stepFourImageUrlList?: string[]; // 图片
+    stepFourAffirmByName?: string; // 确认人
+    stepFourAffirmDate?: string; // 确认时间
     stepFiveBy?: string; // 确认人
     stepFiveEnterpriseId?: string; // 确认企业id
     stepFiveRemark?: string; // 说明内容
     stepFiveImageUrlList?: string[]; // 图片
+    stepFiveAffirmByName?: string; // 确认人
+    stepFiveAffirmDate?: string; // 确认时间
     stepSixBy?: string; // 确认人
     stepSixEnterpriseId?: string; // 确认企业id
     stepSixRemark?: string; // 说明内容
     stepSixImageUrlList?: string[]; // 图片
+    stepSixAffirmByName?: string; // 确认人
+    stepSixAffirmDate?: string; // 确认时间
     stepSevenBy?: string; // 确认人
     stepSevenEnterpriseId?: string; // 确认企业id
     stepSevenRemark?: string; // 说明内容
     stepSevenImageUrlList?: string[]; // 图片
+    stepSevenAffirmByName?: string; // 确认人
+    stepSevenAffirmDate?: string; // 确认时间
     stepEightBy?: string; // 确认人
     stepEightEnterpriseId?: string; // 确认企业id
     stepEightRemark?: string; // 说明内容
@@ -421,6 +528,29 @@
   const isLoading = ref<boolean>(false);
 
   const eventTriggerInformation = reactive<EventTriggerInformation>({});
+
+  const reportCheckBoxDataList = reactive<ReportCheckBoxDataList[]>([
+    {
+      id: '1',
+      name: '离线',
+      value: '1',
+    },
+    {
+      id: '2',
+      name: '数据异常',
+      value: '2',
+    },
+    {
+      id: '3',
+      name: '低报',
+      value: '3',
+    },
+    {
+      id: '4',
+      name: '高报',
+      value: '4',
+    },
+  ]);
 
   function goBack() {
     go('/event-trigger/event/list');
@@ -447,27 +577,44 @@
       stepOneSubmitDate,
       stepFourSubmitDate,
       findDate,
+      alarmType,
+      locationNo,
+      triggerVal,
       stepOneBy,
       stepOneEnterpriseId,
       stepOneRemark,
+      stepOneAffirmByName,
+      stepOneAffirmDate,
       stepTwoBy,
       stepTwoEnterpriseId,
       stepTwoRemark,
+      stepTwoAffirmByName,
+      stepTwoAffirmDate,
       stepThreeBy,
       stepThreeEnterpriseId,
       stepThreeRemark,
+      stepThreeAffirmByName,
+      stepThreeAffirmDate,
       stepFourBy,
       stepFourEnterpriseId,
       stepFourRemark,
+      stepFourAffirmByName,
+      stepFourAffirmDate,
       stepFiveBy,
       stepFiveEnterpriseId,
       stepFiveRemark,
+      stepFiveAffirmByName,
+      stepFiveAffirmDate,
       stepSixBy,
       stepSixEnterpriseId,
       stepSixRemark,
+      stepSixAffirmByName,
+      stepSixAffirmDate,
       stepSevenBy,
       stepSevenEnterpriseId,
       stepSevenRemark,
+      stepSevenAffirmByName,
+      stepSevenAffirmDate,
       stepEightBy,
       stepEightEnterpriseId,
       stepEightRemark,
@@ -485,6 +632,9 @@
     eventTriggerInformation.stepOneSubmitDate = stepOneSubmitDate;
     eventTriggerInformation.stepFourSubmitDate = stepFourSubmitDate;
     eventTriggerInformation.findDate = findDate;
+    eventTriggerInformation.alarmType = alarmType + '';
+    eventTriggerInformation.locationNo = locationNo;
+    eventTriggerInformation.triggerVal = triggerVal;
 
     eventTriggerInformation.stepOneBy = stepOneBy;
     eventTriggerInformation.stepTwoBy = stepTwoBy;
@@ -494,6 +644,14 @@
     eventTriggerInformation.stepSixBy = stepSixBy;
     eventTriggerInformation.stepSevenBy = stepSevenBy;
     eventTriggerInformation.stepEightBy = stepEightBy;
+
+    eventTriggerInformation.stepOneAffirmByName = stepOneAffirmByName;
+    eventTriggerInformation.stepTwoAffirmByName = stepTwoAffirmByName;
+    eventTriggerInformation.stepThreeAffirmByName = stepThreeAffirmByName;
+    eventTriggerInformation.stepFourAffirmByName = stepFourAffirmByName;
+    eventTriggerInformation.stepFiveAffirmByName = stepFiveAffirmByName;
+    eventTriggerInformation.stepSixAffirmByName = stepSixAffirmByName;
+    eventTriggerInformation.stepSevenAffirmByName = stepSevenAffirmByName;
 
     eventTriggerInformation.stepOneEnterpriseId = stepOneEnterpriseId;
     eventTriggerInformation.stepTwoEnterpriseId = stepTwoEnterpriseId;
@@ -512,6 +670,14 @@
     eventTriggerInformation.stepSixRemark = stepSixRemark;
     eventTriggerInformation.stepSevenRemark = stepSevenRemark;
     eventTriggerInformation.stepEightRemark = stepEightRemark;
+
+    eventTriggerInformation.stepOneAffirmDate = stepOneAffirmDate;
+    eventTriggerInformation.stepTwoAffirmDate = stepTwoAffirmDate;
+    eventTriggerInformation.stepThreeAffirmDate = stepThreeAffirmDate;
+    eventTriggerInformation.stepFourAffirmDate = stepFourAffirmDate;
+    eventTriggerInformation.stepFiveAffirmDate = stepFiveAffirmDate;
+    eventTriggerInformation.stepSixAffirmDate = stepSixAffirmDate;
+    eventTriggerInformation.stepSevenAffirmDate = stepSevenAffirmDate;
 
     list.forEach((item) => {
       switch (item.processStep) {
@@ -569,15 +735,19 @@
   /**
    * 打印 - 按钮事件
    */
-  const onPrint = () => {
-    toPng(document.querySelector('#report') as HTMLElement).then((dataUrl) => {
+  const onPrint = (e) => {
+    e.preventDefault();
+
+    toPng(document.querySelector('#eventReport') as HTMLElement).then((dataUrl) => {
+      console.log('dataUrl', dataUrl);
+
       // NOTE: 去除页眉页脚
       const style = '@page {margin:0 20mm,padding:0};';
 
       printJS({
         printable: dataUrl,
         type: 'image',
-        documentTitle: '大衡精密仪器设备管理平台',
+        documentTitle: '嘉兴港区气体泄漏检测管理平台',
         targetStyles: ['*'],
         style,
         imageStyle: 'width:100%;margin-bottom:20px;',
@@ -592,23 +762,23 @@
 
 <style lang="less" scoped>
   body {
-    margin: 0;
     height: auto;
+    margin: 0;
   }
 
   table,
   td,
   th {
+    padding: 0;
     border: 1px solid #000;
     text-align: center;
-    padding: 0;
   }
 
   table {
     width: 100%;
-    border-collapse: collapse;
-    padding: 0;
     margin: 0;
+    padding: 0;
+    border-collapse: collapse;
     // page-break-inside: avoid;
     // page-break-after: avoid;
     // page-break-before: avoid;

@@ -106,7 +106,7 @@
       title: '操作',
       dataIndex: 'action',
       slots: { customRender: 'action' },
-      fixed: undefined,
+      fixed: 'right',
       auth: 'system:config:operation',
     },
   });

@@ -14,29 +14,12 @@
             {{ record.groupName }}
           </a>
         </template>
-        <template v-else-if="column.key === 'sysOrganization'">
-          {{ record.sysOrganization?.organizationName }}
+        <template v-else-if="column.key === 'bizEnterprise'">
+          <span v-if="record.bizEnterprise?.enterpriseNo">
+            [{{ record.bizEnterprise?.enterpriseNo }}] {{ record.bizEnterprise?.enterpriseName }}
+          </span>
         </template>
         <!-- 表格按钮 -->
-        <template v-else-if="column.key === 'action'">
-          <TableAction
-            stopButtonPropagation
-            :actions="[
-              {
-                label: '编辑',
-                onClick: handleEdit.bind(null, record),
-              },
-              {
-                label: '删除',
-                color: 'error',
-                popConfirm: {
-                  title: '是否确认删除',
-                  confirm: handleDelete.bind(null, record),
-                },
-              },
-            ]"
-          />
-        </template>
       </template>
     </BasicTable>
     <DeviceGroupModal @register="registerModal" @success="handleSuccess" />
@@ -48,11 +31,11 @@
   import { useMessage } from '/@/hooks/web/useMessage';
   // 组件
   import { PageWrapper } from '/@/components/Page';
-  import { BasicTable, TableAction, useTable } from '/@/components/Table';
+  import { BasicTable, useTable } from '/@/components/Table';
   import { useModal } from '/@/components/Modal';
   import DeviceGroupModal from './DeviceGroupModal.vue';
   // 接口
-  import { deviceGroupPage, deviceGroupDelete, deviceGroupSync } from '/@/api/manage/deviceGroup';
+  import { deviceGroupPage, deviceGroupSync } from '/@/api/manage/deviceGroup';
   // data
   import { searchForm, tableColumns } from './deviceGroup.data';
 
@@ -75,15 +58,6 @@
     canResize: false,
     showTableSetting: true,
     showIndexColumn: false,
-    actionColumn: {
-      width: 100,
-      title: '操作',
-      dataIndex: 'action',
-      // slots: { customRender: 'action' },
-      fixed: 'right',
-      // fixed: undefined,
-      // auth: 'system:application:operation',
-    },
   });
 
   /**
@@ -103,15 +77,6 @@
       record,
       isUpdate: true,
     });
-  }
-
-  /**
-   * 删除
-   */
-  async function handleDelete(record: Recordable) {
-    await deviceGroupDelete(record);
-    notification.success({ message: `执行成功` });
-    handleSuccess();
   }
 
   /**

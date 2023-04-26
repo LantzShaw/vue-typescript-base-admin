@@ -3,12 +3,12 @@
     v-bind="$attrs"
     @register="registerModal"
     showFooter
-    :okAuth="'system:dict-item:add'"
+    :okAuth="okAuth"
     :title="getTitle"
     width="50%"
     @ok="handleSubmit"
   >
-    <div style="padding-left: 10px; padding-right: 10px">
+    <div style=" padding-right: 10px;padding-left: 10px">
       <BasicForm @register="registerForm" />
     </div>
   </BasicModal>
@@ -25,6 +25,7 @@
   // data
   import { isUpdate, idRef, record, inputFormSchemas } from './dictItem.data';
 
+  const okAuth = ref(['system:dict-item:add', 'system:dict-item:edit']);
   const emit = defineEmits(['success', 'register']);
 
   const { notification } = useMessage();

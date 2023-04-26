@@ -49,7 +49,9 @@ export function createPermissionGuard(router: Router) {
             next((to.query?.redirect as string) || '/');
             return;
           }
-        } catch {}
+        } catch {
+          //
+        }
       }
       next();
       return;

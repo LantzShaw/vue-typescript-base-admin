@@ -3,15 +3,6 @@
     <BasicTable @register="registerTable">
       <!-- 按钮工具栏 -->
       <template #toolbar>
-        <!-- <a-button
-          v-auth="'manage:event:add'"
-          type="primary"
-          preIcon="ant-design:plus-outlined"
-          @click="handleCreate"
-        >
-          新增
-        </a-button> -->
-
         <a-button
           v-auth="'manage:event:export'"
           :loading="isExportLoading"
@@ -31,17 +22,64 @@
       </template>
 
       <template #expandedRowRender="{ record }">
-        <div> <span v-html="record.dtuipTriggerContent"></span></div>
+        <div> <span v-html="record?.bizDeviceAlarm?.dtuipTriggerContent"></span></div>
       </template>
 
       <!-- 表格内容 -->
       <template #bodyCell="{ column, record }">
-        <template v-if="column.key === 'sensorName'">
-          <a @click="handleEdit(record)" :title="record.sensorName">
-            {{ record.sensorName }}
+        <template v-if="column.key === 'dtuipDeviceName'">
+          <a @click="handleEdit(record)" :title="record.dtuipDeviceName">
+            {{ record.dtuipDeviceName }}
           </a>
         </template>
+        <template v-else-if="column.key === 'bizEnterprise'">
+          <a-tooltip placement="top">
+            <template #title>
+              <span
+                >[{{ record.bizDeviceSensor?.bizEnterprise?.enterpriseNo }}]
+                {{ record.bizDeviceSensor?.bizEnterprise?.enterpriseName }}</span
+              >
+            </template>
+            <span v-if="record.bizDeviceSensor?.bizEnterprise?.enterpriseNo">
+              [{{ record.bizDeviceSensor?.bizEnterprise?.enterpriseNo }}]
+              {{ record.bizDeviceSensor?.bizEnterprise?.enterpriseName }}
+            </span>
+          </a-tooltip>
+        </template>
+        <template v-else-if="column.key === 'bizInstallRegion'">
+          <span v-if="record.bizDeviceSensor?.bizInstallRegion">
+            {{ record.bizDeviceSensor?.bizInstallRegion?.regionName }}
+          </span>
+        </template>
+        <template v-else-if="column.key === 'installLocation'">
+          <span v-if="record.bizDeviceSensor">
+            {{ record.bizDeviceSensor?.installLocation }}
+          </span>
+        </template>
+        <template v-else-if="column.key === 'locationNo'">
+          <span v-if="record.bizDeviceSensor">
+            {{ record.bizDeviceSensor?.locationNo }}
+          </span>
+        </template>
+        <template v-else-if="column.key === 'gasType'">
+          <span v-if="record.bizDeviceSensor">
+            <dict-label :options="gasTypeOptions" :value="record.bizDeviceSensor?.gasType" />
+          </span>
+        </template>
+        <template v-else-if="column.key === 'gasName'">
+          <span v-if="record.bizDeviceSensor">
+            {{ record.bizDeviceSensor?.gasName }}
+          </span>
+        </template>
 
+        <template v-else-if="column.key === 'dtuipIsDelete'">
+          <span v-if="record.bizDeviceAlarm">
+            <dict-label
+              :options="deleteStatusOptions"
+              :value="record.bizDeviceAlarm?.dtuipIsDelete"
+            />
+          </span>
+        </template>
         <template v-else-if="column.key === 'dtuipSensorTypeId'">
           <dict-label :options="sensorTypeOptions" :value="record.dtuipSensorTypeId" />
         </template>
@@ -67,36 +105,31 @@
               {
                 label: '接收确认',
                 onClick: handleFirstPartyConfirm.bind(null, record),
-                auth: 'manage:event:receive',
+                auth: 'manage:event:receive-user',
                 disabled: record.apReceiveFlag === '1',
-                ifShow:
-                  record.eventStatus === '0' && externalUserOrgIdList.includes(organizationId),
+                ifShow: record.eventStatus === '0',
               },
               // 乙方 - 维护方接受确认
               {
                 label: '接收确认',
                 onClick: handleSecondPartyConfirm.bind(null, record),
-                auth: 'manage:event:receive',
+                auth: 'manage:event:receive-maintainer',
                 disabled: record.bpReceiveFlag === '1',
-                ifShow: record.eventStatus === '0' && maintainerOrgIdList.includes(organizationId),
+                ifShow: record.eventStatus === '0',
               },
+              // 甲方 - 使用方流程处理
               {
-                label: '流程确认',
+                label: '流程处理',
                 onClick: handleOpenConfirmModal.bind(null, record),
-                auth: 'manage:event:process',
-                ifShow:
-                  record.eventStatus === '1' &&
-                  record.apReceiveFlag === '1' &&
-                  externalUserOrgIdList.includes(organizationId),
+                auth: 'manage:event:process-user',
+                ifShow: record.eventStatus === '1',
               },
+              // 乙方 - 维护方流程处理
               {
-                label: '流程确认',
+                label: '流程处理',
                 onClick: handleOpenConfirmModal.bind(null, record),
-                auth: 'manage:event:process',
-                ifShow:
-                  record.eventStatus === '1' &&
-                  record.bpReceiveFlag === '1' &&
-                  maintainerOrgIdList.includes(organizationId),
+                auth: 'manage:event:process-maintainer',
+                ifShow: record.eventStatus === '1',
               },
               {
                 label: '形成报告',
@@ -110,6 +143,18 @@
                 auth: 'manage:event:analysis',
                 ifShow: true,
               },
+            ]"
+            :dropDownActions="[
+              {
+                label: record?.isNotice === '1' ? `已通知监管方` : '通知监管方',
+                auth: 'manage:event:notify',
+                ifShow: true,
+                disabled: record.eventStatus === '0' || record?.isNotice === '1',
+                popConfirm: {
+                  title: '是否要通知监管方',
+                  confirm: handleNotify.bind(null, record),
+                },
+              },
               {
                 label: '删除',
                 color: 'error',
@@ -118,15 +163,6 @@
                   title: '是否确认删除',
                   confirm: handleDelete.bind(null, record),
                 },
-              },
-            ]"
-            :dropDownActions="[
-              {
-                label: '通知监管方',
-                onClick: handleNotify.bind(null, record),
-                auth: 'manage:event:notify',
-                ifShow: true,
-                disabled: record.eventStatus !== '2',
               },
             ]"
           />
@@ -142,6 +178,8 @@
 </template>
 <script lang="ts" setup>
   import { onMounted, ref } from 'vue';
+  import { Tooltip as ATooltip } from 'ant-design-vue';
+
   // hooks
   import { useMessage } from '/@/hooks/web/useMessage';
   // 组件
@@ -159,10 +197,16 @@
   import {
     eventTriggerPage,
     eventTriggerDelete,
-    eventTriggerUpdateEvent,
     eventTriggerExport,
     eventTriggerImport,
+    eventTriggerSend,
   } from '/@/api/manage/eventTrigger';
+
+  import {
+    alarmDealRecordApReceive,
+    alarmDealRecordBpReceive,
+  } from '/@/api/manage/alarmDealRecord';
+
   import { optionsListBatchApi } from '/@/api/sys/dict';
   // data
   import {
@@ -171,23 +215,15 @@
     onlineStatusOptions,
     sensorTypeOptions,
     eventTriggerStatusOptions,
+    gasTypeOptions,
     searchForm,
     tableColumns,
   } from './eventTrigger.data';
-  import { useUserStore } from '/@/store/modules/user';
-  import { getOrganizationId } from '/@/utils/auth';
   import { downloadByData } from '/@/utils/file/download';
-
-  const userStore = useUserStore();
 
   const go = useGo();
 
   const isExportLoading = ref<boolean>(false);
-
-  const organizationId = getOrganizationId() as string;
-
-  const maintainerOrgIdList = userStore.getMaintainerOrgIdList || [];
-  const externalUserOrgIdList = userStore.getExternalUserOrgIdList || [];
 
   const { notification } = useMessage();
 
@@ -204,7 +240,7 @@
   /**
    * 构建registerTable
    */
-  const [registerTable, { reload, getDataSource }] = useTable({
+  const [registerTable, { reload }] = useTable({
     title: '',
     api: eventTriggerPage,
     columns: tableColumns,
@@ -257,15 +293,6 @@
   }
 
   /**
-   * 新增
-   */
-  function handleCreate() {
-    openEventTriggerModal(true, {
-      isUpdate: false,
-    });
-  }
-
-  /**
    * 编辑
    */
   function handleEdit(record: Recordable) {
@@ -280,41 +307,37 @@
    *
    * @param record
    */
-  function handleNotify(record: Recordable) {
-    notification.warning({ message: `该功能还在完善中` });
+  async function handleNotify(record: Recordable) {
+    await eventTriggerSend({ id: record.id });
+
+    await reload();
   }
 
   /**
-   * 甲方确认
+   * 甲方使用方确认
    *
    * @param record
    */
   async function handleFirstPartyConfirm(record: Recordable) {
     console.log('------------------------使用方------------------', record);
 
-    await eventTriggerUpdateEvent({
-      id: record.dealRecordId,
-      apReceiveFlag: '1',
-      bpReceiveFlag: record.bpReceiveFlag,
-      processStep: '000',
+    await alarmDealRecordApReceive({
+      id: record.id,
     });
 
     await reload();
   }
 
   /**
-   * 乙方确认
+   * 乙方维护方确认
    *
    * @param record
    */
   async function handleSecondPartyConfirm(record: Recordable) {
     console.log('----------------维护放-----------------', record);
 
-    await eventTriggerUpdateEvent({
-      id: record.dealRecordId,
-      bpReceiveFlag: '1',
-      apReceiveFlag: record.apReceiveFlag,
-      processStep: '050',
+    await alarmDealRecordBpReceive({
+      id: record.id,
     });
 
     await reload();
@@ -326,13 +349,11 @@
    * @param record
    */
   function navigateToAnalysis(record: Recordable) {
-    go(
-      `/event-trigger/analysis/${record.sensorId}?regionId=${record.regionId}&deviceName=${record.dtuipDeviceName}`,
-    );
+    go(`/event-trigger/analysis/${record.sensorId}?deviceName=${record.dtuipDeviceName}`);
   }
 
   /**
-   * 弹出流程确认框
+   * 弹出流程处理框
    *
    * @param record
    */
@@ -349,7 +370,7 @@
    * @param record
    */
   function navigateToReport(record: Recordable) {
-    go(`/event/trigger/report/${record.dealRecordId}`);
+    go(`/event/trigger/report/${record.recordId}`);
   }
 
   /**
@@ -372,19 +393,28 @@
    * 初始化字典数据
    */
   async function initDict() {
-    const { alarm_status, delete_status, online_status, sensor_type, event_trigger_status } =
-      await optionsListBatchApi([
-        'alarm_status',
-        'delete_status',
-        'online_status',
-        'sensor_type',
-        'event_trigger_status',
-      ]);
+    const {
+      alarm_status,
+      delete_status,
+      online_status,
+      sensor_type,
+      event_trigger_status,
+      gas_type,
+    } = await optionsListBatchApi([
+      'alarm_status',
+      'delete_status',
+      'online_status',
+      'sensor_type',
+      'event_trigger_status',
+      'gas_type',
+    ]);
+
     alarmStatusOptions.value = alarm_status || [];
     deleteStatusOptions.value = delete_status || [];
     onlineStatusOptions.value = online_status || [];
     sensorTypeOptions.value = sensor_type || [];
     eventTriggerStatusOptions.value = event_trigger_status || [];
+    gasTypeOptions.value = gas_type || [];
   }
 
   onMounted(() => {

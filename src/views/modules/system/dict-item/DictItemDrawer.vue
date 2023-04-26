@@ -3,7 +3,7 @@
     v-bind="$attrs"
     @register="registerDrawer"
     showFooter
-    :okAuth="'system:dict-item:add'"
+    :okAuth="okAuth"
     :title="getTitle"
     width="50%"
     @ok="handleSubmit"
@@ -22,7 +22,7 @@
   import { dictItemForm, dictItemAdd, dictItemUpdate } from '/@/api/system/dictItem';
   // data
   import { isUpdate, idRef, record, inputFormSchemas } from './dictItem.data';
-
+  const okAuth = ref(['system:dict-item:add']);
   const emit = defineEmits(['success', 'register']);
 
   const { notification } = useMessage();

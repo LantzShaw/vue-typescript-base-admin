@@ -15,12 +15,7 @@
       <BasicTable @register="registerTable">
         <!-- 按钮工具栏 -->
         <template #toolbar>
-          <a-button
-            v-auth="'log:operationLog:delete'"
-            preIcon="ant-design:clear-outlined"
-            type="primary"
-            @click="handleDelete"
-          >
+          <a-button preIcon="ant-design:clear-outlined" type="primary" @click="handleDelete">
             清空日志
           </a-button>
         </template>
@@ -143,11 +138,11 @@
 <style lang="less" scoped>
   .operation-log-list-card {
     :deep(.ant-card-body) {
-      padding: 0px;
+      padding: 0;
     }
 
     :deep(.vben-basic-table-form-container) {
-      padding: 0px;
+      padding: 0;
     }
   }
 </style>

@@ -48,6 +48,7 @@ export interface DrawerFooterProps {
    * @type string
    */
   okType: 'primary' | 'danger' | 'dashed' | 'ghost' | 'default';
+  okAuth?: string[];
   /**
    * The ok button props, follow jsx rules
    * @type object

@@ -17,7 +17,7 @@
         />
       </div>
       <Dropdown @click.prevent v-if="toolbar">
-        <Icon icon="ant-design:align-left-outlined" />
+        <Icon icon="ion:ellipsis-vertical" />
         <template #overlay>
           <Menu @click="handleMenuClick">
             <template v-for="item in toolbarList" :key="item.value">
@@ -33,9 +33,9 @@
   </div>
 </template>
 <script lang="ts" setup>
-  import { computed, ref, watch, useSlots } from 'vue';
+  import { type PropType, computed, ref, watch, useSlots } from 'vue';
   import { Dropdown, Menu, MenuItem, MenuDivider, InputSearch } from 'ant-design-vue';
-  import { Icon } from '/@/components/Icon';
+  import Icon from '@/components/Icon/Icon.vue';
   import { BasicTitle } from '/@/components/Basic';
   import { useI18n } from '/@/hooks/web/useI18n';
   import { useDebounceFn } from '@vueuse/core';

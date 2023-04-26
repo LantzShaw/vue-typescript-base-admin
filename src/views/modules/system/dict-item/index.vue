@@ -37,10 +37,12 @@
               {
                 label: '编辑',
                 onClick: handleEdit.bind(null, record),
+                auth: 'system:dict-item:edit',
               },
               {
                 label: '复制',
                 onClick: handleCopy.bind(null, record),
+                auth: 'system:dict-item:edit',
               },
               {
                 label: '删除',
@@ -49,6 +51,7 @@
                   title: '是否确认删除',
                   confirm: handleDelete.bind(null, record),
                 },
+                auth: 'system:dict-item:delete',
               },
             ]"
           />

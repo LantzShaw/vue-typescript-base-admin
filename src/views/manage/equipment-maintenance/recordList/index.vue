@@ -29,28 +29,11 @@
       </template>
       <!-- 表格内容 -->
       <template #bodyCell="{ column, record }">
-        <template v-if="column.key === 'sensorName'">
-          <a @click="handleEdit(record)" :title="record.sensorName">
-            {{ record.sensorName }}
-          </a>
-        </template>
-        <template v-else-if="column.key === 'dtuipSensorTypeId'">
-          <dict-label :options="sensorTypeOptions" :value="record.dtuipSensorTypeId" />
-        </template>
-        <template v-else-if="column.key === 'dtuipIsAlarms'">
-          <dict-label :options="alarmStatusOptions" :value="record.dtuipIsAlarms" />
-        </template>
-        <template v-else-if="column.key === 'dtuipIsDelete'">
-          <dict-label :options="deleteStatusOptions" :value="record.dtuipIsDelete" />
-        </template>
-        <template v-else-if="column.key === 'dtuipIsLine'">
-          <dict-label :options="onlineStatusOptions" :value="record.dtuipIsLine" />
-        </template>
-        <template v-else-if="column.key === 'planCycle'">
-          <dict-label :options="planPeriodTypeOptions" :value="record.planCycle" />
-        </template>
-        <template v-else-if="column.key === 'eventStatus'">
+        <template v-if="column.key === 'eventStatus'">
           <dict-label :options="maintenanceStatusOptions" :value="record.eventStatus" />
+        </template>
+        <template v-else-if="column.key === 'workType'">
+          <dict-label :options="maintenanceWorkOrderTypeOptions" :value="record.workType" />
         </template>
 
         <!-- 表格按钮 -->
@@ -58,40 +41,35 @@
           <TableAction
             stopButtonPropagation
             :actions="[
-              // 甲方 - 使用方形成工单
+              // 甲方 - 使用方接收确认
               {
-                label: '形成工单',
+                label: '接收确认',
                 onClick: handleFirstPartyConfirm.bind(null, record),
-                auth: 'manage:maintenance-record:generate',
+                auth: 'manage:maintenance-record:generate-user',
                 disabled: record.apReceiveFlag === '1',
-                ifShow:
-                  record.eventStatus === '0' && externalUserOrgIdList.includes(organizationId),
+                ifShow: record.eventStatus === '0',
               },
-              // 乙方 - 维护方形成工单
+              // 乙方 - 维护方接收确认
               {
-                label: '形成工单',
+                label: '接收确认',
                 onClick: handleSecondPartyConfirm.bind(null, record),
-                auth: 'manage:maintenance-record:generate',
+                auth: 'manage:maintenance-record:generate-maintainer',
                 disabled: record.bpReceiveFlag === '1',
-                ifShow: record.eventStatus === '0' && maintainerOrgIdList.includes(organizationId),
+                ifShow: record.eventStatus === '0',
               },
+              // 甲方 - 使用方流程确认
               {
                 label: '流程确认',
                 onClick: handleOpenConfirmModal.bind(null, record),
-                auth: 'manage:maintenance-record:process',
-                ifShow:
-                  record.eventStatus === '1' &&
-                  record.apReceiveFlag === '1' &&
-                  externalUserOrgIdList.includes(organizationId),
+                auth: 'manage:maintenance-record:process-user',
+                ifShow: record.eventStatus === '1' && record.apReceiveFlag === '1',
               },
+              // 乙方 - 维护方流程确认
               {
                 label: '流程确认',
                 onClick: handleOpenConfirmModal.bind(null, record),
-                auth: 'manage:maintenance-record:process',
-                ifShow:
-                  record.eventStatus === '1' &&
-                  record.bpReceiveFlag === '1' &&
-                  maintainerOrgIdList.includes(organizationId),
+                auth: 'manage:maintenance-record:process-maintainer',
+                ifShow: record.eventStatus === '1' && record.bpReceiveFlag === '1',
               },
               {
                 label: '工单报告',
@@ -100,13 +78,20 @@
                 ifShow: record.eventStatus === '2',
               },
               {
-                label: '通知监管方',
+                label: record?.isNotice === '1' ? '已通知监管方' : '通知监管方',
                 auth: 'manage:maintenance-record:notify',
-                disabled: record.eventStatus !== '2',
+                // disabled: record.eventStatus !== '2',
+                disabled: record.eventStatus === '0' || record?.isNotice === '1',
                 popConfirm: {
                   title: '是否通知监管方',
                   confirm: handleNotify.bind(null, record),
                 },
+              },
+              {
+                label: '查看设备',
+                onClick: handleView.bind(null, record),
+                auth: 'manage:maintenance-record:view',
+                ifShow: true,
               },
               {
                 label: '删除',
@@ -130,6 +115,10 @@
       @register="registerEquipmentMaintenanceRecordConfirmModal"
       @success="handleSuccess"
     />
+    <EquipmentMaintenanceRecordViewModal
+      @register="registerEquipmentMaintenanceRecordViewModal"
+      @success="handleSuccess"
+    />
   </PageWrapper>
 </template>
 <script lang="ts" setup>
@@ -144,37 +133,33 @@
   import EquipmentMaintenanceRecordModal from './EquipmentMaintenanceRecordModal.vue';
   import { jsonToSheetXlsx } from '/@/components/Excel';
   import EquipmentMaintenanceRecordConfirmModal from './EquipmentMaintenanceRecordConfirmModal.vue';
+  import EquipmentMaintenanceRecordViewModal from './EquipmentMaintenanceRecordViewModal.vue';
 
   // 接口
   import {
     equipmentMaintenanceRecordPage,
     equipmentMaintenanceRecordDelete,
     equipmentMaintenanceRecordUpdateState,
-  } from '/@/api/manage/equipmentMaintenance';
+    equipmentMaintenanceRecordSend,
+  } from '/@/api/manage/equipmentMaintenanceRecord';
+
   import { optionsListBatchApi } from '/@/api/sys/dict';
   // data
   import {
-    alarmStatusOptions,
-    deleteStatusOptions,
-    onlineStatusOptions,
-    sensorTypeOptions,
-    planPeriodTypeOptions,
+    maintenanceWorkOrderTypeOptions,
     searchForm,
     tableColumns,
     maintenanceStatusOptions,
+    onlineStatusOptions,
+    deleteStatusOptions,
+    alarmStatusOptions,
+    sensorTypeOptions,
   } from './equipmentMaintenanceRecord.data';
-  import { getOrganizationId } from '/@/utils/auth';
-  import { useUserStore } from '/@/store/modules/user';
   import { useGo } from '/@/hooks/web/usePage';
 
-  const userStore = useUserStore();
   const go = useGo();
 
   const { notification } = useMessage();
-  const organizationId = getOrganizationId() as string;
-
-  const maintainerOrgIdList = userStore.getMaintainerOrgIdList || [];
-  const externalUserOrgIdList = userStore.getExternalUserOrgIdList || [];
 
   /**
    * 构建registerModal
@@ -183,9 +168,16 @@
   const [registerEquipmentMaintenanceRecordModal, { openModal: openEquipmentMaintenanceModal }] =
     useModal();
 
+  // 流程确认
   const [
     registerEquipmentMaintenanceRecordConfirmModal,
     { openModal: openEquipmentMaintenanceConfirmModal },
+  ] = useModal();
+
+  // 查看设备
+  const [
+    registerEquipmentMaintenanceRecordViewModal,
+    { openModal: openEquipmentMaintenanceRecordViewModal },
   ] = useModal();
 
   /**
@@ -247,21 +239,37 @@
   }
 
   /**
+   * 查看设备
+   *
+   * @param record
+   */
+  function handleView(record: Recordable) {
+    openEquipmentMaintenanceRecordViewModal(true, {
+      record,
+      isUpdate: true,
+    });
+  }
+
+  /**
    * 通知监管方
    *
    * @param record
    */
-  function handleNotify(record: Recordable) {
-    notification.warning({ message: `该功能还在完善中` });
+  async function handleNotify(record: Recordable) {
+    await equipmentMaintenanceRecordSend({ id: record.id });
+
+    await reload();
+
+    // notification.warning({ message: `该功能还在完善中` });
   }
 
   /**
-   * 甲方形成工单确认
+   * 甲方接收确认
    *
    * @param record
    */
   async function handleFirstPartyConfirm(record: Recordable) {
-    console.log('------------甲方形成工单确认-------------', record);
+    console.log('------------甲方接收确认-------------', record);
 
     await equipmentMaintenanceRecordUpdateState({
       id: record.id,
@@ -274,12 +282,12 @@
   }
 
   /**
-   * 乙方形成工单确认
+   * 乙方接收确认
    *
    * @param record
    */
   async function handleSecondPartyConfirm(record: Recordable) {
-    console.log('------------乙方形成工单确认------------', record);
+    console.log('------------乙方接收确认------------', record);
 
     await equipmentMaintenanceRecordUpdateState({
       id: record.id,
@@ -335,22 +343,22 @@
       delete_status,
       online_status,
       sensor_type,
-      plan_period_type,
       maintenance_status,
+      maintenance_work_order_type,
     } = await optionsListBatchApi([
       'alarm_status',
       'delete_status',
       'online_status',
       'sensor_type',
-      'plan_period_type',
       'maintenance_status',
+      'maintenance_work_order_type',
     ]);
     alarmStatusOptions.value = alarm_status || [];
     deleteStatusOptions.value = delete_status || [];
     onlineStatusOptions.value = online_status || [];
     sensorTypeOptions.value = sensor_type || [];
-    planPeriodTypeOptions.value = plan_period_type || [];
     maintenanceStatusOptions.value = maintenance_status || [];
+    maintenanceWorkOrderTypeOptions.value = maintenance_work_order_type || [];
   }
 
   onMounted(() => {

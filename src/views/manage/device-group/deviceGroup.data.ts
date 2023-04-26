@@ -2,11 +2,9 @@ import { ref } from 'vue';
 // hooks
 import { useI18n } from '/@/hooks/web/useI18n';
 // 公共组件
-import { FormProps } from '/@/components/Form';
+import { FormProps, FormSchema } from '/@/components/Form';
 import { BasicColumn } from '/@/components/Table/src/types/table';
-import { FormSchema } from '/@/components/Form';
-// 接口
-import { optionsListApi } from '/@/api/sys/dict';
+import { enterpriseSelect } from '/@/api/manage/enterprise';
 
 export const isUpdate = ref(true);
 export const idRef = ref('');
@@ -63,9 +61,16 @@ export const tableColumns: BasicColumn[] = [
     align: 'center',
   },
   {
-    title: t('所属企业'),
-    dataIndex: 'sysOrganization',
+    title: t('关联企业'),
+    dataIndex: 'bizEnterprise',
     width: 130,
+    align: 'center',
+  },
+  {
+    title: t('创建时间'),
+    dataIndex: 'createTime',
+    width: 130,
+    sorter: true,
     align: 'center',
   },
 ];
@@ -78,14 +83,20 @@ export const inputFormSchemas: FormSchema[] = [
     label: t('组名称'),
     field: 'groupName',
     component: 'Input',
-    required: true,
     componentProps: {
-      maxlength: 100,
+      readonly: true,
     },
   },
   {
-    label: t('所属企业'),
+    label: t('关联企业'),
     field: 'organizationId',
-    component: 'Select',
+    component: 'ApiSelect',
+    required: true,
+    componentProps: {
+      showSearch: true,
+      optionFilterProp: 'label',
+      api: enterpriseSelect,
+      getPopupContainer: () => document.body,
+    },
   },
 ];

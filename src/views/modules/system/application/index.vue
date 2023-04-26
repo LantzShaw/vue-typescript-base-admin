@@ -94,7 +94,7 @@
       width: 100,
       title: '操作',
       dataIndex: 'action',
-      fixed: undefined,
+      fixed: 'right',
       auth: 'system:application:operation',
     },
   });

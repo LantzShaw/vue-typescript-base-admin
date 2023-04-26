@@ -97,7 +97,7 @@
   import { useI18n } from '/@/hooks/web/useI18n';
   import { useMessage } from '/@/hooks/web/useMessage';
   import { Dropdown, Menu, Divider, Alert, Tree, Spin, Empty } from 'ant-design-vue';
-  import { Icon } from '/@/components/Icon';
+  import Icon from '@/components/Icon/Icon.vue';
   const ADropdown = Dropdown;
   const AMenu = Menu;
   const AMenuItem = Menu.Item;

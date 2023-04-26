@@ -2,15 +2,20 @@ import { ref } from 'vue';
 // hooks
 import { useI18n } from '/@/hooks/web/useI18n';
 // 公共组件
-import { FormProps } from '/@/components/Form';
+import { FormProps, FormSchema } from '/@/components/Form';
 import { BasicColumn } from '/@/components/Table/src/types/table';
-import { FormSchema } from '/@/components/Form';
+
 // 接口
-import { optionsListApi } from '/@/api/sys/dict';
+
+import { enterpriseSelect } from '/@/api/manage/enterprise';
 
 export const isUpdate = ref(true);
 export const idRef = ref('');
 export const record = ref<Recordable>({});
+
+export const treeData = ref<any[]>([]);
+export const organizationOptions = ref<any[]>([]);
+export const enterpriseOptions = ref<any[]>([]);
 
 const { t } = useI18n();
 
@@ -18,13 +23,24 @@ const { t } = useI18n();
  *  查询表单字段
  */
 export const searchForm: FormProps = {
-  baseColProps: { lg: 6, md: 8 },
+  baseColProps: { lg: 8, md: 8 },
   labelWidth: 120,
   schemas: [
     {
-      label: t('名称'),
+      label: t('区域名称'),
       field: 'regionName',
       component: 'Input',
+    },
+    {
+      label: t('关联企业'),
+      field: 'organizationId',
+      component: 'ApiSelect',
+      componentProps: {
+        showSearch: true,
+        optionFilterProp: 'label',
+        api: enterpriseSelect,
+        getPopupContainer: () => document.body,
+      },
     },
   ],
 };
@@ -34,9 +50,15 @@ export const searchForm: FormProps = {
  */
 export const tableColumns: BasicColumn[] = [
   {
-    title: t('名称'),
+    title: t('区域名称'),
     dataIndex: 'regionName',
     sorter: true,
+    width: 130,
+    align: 'center',
+  },
+  {
+    title: t('关联企业'),
+    dataIndex: 'bizEnterprise',
     width: 130,
     align: 'center',
   },
@@ -47,12 +69,24 @@ export const tableColumns: BasicColumn[] = [
  */
 export const inputFormSchemas: FormSchema[] = [
   {
-    label: t('名称'),
+    label: t('区域名称'),
     field: 'regionName',
     component: 'Input',
     required: true,
     componentProps: {
       maxlength: 100,
+    },
+  },
+  {
+    label: t('关联企业'),
+    field: 'organizationId',
+    component: 'ApiSelect',
+    required: true,
+    componentProps: {
+      showSearch: true,
+      optionFilterProp: 'label',
+      api: enterpriseSelect,
+      getPopupContainer: () => document.body,
     },
   },
 ];

@@ -1,7 +1,16 @@
 <template>
   <PageWrapper dense contentFullHeight>
     <BasicTable @register="registerTable">
-      <template #toolbar> </template>
+      <template #toolbar>
+        <a-button
+          v-auth="'authorize:token:delete'"
+          preIcon="ant-design:clear-outlined"
+          type="primary"
+          @click="handleDelete"
+        >
+          清理过期Token
+        </a-button>
+      </template>
       <!-- 表格内容 -->
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'registeredClientId'">
@@ -17,6 +26,10 @@
           <TableAction
             stopButtonPropagation
             :actions="[
+              {
+                label: '编辑',
+                onClick: handleEdit.bind(null, record),
+              },
               {
                 label: '删除',
                 color: 'error',
@@ -75,10 +88,11 @@
     showTableSetting: true,
     showIndexColumn: false,
     actionColumn: {
-      width: 100,
-      title: '操作',
+      width: 90,
       dataIndex: 'action',
-      fixed: undefined,
+      title: '操作',
+      fixed: 'right',
+      auth: 'authorize:token:operation',
     },
   });
 

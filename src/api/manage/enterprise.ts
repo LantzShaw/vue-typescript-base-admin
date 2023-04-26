@@ -1,6 +1,7 @@
 import { defHttp } from '/@/utils/http/axios';
 
 enum Api {
+  EnterpriseTree = '/biz/enterprise/tree',
   EnterprisePage = '/biz/enterprise/page',
   EnterpriseDelete = '/biz/enterprise/delete',
   EnterpriseAdd = '/biz/enterprise/add',
@@ -10,6 +11,7 @@ enum Api {
   EnterpriseSelect = '/biz/enterprise/option',
 }
 
+export const enterpriseTree = (params?: any) => defHttp.get({ url: Api.EnterpriseTree, params });
 export const enterprisePage = (params?: any) => defHttp.get({ url: Api.EnterprisePage, params });
 export const enterpriseDelete = (data?: any) => defHttp.delete({ url: Api.EnterpriseDelete, data });
 export const enterpriseAdd = (data?: any) => defHttp.post({ url: Api.EnterpriseAdd, data });

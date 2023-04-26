@@ -7,9 +7,9 @@
 </template>
 <script lang="ts" setup>
   import { useI18n } from '/@/hooks/web/useI18n';
-  import { ref, computed, watch, unref } from 'vue';
+  import { ref, computed, watch, unref, defineExpose } from 'vue';
   import { Avatar, FormItem, Form, Row, Tooltip, Select } from 'ant-design-vue';
-  import { Icon } from '/@/components/Icon';
+  import Icon from '@/components/Icon/Icon.vue';
   // 组件
   import { BasicForm, useForm } from '/@/components/Form/index';
   import { BasicModal, useModalInner } from '/@/components/Modal';

@@ -10,7 +10,8 @@ import {
   SessionTimeoutProcessingEnum,
 } from '/@/enums/appEnum';
 import { SIDE_BAR_BG_COLOR_LIST, HEADER_PRESET_BG_COLOR_LIST } from './designSetting';
-import { primaryColor } from '../../build/config/themeConfig';
+
+const primaryColor = '#0960bd';
 
 // ! You need to clear the browser cache after the change
 const setting: ProjectConfig = {
@@ -48,7 +49,7 @@ const setting: ProjectConfig = {
   contentMode: ContentEnum.FULL,
 
   // Whether to display the logo
-  showLogo: true,
+  showLogo: false,
 
   // Whether to show footer
   showFooter: false,
@@ -68,7 +69,7 @@ const setting: ProjectConfig = {
     // Whether to show the full screen button
     showFullScreen: true,
     // Whether to show the document button
-    showDoc: true,
+    showDoc: false,
     // Whether to show the notification button
     showNotice: true,
     // Whether to display the menu search
@@ -128,7 +129,7 @@ const setting: ProjectConfig = {
     // Turn on quick actions
     showQuick: true,
     // Whether to show the refresh button
-    showRedo: false,
+    showRedo: true,
     // Whether to show the collapse button
     showFold: true,
   },

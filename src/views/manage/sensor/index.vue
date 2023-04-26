@@ -3,14 +3,6 @@
     <BasicTable @register="registerTable">
       <!-- 按钮工具栏 -->
       <template #toolbar>
-        <!-- <a-button
-          v-auth="'manage:sensor:add'"
-          type="primary"
-          preIcon="ant-design:plus-outlined"
-          @click="handleCreate"
-        >
-          新增
-        </a-button> -->
         <a-button
           :loading="isExportLoading"
           v-auth="'manage:sensor:export'"
@@ -50,6 +42,12 @@
         <template v-else-if="column.key === 'dtuipValue'">
           {{ record.dtuipValue + record.dtuipUnit }}
         </template>
+        <template v-else-if="column.key === 'enterpriseName'">
+          {{ record?.bizEnterprise?.enterpriseName }}
+        </template>
+        <template v-else-if="column.key === 'regionName'">
+          {{ record?.bizInstallRegion?.regionName }}
+        </template>
 
         <!-- 表格按钮 -->
         <template v-else-if="column.key === 'action'">
@@ -60,6 +58,16 @@
                 label: '编辑',
                 onClick: handleEdit.bind(null, record),
                 auth: 'manage:sensor:edit',
+              },
+              {
+                label: '溯源信息',
+                onClick: handleViewTraceability.bind(null, record),
+                auth: 'manage:sensor:view-traceability',
+              },
+              {
+                label: '履历信息',
+                onClick: handleViewResume.bind(null, record),
+                auth: 'manage:sensor:view-resume',
               },
               {
                 label: '删除',
@@ -76,6 +84,7 @@
       </template>
     </BasicTable>
     <SensorModal @register="registerModal" @success="handleSuccess" />
+    <SensorImportModal @register="registerSensorImportModal" @success="handleSuccess" />
   </PageWrapper>
 </template>
 <script lang="ts" setup>
@@ -89,7 +98,7 @@
   import { DictLabel } from '/@/components/DictLabel/index';
   import { useModal } from '/@/components/Modal';
   import SensorModal from './SensorModal.vue';
-
+  import SensorImportModal from './SensorImportModal.vue';
   // 接口
   import { sensorPage, sensorDelete, sensorExport, sensorImport } from '/@/api/manage/sensor';
   import { optionsListBatchApi } from '/@/api/sys/dict';
@@ -99,12 +108,16 @@
     deleteStatusOptions,
     onlineStatusOptions,
     sensorTypeOptions,
+    deviceOptions,
     searchForm,
     tableColumns,
   } from './sensor.data';
   import { downloadByData } from '/@/utils/file/download';
+  import { devicePage } from '/@/api/manage/device';
+  import { useGo } from '/@/hooks/web/usePage';
 
   const { notification } = useMessage();
+  const go = useGo();
 
   const isExportLoading = ref<boolean>(false);
 
@@ -112,11 +125,15 @@
    * 构建registerModal
    */
   const [registerModal, { openModal }] = useModal();
+  /**
+   * 构建registerModal
+   */
+  const [registerSensorImportModal, { openModal: openSensorImportModal }] = useModal();
 
   /**
    * 构建registerTable
    */
-  const [registerTable, { reload, getDataSource }] = useTable({
+  const [registerTable, { reload }] = useTable({
     title: '',
     api: sensorPage,
     columns: tableColumns,
@@ -126,7 +143,7 @@
     showTableSetting: true,
     showIndexColumn: false,
     actionColumn: {
-      width: 140,
+      width: 300,
       title: '操作',
       dataIndex: 'action',
       // slots: { customRender: 'action' },
@@ -135,6 +152,20 @@
       // auth: 'system:application:operation',
     },
   });
+
+  /**
+   * 跳转至至溯源信息页面
+   */
+  function handleViewTraceability(record: Recordable) {
+    go(`/sensor/traceability/${record.id}?sensorName=${record.sensorName}`);
+  }
+
+  /**
+   * 跳转至至履历信息页面
+   */
+  function handleViewResume(record: Recordable) {
+    go(`/sensor/resume/${record.id}`);
+  }
 
   /**
    * 导出
@@ -149,38 +180,25 @@
       .finally(() => {
         isExportLoading.value = false;
       });
-
-    // jsonToSheetXlsx({
-    //   data: getDataSource(),
-    //   // header: getColumns().map((column) => column.title),
-    //   filename: `设备传感器_${new Date().getTime()}.xls`,
-    // });
   }
 
   /**
    * 导入
    */
-  async function handleImport(rawFile) {
-    try {
-      const resposne = await sensorImport({ file: rawFile });
+  async function handleImport() {
+    openSensorImportModal(true, {});
 
-      if (resposne.status === 200) {
-        notification.success({ message: '导入成功!' });
-      } else {
-        notification.error({ message: '导入失败!' });
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  }
+    // try {
+    //   const resposne = await sensorImport({ file: rawFile });
 
-  /**
-   * 新增
-   */
-  function handleCreate() {
-    openModal(true, {
-      isUpdate: false,
-    });
+    //   if (resposne.status === 200) {
+    //     notification.success({ message: '导入成功!' });
+    //   } else {
+    //     notification.error({ message: '导入失败!' });
+    //   }
+    // } catch (error) {
+    //   console.log(error);
+    // }
   }
 
   /**
@@ -210,6 +228,20 @@
   }
 
   /**
+   * 获取设备列表
+   */
+  async function getDeviceList() {
+    const response = await devicePage({ pageIndex: 1, pageSize: 100000 });
+
+    deviceOptions.value = response.records.map((device) => {
+      return {
+        label: device.deviceName,
+        value: device.id,
+      };
+    });
+  }
+
+  /**
    * 初始化字典数据
    */
   async function initDict() {
@@ -227,6 +259,7 @@
 
   onMounted(() => {
     initDict();
+    getDeviceList();
   });
 </script>
 

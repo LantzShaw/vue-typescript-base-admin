@@ -30,7 +30,7 @@
   import { useI18n } from '/@/hooks/web/useI18n';
   import { useMessage } from '/@/hooks/web/useMessage';
   import { Checkbox, Dropdown, Menu, Divider, Alert, Tree, Spin, Empty } from 'ant-design-vue';
-  import { Icon } from '/@/components/Icon';
+  import Icon from '@/components/Icon/Icon.vue';
   import { BasicTree, TreeItem, TreeActionType } from '/@/components/Tree/index';
   const ADropdown = Dropdown;
   const AMenu = Menu;

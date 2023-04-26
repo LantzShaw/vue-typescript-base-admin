@@ -3,16 +3,18 @@
     v-bind="$attrs"
     @register="registerDrawer"
     showFooter
-    :okAuth="'authorize:application:add'"
+    :okAuth="okAuth"
     :title="getTitle"
     width="50%"
     @ok="handleSubmit"
   >
-    <BasicForm @register="registerForm" />
+    <div style="padding-right: 10px; padding-left: 10px">
+      <BasicForm @register="registerForm" />
+    </div>
   </BasicDrawer>
 </template>
 <script lang="ts" setup>
-  import { computed, unref } from 'vue';
+  import { computed, ref, unref } from 'vue';
   // hooks
   import { useMessage } from '/@/hooks/web/useMessage';
   // 组件
@@ -33,6 +35,7 @@
     inputFormSchemas,
   } from './application.data';
 
+  const okAuth = ref(['authorize:application:add', 'authorize:application:edit']);
   const emit = defineEmits(['success', 'register']);
 
   const { notification } = useMessage();

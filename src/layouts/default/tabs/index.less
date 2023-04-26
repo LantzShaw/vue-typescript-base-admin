@@ -86,6 +86,10 @@ html[data-theme='light'] {
       .ant-tabs-tab:not(.ant-tabs-tab-active) {
         &:hover {
           color: @primary-color;
+
+          span {
+            vertical-align: 0rem !important;
+          }
         }
       }
 
@@ -98,6 +102,7 @@ html[data-theme='light'] {
 
         span {
           color: @white !important;
+          vertical-align: 0rem !important;
         }
 
         .ant-tabs-tab-remove {

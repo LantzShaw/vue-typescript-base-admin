@@ -31,7 +31,7 @@
               {
                 label: '编辑',
                 onClick: handleEdit.bind(null, record),
-                auth: 'system:quartz:edit',
+                auth: 'system:kv:edit',
               },
               {
                 label: '删除',

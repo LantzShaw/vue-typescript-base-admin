@@ -3,7 +3,7 @@
     v-bind="$attrs"
     @register="registerDrawer"
     showFooter
-    :okAuth="'system:menu:edit'"
+    :okAuth="okAuth"
     :title="getTitle"
     width="75%"
     @ok="handleSubmit"
@@ -26,11 +26,6 @@
     </BasicForm>
   </BasicDrawer>
 </template>
-<script lang="ts">
-  export default defineComponent({
-    name: 'ViewsSysMenuForm',
-  });
-</script>
 <script lang="ts" setup>
   import { defineComponent, ref, unref, computed, nextTick } from 'vue';
   // hooks
@@ -67,8 +62,9 @@
     record,
     inputFormSchemas,
   } from './menu.data';
-  const { t } = useI18n();
 
+  const { t } = useI18n();
+  const okAuth = ref(['system:menu:add', 'system:menu:edit']);
   const emit = defineEmits(['success', 'register']);
 
   const { createMessage, notification } = useMessage();

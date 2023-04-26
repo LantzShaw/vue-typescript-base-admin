@@ -33,9 +33,17 @@
   </div>
 </template>
 <script lang="ts">
-  import { CSSProperties, PropType, provide } from 'vue';
+  import {
+    CSSProperties,
+    PropType,
+    provide,
+    defineComponent,
+    computed,
+    watch,
+    ref,
+    unref,
+  } from 'vue';
 
-  import { defineComponent, computed, watch, ref, unref } from 'vue';
   import PageFooter from './PageFooter.vue';
 
   import { useDesign } from '/@/hooks/web/useDesign';
@@ -50,23 +58,16 @@
     components: { PageFooter, PageHeader },
     inheritAttrs: false,
     props: {
-      // pageHeader title
       title: propTypes.string,
-      // 为 true 将会取消 padding/margin
       dense: propTypes.bool,
       ghost: propTypes.bool,
-      // pageHeader Content 内容
       content: propTypes.string,
-      // 主体区域样式
       contentStyle: {
         type: Object as PropType<CSSProperties>,
       },
       contentBackground: propTypes.bool,
-      // 主体区域是否占满整个屏幕高度
       contentFullHeight: propTypes.bool,
-      // 主体区域 class
       contentClass: propTypes.string,
-      // 固定主体区域高度
       fixedHeight: propTypes.bool,
       upwardSpace: propTypes.oneOfType([propTypes.number, propTypes.string]).def(0),
     },
@@ -82,7 +83,7 @@
         computed(() => props.fixedHeight),
       );
 
-      const getIsContentFullHeight = computed(() => {
+      const getIsContentFullHeight: any = computed(() => {
         return props.contentFullHeight;
       });
 
@@ -123,7 +124,6 @@
         }
 
         const height = `${unref(contentHeight)}px`;
-        // console.log('height', height);
         return {
           ...contentStyle,
           minHeight: height,
@@ -177,7 +177,7 @@
     position: relative;
 
     .@{prefix-cls}-content {
-      margin: 16px;
+      margin: 16px 8px 8px 8px;
     }
 
     .ant-page-header {

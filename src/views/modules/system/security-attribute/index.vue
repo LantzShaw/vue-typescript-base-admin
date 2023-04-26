@@ -22,7 +22,7 @@
               {
                 label: '编辑',
                 onClick: handleEdit.bind(null, record),
-                auth: 'system:config:edit',
+                auth: 'system:security-attribute:edit',
               },
             ]"
           />
@@ -78,6 +78,7 @@
       title: '操作',
       dataIndex: 'action',
       fixed: 'right',
+      auth: 'system:security-attribute:operation',
     },
   });
 

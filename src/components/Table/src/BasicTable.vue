@@ -104,7 +104,7 @@
     ],
     setup(props, { attrs, emit, slots, expose }) {
       const tableElRef = ref(null);
-      const tableData = ref<Recordable[]>([]);
+      const tableData = ref([]);
 
       const wrapRef = ref(null);
       const formRef = ref(null);
@@ -377,28 +377,30 @@
     }
 
     &-form-container {
-      padding: 16px;
+      padding: 8px;
 
       .ant-form {
         width: 100%;
-        padding: 12px 10px 6px 10px;
-        margin-bottom: 0px;
+        margin-bottom: 0;
+        padding: 12px 10px 6px;
         background-color: @component-background;
       }
     }
 
-    .ant-tag {
-      margin-right: 0;
+    .ant-table-cell {
+      .ant-tag {
+        margin-right: 0;
+      }
     }
 
     .ant-table-wrapper {
-      padding: 0 16px 0 16px;
+      padding: 0 16px;
       background-color: @component-background;
 
       .ant-table-title {
         min-height: 40px;
-        padding: 6px 0 0px 0 !important;
         margin-bottom: 6px !important;
+        padding: 6px 0 0 !important;
       }
 
       .ant-table.ant-table-bordered .ant-table-title {
@@ -412,10 +414,10 @@
 
       &-title {
         display: flex;
+        align-items: center;
+        justify-content: space-between;
         padding: 8px 6px;
         border-bottom: none;
-        justify-content: space-between;
-        align-items: center;
       }
 
       //.ant-table-tbody > tr.ant-table-row-selected td {

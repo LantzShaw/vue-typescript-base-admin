@@ -3,18 +3,18 @@
     v-bind="$attrs"
     @register="registerModal"
     showFooter
-    :okAuth="'system:role:edit'"
+    :okAuth="okAuth"
     :title="getTitle"
     width="50%"
     @ok="handleSubmit"
   >
-    <div style="padding-left: 10px; padding-right: 10px">
+    <div style="padding-right: 10px; padding-left: 10px">
       <BasicForm @register="registerForm" />
     </div>
   </BasicModal>
 </template>
 <script lang="ts" setup>
-  import { computed, unref } from 'vue';
+  import { computed, ref, unref } from 'vue';
   // hooks
   import { useMessage } from '/@/hooks/web/useMessage';
   // 组件
@@ -38,6 +38,7 @@
     accountTypeOptions,
   } from './defaultRole.data';
 
+  const okAuth = ref(['system:default-role:add', 'system:default-role:edit']);
   const emit = defineEmits(['success', 'register']);
 
   const { notification } = useMessage();

@@ -1,183 +1,211 @@
 <template>
   <BasicModal
-    width="50%"
+    width="70%"
     v-bind="$attrs"
     @register="registerModal"
     showFooter
-    :title="getTitle"
+    title="新增关联设备"
     :centered="true"
     @ok="handleSubmit"
+    :okAuth="okAuth"
   >
-    <div style="padding-left: 10px; padding-right: 10px">
-      <a-form
-        :model="formState"
-        name="basic"
-        :label-col="{ span: 4 }"
-        :wrapper-col="{ span: 20 }"
-        autocomplete="off"
-      >
-        <a-form-item label="设备" name="deviceId">
-          <a-select
-            v-model:value="formState.deviceId"
-            style="width: 100%"
-            placeholder="请选择设备"
-            :options="getDeviceOptions"
-            @change="handleDeviceChange"
-          ></a-select>
-        </a-form-item>
-        <a-form-item label="传感器" name="sensorId">
-          <a-select
-            v-model:value="formState.sensorId"
-            style="width: 100%"
-            placeholder="请选择传感器"
-            :options="getSensorOptions"
-          ></a-select>
-        </a-form-item>
-      </a-form>
+    <div style="padding-right: 10px; padding-left: 10px">
+      <BasicTable @register="registerTable" :selectedRowKeys="checkedKeys">
+        <template #bodyCell="{ column, record }">
+          <template v-if="column.key === 'dtuipSensorTypeId'">
+            <dict-label :options="sensorTypeOptions" :value="record.dtuipSensorTypeId" />
+          </template>
+          <template v-else-if="column.key === 'installRegion'">
+            {{ record.bizInstallRegion?.regionName }}
+          </template>
+          <template v-else-if="column.key === 'dtuipIsAlarms'">
+            <dict-label :options="alarmStatusOptions" :value="record.dtuipIsAlarms" />
+          </template>
+          <template v-else-if="column.key === 'dtuipIsDelete'">
+            <dict-label :options="deleteStatusOptions" :value="record.dtuipIsDelete" />
+          </template>
+          <template v-else-if="column.key === 'dtuipIsLine'">
+            <dict-label :options="onlineStatusOptions" :value="record.dtuipIsLine" />
+          </template>
+        </template>
+      </BasicTable>
     </div>
   </BasicModal>
 </template>
 <script lang="ts" setup>
-  import { computed, onMounted, reactive, ref, unref } from 'vue';
+  import { onMounted, ref } from 'vue';
 
-  import { Form as AForm, FormItem as AFormItem, Select as ASelect } from 'ant-design-vue';
   // hooks
   import { useMessage } from '/@/hooks/web/useMessage';
   // 组件
   import { BasicModal, useModalInner } from '/@/components/Modal';
-  // 接口
-  import {
-    associationDeviceAdd,
-    associationDeviceUpdate,
-    associationDeviceForm,
-  } from '/@/api/manage/equipmentMaintenance';
-  // data
-  import { isUpdate, idRef, record } from './associationDevice.data';
-  import { sensorPage } from '/@/api/manage/sensor';
-  import { devicePage } from '/@/api/manage/device';
+  import { BasicTable, useTable } from '/@/components/Table';
+  import { DictLabel } from '/@/components/DictLabel/index';
 
+  // 接口
+  import { associationDeviceAdd, associationDevicePage } from '/@/api/manage/associationDevice';
+  // data
+  import {
+    isUpdate,
+    record,
+    sensorSearchForm,
+    sensorTableColumns,
+    sensorTypeOptions,
+    alarmStatusOptions,
+    deleteStatusOptions,
+    onlineStatusOptions,
+    enterpriseOptions,
+    regionOptions,
+    organizationId,
+  } from './associationDevice.data';
+  import { sensorPage } from '/@/api/manage/sensor';
+  import { companyPage } from '/@/api/manage/company';
+  import { installRegionPage } from '/@/api/manage/installRegion';
+  import { optionsListBatchApi } from '/@/api/sys/dict';
   import { useRoute } from 'vue-router';
+
+  const okAuth = ref(['manage:maintenance-record:add']);
+  const emit = defineEmits(['success', 'register']);
 
   const route = useRoute();
 
-  type FormState = {
-    deviceId?: string;
-    sensorId?: string;
-  };
-
-  type Device = {
-    id?: string;
-    deviceName?: string;
-  };
-
-  type Sensor = {
-    id?: string;
-    sensorName?: string;
-  };
-
-  const emit = defineEmits(['success', 'register']);
-
   const { notification } = useMessage();
+  const checkedKeys = ref<Array<string | number>>([]);
+  const deviceIds = ref<Array<string | number>>([]);
 
-  const formState = reactive<FormState>({});
+  const isRegionSelectLoading = ref<boolean>(false);
 
-  const deviceOptions = ref<Device[]>([]);
-  const sensorOptions = ref<Sensor[]>([]);
+  organizationId.value = route?.query.organizationId as string;
 
   /**
-   * 构建Modal
+   * 构建registerTable
+   */
+  const [registerTable, { reload, getForm }] = useTable({
+    title: '',
+    api: sensorPage,
+    // fetchSetting: {
+    //   sizeField: '100000',
+    // },
+    pagination: true,
+    columns: sensorTableColumns,
+    formConfig: sensorSearchForm,
+    searchInfo: {
+      organizationId: route?.query.organizationId,
+    },
+    useSearchForm: true,
+    canResize: false,
+    showTableSetting: false,
+    showIndexColumn: false,
+    rowKey: 'id',
+    rowSelection: {
+      type: 'checkbox',
+      selectedRowKeys: checkedKeys.value,
+      onSelect: onSelect,
+      onSelectAll: onSelectAll,
+    },
+  });
+
+  /**
+   * 构建Drawer
    */
   const [registerModal, { setModalProps, closeModal }] = useModalInner(async (data) => {
     setModalProps({ loading: true, confirmLoading: true });
 
-    // 初始化值
-    formState.deviceId = undefined;
-    formState.sensorId = undefined;
-    sensorOptions.value = [];
+    checkedKeys.value = [];
+    deviceIds.value = [];
+    getForm().resetFields();
+
+    getEnterpriseList();
+    getRegionList();
+    getSelectedSensor();
 
     // 判断是否是更新
     isUpdate.value = !!data?.isUpdate;
     record.value = [];
 
-    if (unref(isUpdate)) {
-      // 请求数据
-      record.value = ((await associationDeviceForm({ id: data?.record?.id })) || {}) as Recordable;
-      idRef.value = data.record.id;
-    } else {
-      idRef.value = '';
-    }
-
     setModalProps({ loading: false, confirmLoading: false });
   });
 
   /**
-   * 设备 - 选择事件
+   * 选择事件
+   *
+   * @param record
+   * @param selected
    */
-  function handleDeviceChange() {
-    formState.sensorId = undefined;
-
-    getSensorList();
+  function onSelect(record, selected) {
+    if (selected) {
+      deviceIds.value = [...deviceIds.value, record.dtuipDeviceId];
+      checkedKeys.value = [...checkedKeys.value, record.id];
+    } else {
+      deviceIds.value = deviceIds.value.filter((id) => id !== record.id);
+      checkedKeys.value = checkedKeys.value.filter((id) => id !== record.id);
+    }
   }
 
   /**
-   * 获取设备列表
+   * 全部选中
+   *
+   * @param record
    */
-  async function getDeviceList() {
-    const response = await devicePage({ pageIndex: 1, pageSize: 100000 });
-
-    console.log('----------response------------', response);
-
-    deviceOptions.value = response.records;
+  function onSelectAll(selected, selectedRows, changeRows) {
+    const changeIds = changeRows.map((item) => item.id);
+    if (selected) {
+      checkedKeys.value = [...checkedKeys.value, ...changeIds];
+    } else {
+      checkedKeys.value = checkedKeys.value.filter((id) => {
+        return !changeIds.includes(id);
+      });
+    }
   }
 
   /**
-   * 获取传感器列表
+   * 获取所属区域列表
    */
-  async function getSensorList() {
-    const response = await sensorPage({
+  async function getRegionList() {
+    regionOptions.value = [];
+    isRegionSelectLoading.value = true;
+
+    const response = await installRegionPage({
+      organizationId: route?.query?.organizationId,
       pageIndex: 1,
       pageSize: 100000,
-      deviceId: formState.deviceId,
     });
 
-    sensorOptions.value = response.records;
+    regionOptions.value = response?.records?.map((region) => {
+      return {
+        label: region.regionName,
+        value: region.id,
+      };
+    });
 
-    console.log('----------response------------', response);
+    isRegionSelectLoading.value = false;
   }
 
-  // 设备
-  const getDeviceOptions = computed(() => {
-    return unref(deviceOptions).map((device) => {
-      return {
-        label: device.deviceName,
-        value: device.id,
-      };
-    });
-  });
+  /**
+   * 获取所有企业列表
+   */
+  async function getEnterpriseList() {
+    const response = await companyPage({ pageIndex: 1, pageSize: 100000 });
 
-  // 传感器
-  const getSensorOptions = computed(() => {
-    return unref(sensorOptions).map((sensor) => {
+    enterpriseOptions.value = response?.records?.map((company) => {
       return {
-        label: sensor.sensorName,
-        value: sensor.id,
+        label: company.enterpriseName,
+        value: company.id,
       };
     });
-  });
+  }
 
   /**
    * 提交表单
    */
   async function handleSubmit() {
-    console.log('form state', formState);
-
     try {
       setModalProps({ loading: true, confirmLoading: true });
-      if (unref(isUpdate)) {
-        await associationDeviceUpdate({});
-      } else {
-        await associationDeviceAdd({ ...formState, planId: route?.params?.id });
-      }
+
+      await associationDeviceAdd({
+        planId: route?.params?.id,
+        ids: checkedKeys.value,
+      });
       notification.success({ message: `执行成功` });
       closeModal();
       emit('success');
@@ -186,12 +214,38 @@
     }
   }
 
-  onMounted(() => {
-    getDeviceList();
-  });
+  /**
+   * 获取选中的传感器 - 选中已选的传感器
+   */
+  async function getSelectedSensor() {
+    const response = await associationDevicePage({
+      pageIndex: 1,
+      pageSize: 10000,
+      planId: route?.params?.id,
+    });
+
+    checkedKeys.value = response.records.map((item) => item.sensorId);
+  }
 
   /**
-   * 标题
+   * 初始化字典数据
    */
-  const getTitle = computed(() => (!unref(isUpdate) ? '新增' : '编辑'));
+  async function initDict() {
+    const { alarm_status, delete_status, online_status, sensor_type } = await optionsListBatchApi([
+      'alarm_status',
+      'delete_status',
+      'online_status',
+      'sensor_type',
+      'maintenance_status',
+      'maintenance_work_order_type',
+    ]);
+    alarmStatusOptions.value = alarm_status || [];
+    deleteStatusOptions.value = delete_status || [];
+    onlineStatusOptions.value = online_status || [];
+    sensorTypeOptions.value = sensor_type || [];
+  }
+
+  onMounted(() => {
+    initDict();
+  });
 </script>

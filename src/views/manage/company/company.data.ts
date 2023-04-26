@@ -23,7 +23,7 @@ const { t } = useI18n();
  *  查询表单字段
  */
 export const searchForm: FormProps = {
-  baseColProps: { lg: 6, md: 8 },
+  baseColProps: { lg: 8, md: 8 },
   labelWidth: 90,
   schemas: [
     {
@@ -57,6 +57,27 @@ export const tableColumns: BasicColumn[] = [
     width: 130,
     align: 'center',
   },
+  {
+    title: t('安全负责人'),
+    dataIndex: 'smPersonName',
+    sorter: true,
+    width: 90,
+    align: 'center',
+  },
+  {
+    title: t('法人'),
+    dataIndex: 'legalPersonName',
+    sorter: true,
+    width: 90,
+    align: 'center',
+  },
+  {
+    title: t('专工'),
+    dataIndex: 'swPersonName',
+    sorter: true,
+    width: 90,
+    align: 'center',
+  },
 ];
 
 /**
@@ -77,6 +98,59 @@ export const inputFormSchemas: FormSchema[] = [
     field: 'enterpriseNo',
     component: 'Input',
     required: true,
+    componentProps: {
+      maxlength: 100,
+    },
+  },
+  {
+    label: t('安全负责人'),
+    field: 'smPersonName',
+    component: 'Input',
+    componentProps: {
+      maxlength: 100,
+    },
+  },
+
+  {
+    label: t('安全负责人联系方式'),
+    field: 'smPersonContact',
+    component: 'Input',
+    componentProps: {
+      maxlength: 100,
+    },
+  },
+
+  {
+    label: t('法人'),
+    field: 'legalPersonName',
+    component: 'Input',
+    componentProps: {
+      maxlength: 100,
+    },
+  },
+
+  {
+    label: t('法人联系方式'),
+    field: 'legalPersonContact',
+    component: 'Input',
+    componentProps: {
+      maxlength: 100,
+    },
+  },
+
+  {
+    label: t('专工'),
+    field: 'swPersonName',
+    component: 'Input',
+    componentProps: {
+      maxlength: 100,
+    },
+  },
+
+  {
+    label: t('专工联系方式'),
+    field: 'swPersonContact',
+    component: 'Input',
     componentProps: {
       maxlength: 100,
     },

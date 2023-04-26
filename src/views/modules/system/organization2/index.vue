@@ -1,11 +1,13 @@
 <template>
   <PageWrapper dense contentFullHeight contentClass="flex">
     <div class="w-1/4">
-      <div class="m-4 mr-0 p-2 overflow-hidden bg-white">
+      <div class="m-2 mr-0 p-2 overflow-hidden bg-white">
         <BasicTree
           ref="treeRef"
+          title="单位列表"
           toolbar
           search
+          treeWrapperClassName="h-[calc(100%-35px)] overflow-auto"
           :clickRowToExpand="false"
           :treeData="treeData"
           @select="handleSelect"
@@ -137,7 +139,7 @@
       width: 130,
       title: '操作',
       dataIndex: 'action',
-      fixed: undefined,
+      fixed: 'right',
       auth: 'system:organization:operation',
     },
   });

@@ -3,7 +3,7 @@
     v-bind="$attrs"
     @register="registerDrawer"
     showFooter
-    :okAuth="'system:compliance:add'"
+    :okAuth="okAuth"
     :title="getTitle"
     width="50%"
     @ok="handleSubmit"
@@ -12,7 +12,7 @@
   </BasicDrawer>
 </template>
 <script lang="ts" setup>
-  import { computed, unref } from 'vue';
+import {computed, ref, unref} from 'vue';
   // hooks
   import { useMessage } from '/@/hooks/web/useMessage';
   // 组件
@@ -22,7 +22,7 @@
   import { complianceForm, complianceAdd, complianceUpdate } from '/@/api/authorize/compliance';
   // data
   import { isUpdate, idRef, record, inputFormSchemas } from './compliance.data';
-
+  const okAuth = ref(['system:compliance:add']);
   const emit = defineEmits(['success', 'register']);
 
   const { notification } = useMessage();

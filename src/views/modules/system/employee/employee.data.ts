@@ -3,14 +3,14 @@ import { ref, unref, h } from 'vue';
 // hooks
 import { useI18n } from '/@/hooks/web/useI18n';
 // 公共组件
-import { FormProps } from '/@/components/Form';
+import { FormProps, FormSchema } from '/@/components/Form';
 import { BasicColumn } from '/@/components/Table';
-import { FormSchema } from '/@/components/Form';
+
+import { DescItem } from '/@/components/Description/index';
 import { Input } from 'ant-design-vue';
 // 接口
 import { orgTree } from '/@/api/system/org';
 import { optionsListApi } from '/@/api/sys/dict';
-import { checkRoleCode } from '/@/api/system/role';
 
 export const isUpdate = ref(true);
 export const idRef = ref('');
@@ -32,7 +32,7 @@ const isCustom = (type: string) => type === '5';
  *  查询表单字段
  */
 export const searchForm: FormProps = {
-  baseColProps: { lg: 6, md: 8 },
+  baseColProps: { lg: 8, md: 8 },
   labelWidth: 90,
   schemas: [
     {
@@ -174,5 +174,16 @@ export const inputFormSchemas: FormSchema[] = [
     componentProps: {
       maxlength: 100,
     },
+  },
+];
+
+export const inputFormSchemas2: DescItem[] = [
+  {
+    field: 'username',
+    label: '用户名',
+  },
+  {
+    field: 'nickName',
+    label: '用户昵称',
   },
 ];

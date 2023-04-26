@@ -66,7 +66,7 @@ export const basicProps = Object.assign({}, modalProps, {
   maskStyle: Object as PropType<CSSProperties>,
 
   okType: { type: String, default: 'primary' },
-
+  okAuth: { type: Array as PropType<string[]> },
   okButtonProps: Object as PropType<ButtonProps>,
 
   cancelButtonProps: Object as PropType<ButtonProps>,

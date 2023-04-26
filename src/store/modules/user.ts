@@ -11,9 +11,6 @@ import {
   APPLICATION_ID_KEY,
   TENANT_ID_KEY,
   ORGANIZATION_ID_KEY,
-  MAINTAINER_ORGANIZATION_IDS_KEY,
-  MONITORING_UNIT_ORGANIZATION_IDS_KEY,
-  EXTERNAL_USER_ORGANIZATION_IDS_KEY,
 } from '/@/enums/cacheEnum';
 import { getAuthCache, setAuthCache } from '/@/utils/auth';
 import { GetUserInfoModel, LoginParams, LogoutParams } from '/@/api/sys/model/userModel';
@@ -28,8 +25,6 @@ import { PAGE_NOT_FOUND_ROUTE } from '/@/router/routes/basic';
 import { isArray } from '/@/utils/is';
 import { h } from 'vue';
 
-import { orgTree } from '/@/api/system/org';
-
 interface UserState {
   userInfo: Nullable<UserInfo>;
   token?: string;
@@ -39,9 +34,6 @@ interface UserState {
   applicationId?: string;
   tenantId?: string | number;
   organizationId?: string;
-  maintainerOrgIdList: string[];
-  monitoringUnitOrgIdList: string[];
-  externalUserOrgIdList: string[];
 }
 
 export const useUserStore = defineStore({
@@ -63,52 +55,31 @@ export const useUserStore = defineStore({
     tenantId: '',
     //组织id
     organizationId: '',
-    // 维护方组织机构列表
-    maintainerOrgIdList: [],
-    // 监管单位组织机构列表
-    monitoringUnitOrgIdList: [],
-    // 使用方组织机构列表
-    externalUserOrgIdList: [],
   }),
   getters: {
-    getUserInfo(): UserInfo {
-      return this.userInfo || getAuthCache<UserInfo>(USER_INFO_KEY) || {};
+    getUserInfo(state): UserInfo {
+      return state.userInfo || getAuthCache<UserInfo>(USER_INFO_KEY) || {};
     },
-    getToken(): string {
-      return this.token || getAuthCache<string>(TOKEN_KEY);
+    getToken(state): string {
+      return state.token || getAuthCache<string>(TOKEN_KEY);
     },
-    getApplicationId(): string {
-      return this.applicationId || getAuthCache<string>(APPLICATION_ID_KEY);
+    getApplicationId(state): string {
+      return state.applicationId || getAuthCache<string>(APPLICATION_ID_KEY);
     },
-    getTenantId(): string | number {
-      return this.tenantId || getAuthCache<string | number>(TENANT_ID_KEY);
+    getTenantId(state): string | number {
+      return state.tenantId || getAuthCache<string | number>(TENANT_ID_KEY);
     },
-    getOrganizationId(): string {
-      return this.organizationId || getAuthCache<string>(ORGANIZATION_ID_KEY);
+    getOrganizationId(state): string {
+      return state.organizationId || getAuthCache<string>(ORGANIZATION_ID_KEY);
     },
-    getRoleList(): RoleEnum[] {
-      return this.roleList.length > 0 ? this.roleList : getAuthCache<RoleEnum[]>(ROLES_KEY);
+    getRoleList(state): RoleEnum[] {
+      return state.roleList.length > 0 ? this.roleList : getAuthCache<RoleEnum[]>(ROLES_KEY);
     },
-    getSessionTimeout(): boolean {
-      return !!this.sessionTimeout;
+    getSessionTimeout(state): boolean {
+      return !!state.sessionTimeout;
     },
-    getLastUpdateTime(): number {
-      return this.lastUpdateTime;
-    },
-    getMaintainerOrgIdList(): string[] {
-      return this.maintainerOrgIdList.length > 0
-        ? this.maintainerOrgIdList
-        : getAuthCache<string[]>(MAINTAINER_ORGANIZATION_IDS_KEY);
-    },
-    getMonitoringUnitOrgIdList(): string[] {
-      return this.monitoringUnitOrgIdList.length > 0
-        ? this.monitoringUnitOrgIdList
-        : getAuthCache<string[]>(MONITORING_UNIT_ORGANIZATION_IDS_KEY);
-    },
-    getExternalUserOrgIdList(): string[] {
-      return this.externalUserOrgIdList.length > 0
-        ? this.externalUserOrgIdList
-        : getAuthCache<string[]>(EXTERNAL_USER_ORGANIZATION_IDS_KEY);
+    getLastUpdateTime(state): number {
+      return state.lastUpdateTime;
     },
   },
   actions: {
@@ -140,20 +111,7 @@ export const useUserStore = defineStore({
     setSessionTimeout(flag: boolean) {
       this.sessionTimeout = flag;
     },
-    setMaintainerOrgIdList(maintainerOrgIdsList: string[]) {
-      this.maintainerOrgIdList = maintainerOrgIdsList;
-      setAuthCache(MAINTAINER_ORGANIZATION_IDS_KEY, maintainerOrgIdsList);
-    },
-    setMonitoringUnitOrgIdList(monitoringUnitOrgIdList: string[]) {
-      this.monitoringUnitOrgIdList = monitoringUnitOrgIdList;
 
-      setAuthCache(MONITORING_UNIT_ORGANIZATION_IDS_KEY, monitoringUnitOrgIdList);
-    },
-    setExternalUserOrgIdList(externalUserOrgIdList: string[]) {
-      this.externalUserOrgIdList = externalUserOrgIdList;
-
-      setAuthCache(EXTERNAL_USER_ORGANIZATION_IDS_KEY, externalUserOrgIdList);
-    },
     resetState() {
       this.userInfo = null;
       this.token = '';
@@ -161,9 +119,6 @@ export const useUserStore = defineStore({
       this.organizationId = '';
       this.roleList = [];
       this.sessionTimeout = false;
-      this.maintainerOrgIdList = [];
-      this.monitoringUnitOrgIdList = [];
-      this.externalUserOrgIdList = [];
     },
     /**
      * @description: login
@@ -211,10 +166,6 @@ export const useUserStore = defineStore({
       // get user info
       const userInfo = await this.getUserInfoAction();
 
-      // const organizations = await this.getOrganizationAction();
-
-      await this.setOrganizationAction();
-
       const sessionTimeout = this.sessionTimeout;
       if (sessionTimeout) {
         this.setSessionTimeout(false);
@@ -222,14 +173,17 @@ export const useUserStore = defineStore({
         const permissionStore = usePermissionStore();
         if (!permissionStore.isDynamicAddedRoute) {
           const routes = await permissionStore.buildRoutesAction();
+
           routes.forEach((route) => {
             router.addRoute(route as unknown as RouteRecordRaw);
           });
           router.addRoute(PAGE_NOT_FOUND_ROUTE as unknown as RouteRecordRaw);
           permissionStore.setDynamicAddedRoute(true);
         }
+
         goHome && (await router.replace(userInfo?.homePath || PageEnum.BASE_HOME));
       }
+
       return userInfo;
     },
     async getUserInfoAction(): Promise<UserInfo | null> {
@@ -295,33 +249,6 @@ export const useUserStore = defineStore({
           await this.logout(true);
         },
       });
-    },
-
-    async setOrganizationAction() {
-      const organizations = await orgTree();
-      const monitoringUnitOrgIdList: string[] = [],
-        externalUserOrgIdList: string[] = [],
-        maintainerOrgIdList: string[] = [];
-
-      organizations.forEach((org) => {
-        if (org.organizationType === 'GOV_SUPERVISE_UNIT') {
-          monitoringUnitOrgIdList.push(org.key);
-        }
-
-        if (org.organizationType === 'GOV_USE_UNIT') {
-          externalUserOrgIdList.push(org.key);
-        }
-
-        if (org.organizationType === 'GOV_MAINT_UNIT') {
-          maintainerOrgIdList.push(org.key);
-        }
-      });
-
-      this.setMonitoringUnitOrgIdList(monitoringUnitOrgIdList);
-      this.setExternalUserOrgIdList(externalUserOrgIdList);
-      this.setMaintainerOrgIdList(maintainerOrgIdList);
-
-      // return organizations;
     },
   },
 });

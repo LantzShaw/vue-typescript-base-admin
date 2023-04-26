@@ -1,5 +1,5 @@
 <template>
-  <PageWrapper dense contentFullHeight>
+  <div>
     <BasicTable @register="registerTable">
       <!-- 按钮工具栏 -->
       <template #toolbar>
@@ -14,7 +14,11 @@
             {{ record.regionName }}
           </a>
         </template>
-
+        <template v-else-if="column.key === 'bizEnterprise'">
+          <span v-if="record.bizEnterprise?.enterpriseNo">
+            [{{ record.bizEnterprise?.enterpriseNo }}] {{ record.bizEnterprise?.enterpriseName }}
+          </span>
+        </template>
         <!-- 表格按钮 -->
         <template v-else-if="column.key === 'action'">
           <TableAction
@@ -38,23 +42,20 @@
       </template>
     </BasicTable>
     <InstallRegionModal @register="registerModal" @success="handleSuccess" />
-  </PageWrapper>
+  </div>
 </template>
 <script lang="ts" setup>
-  import { onMounted } from 'vue';
+  import { defineComponent, computed, onMounted, ref, reactive, unref } from 'vue';
+
   // hooks
   import { useMessage } from '/@/hooks/web/useMessage';
   // 组件
-  import { PageWrapper } from '/@/components/Page';
   import { BasicTable, TableAction, useTable } from '/@/components/Table';
   import { useModal } from '/@/components/Modal';
   import InstallRegionModal from './InstallRegionModal.vue';
   // 接口
-  import {
-    installRegionPage,
-    installRegionDelete,
-    installRegionSync,
-  } from '/@/api/manage/installRegion';
+  import { installRegionPage, installRegionDelete } from '/@/api/manage/installRegion';
+
   // data
   import { searchForm, tableColumns } from './installRegion.data';
 

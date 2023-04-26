@@ -3,7 +3,7 @@
     v-bind="$attrs"
     @register="registerDrawer"
     showFooter
-    :okAuth="'system:role:grant'"
+    :okAuth="okAuth"
     :title="getTitle"
     width="50%"
     @ok="handleSubmit"
@@ -39,7 +39,7 @@
   // data
   import { idRef } from './employee.data';
   import { isArray } from '/@/utils/is';
-
+  const okAuth = ref(['system:role:grant']);
   const emit = defineEmits(['success', 'register']);
 
   const treeRefs: Recordable<TreeActionType> = {};

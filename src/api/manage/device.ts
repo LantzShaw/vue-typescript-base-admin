@@ -1,9 +1,10 @@
 import { useGlobSetting } from '/@/hooks/setting';
 import { defHttp } from '/@/utils/http/axios';
+
 const { apiUrl } = useGlobSetting();
 
 enum Api {
-  DevicePage = '/biz/device/getpagelist',
+  DevicePage = '/biz/device/page',
   DeviceDelete = '/biz/device/delete',
   DeviceAdd = '/biz/device/add',
   DeviceUpdate = '/biz/device/edit',

@@ -1,55 +1,235 @@
 <template>
   <BasicModal
-    width="50%"
+    width="100%"
     v-bind="$attrs"
+    :default-fullscreen="true"
+    :can-fullscreen="false"
     @register="registerModal"
     showFooter
-    :title="getTitle"
+    title="新增维护"
     :centered="true"
     @ok="handleSubmit"
-    :okAuth="'manage:maintenance-record:add'"
+    :okAuth="okAuth"
   >
-    <div style="padding-left: 10px; padding-right: 10px">
-      <BasicForm autoFocusFirstItem @register="registerForm" />
+    <div style="padding-right: 10px; padding-left: 10px">
+      <a-row>
+        <a-col :span="12">
+          <BasicTable @register="registerTable" :selectedRowKeys="checkedKeys">
+            <template #bodyCell="{ column, record }">
+              <template v-if="column.key === 'dtuipSensorTypeId'">
+                <dict-label :options="sensorTypeOptions" :value="record.dtuipSensorTypeId" />
+              </template>
+              <template v-else-if="column.key === 'dtuipIsAlarms'">
+                <dict-label :options="alarmStatusOptions" :value="record.dtuipIsAlarms" />
+              </template>
+              <template v-else-if="column.key === 'dtuipIsDelete'">
+                <dict-label :options="deleteStatusOptions" :value="record.dtuipIsDelete" />
+              </template>
+              <template v-else-if="column.key === 'dtuipIsLine'">
+                <dict-label :options="onlineStatusOptions" :value="record.dtuipIsLine" />
+              </template>
+              <template v-else-if="column.key === 'regionName'">
+                {{ record?.bizInstallRegion?.regionName }}
+              </template>
+              <template v-else-if="column.key === 'enterpriseName'">
+                {{ record?.bizEnterprise?.enterpriseName }}
+              </template>
+            </template>
+          </BasicTable>
+        </a-col>
+        <a-col :span="12">
+          <div class="pl-4 h-10 leading-10">
+            <span class="font-bold">已选中传感器: </span>
+            <span class="font-bold text-green-500">{{ selectedTableData.length }}个</span>
+          </div>
+          <BasicTable
+            :actionColumn="{
+              width: 100,
+              title: '操作',
+              dataIndex: 'action',
+              fixed: 'right',
+            }"
+            :pagination="false"
+            :data-source="selectedTableData"
+            :columns="sensorTableColumns"
+          >
+            <template #bodyCell="{ column, record }">
+              <template v-if="column.key === 'action'">
+                <TableAction
+                  stopButtonPropagation
+                  :actions="[
+                    {
+                      label: '移除',
+                      onClick: removeCheckedKeys.bind(null, record),
+                    },
+                  ]"
+                />
+              </template>
+              <template v-else-if="column.key === 'regionName'">
+                {{ record?.bizInstallRegion?.regionName }}
+              </template>
+              <template v-else-if="column.key === 'enterpriseName'">
+                {{ record?.bizEnterprise?.enterpriseName }}
+              </template>
+            </template>
+          </BasicTable>
+        </a-col>
+      </a-row>
     </div>
   </BasicModal>
 </template>
 <script lang="ts" setup>
-  import { computed, unref } from 'vue';
+  import { onMounted, reactive, ref, unref } from 'vue';
+
+  import { Row as ARow, Col as ACol } from 'ant-design-vue';
+
   // hooks
   import { useMessage } from '/@/hooks/web/useMessage';
   // 组件
-  import { BasicForm, useForm } from '/@/components/Form/index';
   import { BasicModal, useModalInner } from '/@/components/Modal';
+  import { BasicTable, useTable, TableAction } from '/@/components/Table';
+  import { DictLabel } from '/@/components/DictLabel/index';
+
   // 接口
   import {
     equipmentMaintenanceRecordAdd,
-    equipmentMaintenanceRecordUpdate,
     equipmentMaintenanceRecordForm,
-  } from '/@/api/manage/equipmentMaintenance';
+  } from '/@/api/manage/equipmentMaintenanceRecord';
   // data
-  import { isUpdate, idRef, record, inputFormSchemas } from './equipmentMaintenanceRecord.data';
+  import {
+    isUpdate,
+    idRef,
+    record,
+    sensorTableColumns,
+    sensorTypeOptions,
+    alarmStatusOptions,
+    deleteStatusOptions,
+    onlineStatusOptions,
+    enterpriseOptions,
+    regionOptions,
+  } from './equipmentMaintenanceRecord.data';
+  import { sensorPage } from '/@/api/manage/sensor';
+  import { companyPage } from '/@/api/manage/company';
+  import { installRegionPage } from '/@/api/manage/installRegion';
+  import { optionsListBatchApi } from '/@/api/sys/dict';
+  import { t } from '/@/hooks/web/useI18n';
 
+  type Sensor = {
+    id?: string;
+    sensorName?: string;
+  };
+  const okAuth = ref(['manage:maintenance-record:add']);
   const emit = defineEmits(['success', 'register']);
 
   const { notification } = useMessage();
+  const checkedKeys = ref<Array<string | number>>([]);
+  const deviceIds = ref<Array<string | number>>([]);
+
+  const selectedTableData = ref<any[]>([]);
+
+  const isRegionSelectLoading = ref<boolean>(false);
+  const formState = reactive({
+    organizationId: undefined,
+    regionId: '1',
+  });
 
   /**
-   * 构建表单
+   * 构建registerTable
    */
-  const [registerForm, { resetFields, setFieldsValue, validate }] = useForm({
-    labelWidth: 110,
-    schemas: inputFormSchemas,
-    showActionButtonGroup: false,
-    baseColProps: { lg: 24, md: 24 },
+  const [registerTable, { getForm, reload, clearSelectedRowKeys, setSelectedRowKeys }] = useTable({
+    title: '',
+    api: sensorPage,
+    // fetchSetting: {
+    //   sizeField: '100000',
+    // },
+    // parmas: {
+    //   flag: '0',
+    // },
+    pagination: true,
+    columns: sensorTableColumns,
+    // formConfig: sensorSearchForm,
+    formConfig: {
+      baseColProps: { lg: 12, md: 8 },
+      labelWidth: 80,
+      schemas: [
+        {
+          label: t('所属单位'),
+          field: 'organizationId',
+          component: 'Select',
+          defaultValue: '请选择所属单位',
+          componentProps: {
+            allowClear: false,
+            placeholder: '请选择所属单位',
+            options: enterpriseOptions,
+            onChange: (e) => {
+              console.log('e', e);
+              formState.organizationId = e;
+
+              getRegionList();
+            },
+          },
+        },
+        {
+          label: t('所属区域'),
+          field: 'regionId',
+          component: 'Select',
+          // defaultValue: formState.regionId,
+          // colSlot: 'regionId',
+          componentProps: {
+            placeholder: '请选择所属区域',
+            options: regionOptions,
+          },
+        },
+      ],
+    },
+    useSearchForm: true,
+    searchInfo: {
+      flag: undefined,
+    },
+    canResize: false,
+    showTableSetting: false,
+    showIndexColumn: false,
+    rowKey: 'id',
+    rowSelection: {
+      type: 'checkbox',
+      selectedRowKeys: checkedKeys.value,
+      onSelect: onSelect,
+      onSelectAll: onSelectAll,
+    },
   });
+
+  const sensorOptions = ref<Sensor[]>([]);
+
+  const tableData = ref([]);
 
   /**
    * 构建Drawer
    */
   const [registerModal, { setModalProps, closeModal }] = useModalInner(async (data) => {
-    resetFields();
     setModalProps({ loading: true, confirmLoading: true });
+
+    // NOTE: 重置查询字段
+    getForm().resetFields();
+
+    tableData.value = [];
+    sensorOptions.value = [];
+
+    checkedKeys.value = [];
+    deviceIds.value = [];
+    selectedTableData.value = [];
+
+    // TODO:
+    // clearSelectedRowKeys();
+
+    // setProps({
+    //   rowSelection:
+    // })
+
+    // setColumns({data: 'organizationId' })
+
+    getEnterpriseList();
+
+    // reload();
 
     // 判断是否是更新
     isUpdate.value = !!data?.isUpdate;
@@ -63,35 +243,106 @@
     } else {
       idRef.value = '';
     }
-    setFieldsValue({
-      ...record.value,
-    });
 
     setModalProps({ loading: false, confirmLoading: false });
   });
+
+  function onSelect(record, selected) {
+    console.log('------------record------', record);
+
+    if (selected) {
+      deviceIds.value = [...deviceIds.value, record.dtuipDeviceId];
+      checkedKeys.value = [...checkedKeys.value, record.id];
+
+      selectedTableData.value = [...selectedTableData.value, record];
+    } else {
+      deviceIds.value = deviceIds.value.filter((id) => id !== record.id);
+      checkedKeys.value = checkedKeys.value.filter((id) => id !== record.id);
+
+      selectedTableData.value = selectedTableData.value.filter((item) => item.id !== record.id);
+    }
+
+    // TODO:
+    // setSelectedRowKeys([...checkedKeys.value])
+  }
+
+  function onSelectAll(selected, selectedRows, changeRows) {
+    const changeIds = changeRows.map((item) => item.id);
+    if (selected) {
+      checkedKeys.value = [...checkedKeys.value, ...changeIds];
+    } else {
+      checkedKeys.value = checkedKeys.value.filter((id) => {
+        return !changeIds.includes(id);
+      });
+    }
+  }
+
+  function removeCheckedKeys(record) {
+    deviceIds.value = deviceIds.value.filter((id) => id !== record.id);
+    checkedKeys.value = checkedKeys.value.filter((id) => id !== record.id);
+
+    selectedTableData.value = selectedTableData.value.filter((item) => item.id !== record.id);
+  }
+
+  /**
+   * 获取所属区域列表
+   */
+  async function getRegionList() {
+    regionOptions.value = [];
+    isRegionSelectLoading.value = true;
+
+    console.log('getForm', getForm(), getForm().getFieldsValue());
+
+    const response = await installRegionPage({
+      organizationId: formState.organizationId,
+      pageIndex: 1,
+      pageSize: 100000,
+    });
+
+    regionOptions.value = response?.records?.map((region) => {
+      return {
+        label: region.regionName,
+        value: region.id,
+      };
+    });
+
+    isRegionSelectLoading.value = false;
+  }
+
+  /**
+   * 获取所有企业列表
+   */
+  async function getEnterpriseList() {
+    const response = await companyPage({ pageIndex: 1, pageSize: 100000 });
+    // const response = await companyOption({ pageIndex: 1, pageSize: 100000 });
+
+    enterpriseOptions.value = response?.records?.map((company) => {
+      return {
+        label: company.enterpriseName,
+        value: company.id,
+      };
+    });
+  }
 
   /**
    * 提交表单
    */
   async function handleSubmit() {
+    const sensors = checkedKeys.value.map((key, index) => {
+      return {
+        sensorId: key,
+        organizationId: formState.organizationId,
+        deviceId: deviceIds.value[index],
+      };
+    });
+
     try {
-      const values = await validate();
       setModalProps({ loading: true, confirmLoading: true });
-      if (unref(isUpdate)) {
-        await equipmentMaintenanceRecordUpdate({
-          ...values,
-          id: idRef.value,
-          planStartDate: values.planDate[0],
-          planEndDate: values.planDate[1],
-        });
-      } else {
-        await equipmentMaintenanceRecordAdd({
-          ...values,
-          planStartDate: values.planDate[0],
-          planEndDate: values.planDate[1],
-          planStatus: '1',
-        });
-      }
+
+      await equipmentMaintenanceRecordAdd({
+        organizationId: formState.organizationId,
+        sensors,
+      });
       notification.success({ message: `执行成功` });
       closeModal();
       emit('success');
@@ -99,8 +350,26 @@
       setModalProps({ loading: false, confirmLoading: false });
     }
   }
+
   /**
-   * 标题
+   * 初始化字典数据
    */
-  const getTitle = computed(() => (!unref(isUpdate) ? '新增' : '编辑'));
+  async function initDict() {
+    const { alarm_status, delete_status, online_status, sensor_type } = await optionsListBatchApi([
+      'alarm_status',
+      'delete_status',
+      'online_status',
+      'sensor_type',
+      'maintenance_status',
+      'maintenance_work_order_type',
+    ]);
+    alarmStatusOptions.value = alarm_status || [];
+    deleteStatusOptions.value = delete_status || [];
+    onlineStatusOptions.value = online_status || [];
+    sensorTypeOptions.value = sensor_type || [];
+  }
+
+  onMounted(() => {
+    initDict();
+  });
 </script>

@@ -3,7 +3,7 @@
     v-bind="$attrs"
     @register="registerDrawer"
     showFooter
-    :okAuth="'system:organization:edit'"
+    :okAuth="okAuth"
     :title="getTitle"
     width="50%"
     @ok="handleSubmit"
@@ -11,11 +11,6 @@
     <BasicForm @register="registerForm" />
   </BasicDrawer>
 </template>
-<script lang="ts">
-  export default defineComponent({
-    name: 'ViewsSysMenuForm',
-  });
-</script>
 <script lang="ts" setup>
   import { defineComponent, ref, unref, computed, nextTick } from 'vue';
   // hooks
@@ -38,7 +33,7 @@
     inputFormSchemas,
     organizationTreeOptions,
   } from '../organization.data';
-
+  const okAuth = ref(['system:organization:edit']);
   const emit = defineEmits(['success', 'register']);
 
   // const props = defineProps({
