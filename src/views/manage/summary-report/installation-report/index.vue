@@ -90,11 +90,9 @@
   const { closeCurrent } = useTabs();
 
   const params = ref<[string, string] | undefined>([
-    (route?.query?.startDate as string) && '',
-    (route?.query?.endDate as string) && '',
+    route?.query?.startDate as string,
+    route?.query?.endDate as string,
   ]);
-
-  console.log('params', route?.query.startDate);
 
   /**
    * 返回报表总览页面
@@ -322,6 +320,11 @@
   }
 
   onMounted(() => {
+    // params.value = [
+    //   (route?.query?.startDate as string) && '',
+    //   (route?.query?.endDate as string) && '',
+    // ];
+
     initDict();
     getList();
   });

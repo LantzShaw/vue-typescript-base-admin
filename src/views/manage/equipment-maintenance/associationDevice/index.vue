@@ -3,15 +3,16 @@
     <template #headerContent>
       <a-descriptions :column="2">
         <a-descriptions-item label="计划编号">
-          {{ bizWorkflowDeviceMaintPlan.planNo }}
+          {{ bizWorkflowDeviceMaintPlan?.planNo }}
         </a-descriptions-item>
         <a-descriptions-item label="关联企业">
-          {{ bizEnterprise.enterpriseName }}
+          [{{ bizWorkflowDeviceMaintPlan?.bizEnterprise?.enterpriseNo }}]
+          {{ bizWorkflowDeviceMaintPlan?.bizEnterprise?.enterpriseName }}
         </a-descriptions-item>
         <a-descriptions-item label="生效日期">
-          {{ bizWorkflowDeviceMaintPlan.planStartDate }}
+          {{ bizWorkflowDeviceMaintPlan?.planStartDate }}
           -
-          {{ bizWorkflowDeviceMaintPlan.planEndDate }}
+          {{ bizWorkflowDeviceMaintPlan?.planEndDate }}
         </a-descriptions-item>
       </a-descriptions>
     </template>
@@ -26,50 +27,56 @@
         >
           新增
         </a-button>
+        <a-button
+          v-if="getSelectRowKeys().length > 0"
+          type="primary"
+          danger
+          @click="handleBatchDelete"
+        >
+          批量删除
+        </a-button>
       </template>
       <!-- 表格内容 -->
       <template #bodyCell="{ column, record }">
-        <!-- 表格按钮 -->
-        <template v-if="column.key === 'action'">
-          <TableAction
-            stopButtonPropagation
-            :actions="[
-              {
-                label: '删除',
-                color: 'error',
-                auth: 'manage:association-device:delete',
-                popConfirm: {
-                  title: '是否确认删除',
-                  confirm: handleDelete.bind(null, record),
-                },
-              },
-            ]"
-          />
+        <template v-if="column.key === 'dtuipSensorTypeId'">
+          <dict-label :options="sensorTypeOptions" :value="record.dtuipSensorTypeId" />
         </template>
+        <template v-else-if="column.key === 'dtuipIsDelete'">
+          <dict-label :options="deleteStatusOptions" :value="record.dtuipIsDelete" />
+        </template>
+        <template v-else-if="column.key === 'dtuipIsLine'">
+          <dict-label :options="onlineStatusOptions" :value="record.dtuipIsLine" />
+        </template>
+        <!-- 表格按钮 -->
       </template>
     </BasicTable>
     <AssociationDeviceModal @register="registerAssociationDeviceModal" @success="handleSuccess" />
   </PageWrapper>
 </template>
 <script lang="ts" setup>
-  import { onMounted, unref, ref } from 'vue';
+  import { onMounted, unref, ref, h } from 'vue';
   import { useRouter, useRoute } from 'vue-router';
   // hooks
+  import { useGo } from '/@/hooks/web/usePage';
+  import { useTabs } from '/@/hooks/web/useTabs';
+  import { useI18n } from '/@/hooks/web/useI18n';
   import { useMessage } from '/@/hooks/web/useMessage';
   // 组件
   import { Descriptions } from 'ant-design-vue';
   import { PageWrapper } from '/@/components/Page';
-  import { BasicTable, TableAction, useTable } from '/@/components/Table';
+  import { BasicTable, useTable } from '/@/components/Table';
+  import { DictLabel } from '/@/components/DictLabel/index';
   import { useModal } from '/@/components/Modal';
   import AssociationDeviceModal from './AssociationDeviceModal.vue';
 
   // 接口
-  import { companyForm } from '/@/api/manage/company';
+
   import { workflowDeviceMaintPlanForm } from '/@/api/manage/workflowDeviceMaintPlan';
   import { associationDevicePage, associationDeviceDelete } from '/@/api/manage/associationDevice';
   import { optionsListBatchApi } from '/@/api/sys/dict';
   // data
   import {
+    organizationId,
     alarmStatusOptions,
     deleteStatusOptions,
     onlineStatusOptions,
@@ -78,8 +85,6 @@
     searchForm,
     tableColumns,
   } from './associationDevice.data';
-  import { useGo } from '/@/hooks/web/usePage';
-  import { useTabs } from '/@/hooks/web/useTabs';
 
   const ADescriptions = Descriptions;
   const ADescriptionsItem = Descriptions.Item;
@@ -88,11 +93,12 @@
   const { currentRoute } = useRouter();
 
   const bizWorkflowDeviceMaintPlan = ref<Recordable>({});
-  const bizEnterprise = ref<Recordable>({});
-  const { notification } = useMessage();
+
+  const { t } = useI18n();
+  const { notification, createConfirm } = useMessage();
 
   const planId = unref(currentRoute).params?.id ?? '';
-  const organizationId = unref(currentRoute).query?.organizationId ?? '';
+
   /**
    * 构建registerModal
    */
@@ -102,22 +108,23 @@
   /**
    * 构建registerTable
    */
-  const [registerTable, { reload }] = useTable({
+  const [registerTable, { reload, getForm, getSelectRowKeys, clearSelectedRowKeys }] = useTable({
     title: '',
     api: associationDevicePage,
+    rowSelection: {
+      type: 'checkbox',
+    },
+    rowKey: 'id',
+    beforeFetch: (params) => {
+      params.planId = planId;
+      return params;
+    },
     columns: tableColumns,
     formConfig: searchForm,
     useSearchForm: true,
     canResize: false,
     showTableSetting: true,
-    showIndexColumn: true,
-    actionColumn: {
-      width: 100,
-      title: '操作',
-      dataIndex: 'action',
-      fixed: 'right',
-      // auth: 'system:application:operation',
-    },
+    showIndexColumn: false,
   });
 
   /**
@@ -126,16 +133,28 @@
   function handleCreate() {
     openAssociationDeviceModal(true, {
       isUpdate: false,
+      planId: planId,
+      organizationId: organizationId.value,
     });
   }
 
   /**
    * 删除
    */
-  async function handleDelete(record: Recordable) {
-    await associationDeviceDelete({ id: record.id });
-    notification.success({ message: `执行成功` });
-    handleSuccess();
+  async function handleBatchDelete() {
+    if (getSelectRowKeys().length > 0) {
+      createConfirm({
+        iconType: 'warning',
+        title: () => h('span', t('sys.app.logoutTip')),
+        content: () => h('span', t('确认删除')),
+        onOk: async () => {
+          await associationDeviceDelete([...getSelectRowKeys()]);
+          notification.success({ message: `执行成功` });
+          clearSelectedRowKeys();
+          handleSuccess();
+        },
+      });
+    }
   }
 
   /**
@@ -157,9 +176,7 @@
       id: planId,
     })) || {}) as Recordable;
 
-    bizEnterprise.value = ((await companyForm({
-      id: organizationId,
-    })) || {}) as Recordable;
+    organizationId.value = bizWorkflowDeviceMaintPlan.value?.organizationId;
   }
   /**
    * 初始化字典数据
@@ -185,11 +202,3 @@
     initDict();
   });
 </script>
-
-<style lang="less" scoped>
-  // .dict-label {
-  //   :deep(.ant-tag) {
-  //     margin: 4px;
-  //   }
-  // }
-</style>

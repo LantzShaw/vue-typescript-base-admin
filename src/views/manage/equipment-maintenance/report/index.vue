@@ -19,8 +19,10 @@
     </template>
 
     <template v-else>
-      <div class="pl-44 pr-44 pt-2 text-lg tracking-3px h-160" id="maintenanceReport">
-        <div class="text-3xl text-center h-20 leading-20 tracking-2px"> 标定检查情况反馈报告 </div>
+      <div class="pl-44 pr-44 pt-2 text-lg tracking-3px h-200" id="maintenanceReport">
+        <div class="text-3xl text-center h-20 leading-20 tracking-2px font-bold">
+          {{ maintenanceInformation.taskTypeDisplayName ?? '--' }}检查情况反馈报告
+        </div>
         <div class="text-lg h-12 leading-12">
           <span class="border-line">{{ maintenanceInformation.apReceiveName ?? '--' }}</span>
           <span>：</span>
@@ -31,8 +33,10 @@
           <span class="h-12 leading-12 tracking-4px">
             气体检测报警器技术服务合同约定，在甲方工作人员陪同下，对合同内24台固定式气体检测报警器，3台便携式气体探测器（共9路），进行了<span
               class="border-line"
-              >{{ formatToDate(new Date(), 'M') }}</span
-            >月份的标定检查工作，在检查中没有发现问题。
+              >{{ formatToDate(maintenanceInformation.startDate, 'M') }}</span
+            >月份的{{ maintenanceInformation.taskTypeDisplayName ?? '--' }}检查工作，在检查中，{{
+              maintenanceInformation.stepThreeRemark ?? '--'
+            }}
           </span>
           <div class="h-12 leading-12 tracking-4px">
             <span
@@ -74,6 +78,7 @@
     id?: string; // 表单ID
     recordNo?: string; // 表单编号
     deviceAlarmId?: string; // 单号
+    taskTypeDisplayName?: string; // 服务类型
     remark?: string; // 备注
     taskType?: string; // 任务类型
     implementationUser?: string; // 实施人员
@@ -82,6 +87,7 @@
     duration?: string; // 预计时长
     apReceiveName?: string; // 甲方公司名称
     agreement?: string; // 服务协议
+    stepThreeRemark?: string; //
   };
 
   const route = useRoute();
@@ -103,6 +109,7 @@
       id,
       recordNo,
       deviceAlarmId,
+      taskTypeDisplayName,
       accompanyUser,
       duration,
       remark,
@@ -111,9 +118,11 @@
       taskType,
       apReceiveName,
       agreement,
+      stepThreeRemark,
     } = response;
 
     maintenanceInformation.deviceAlarmId = deviceAlarmId;
+    maintenanceInformation.taskTypeDisplayName = taskTypeDisplayName;
     maintenanceInformation.id = id;
     maintenanceInformation.recordNo = recordNo;
     maintenanceInformation.accompanyUser = accompanyUser;
@@ -124,6 +133,7 @@
     maintenanceInformation.taskType = taskType;
     maintenanceInformation.apReceiveName = apReceiveName;
     maintenanceInformation.agreement = agreement;
+    maintenanceInformation.stepThreeRemark = stepThreeRemark;
 
     isLoading.value = false;
   }
@@ -137,9 +147,11 @@
 
     const pageDataUrl = await toPng(document.querySelector('#maintenanceReport') as HTMLElement);
 
-    doc.addImage(pageDataUrl, 'png', 6, 6, 210, 150);
+    doc.addImage(pageDataUrl, 'png', 15, 10, 180, 150);
 
-    doc.save(`${formatToDate(new Date(), 'M')}月份南洋维保检查情况反馈报告.pdf`);
+    doc.save(
+      `${formatToDate(maintenanceInformation.startDate, 'M')}月份南洋维保检查情况反馈报告.pdf`,
+    );
 
     isButtonLoading.value = false;
   };
@@ -158,7 +170,7 @@
         documentTitle: '嘉兴港区气体泄漏检测管理平台',
         targetStyles: ['*'],
         style,
-        imageStyle: 'width:100%;margin-bottom:20px;',
+        imageStyle: 'width:100%;margin-top:30px;margin-bottom:20px;',
       });
     });
   };

@@ -35,6 +35,20 @@
         <template v-else-if="column.key === 'workType'">
           <dict-label :options="maintenanceWorkOrderTypeOptions" :value="record.workType" />
         </template>
+        <template v-else-if="column.key === 'bizEnterprise'">
+          <a-tooltip placement="top">
+            <template #title>
+              <span
+                >[{{ record?.bizEnterprise?.enterpriseNo }}]
+                {{ record?.bizEnterprise?.enterpriseName }}</span
+              >
+            </template>
+            <span v-if="record?.bizEnterprise?.enterpriseNo">
+              [{{ record?.bizEnterprise?.enterpriseNo }}]
+              {{ record?.bizEnterprise?.enterpriseName }}
+            </span>
+          </a-tooltip>
+        </template>
 
         <!-- 表格按钮 -->
         <template v-else-if="column.key === 'action'">
@@ -57,19 +71,12 @@
                 disabled: record.bpReceiveFlag === '1',
                 ifShow: record.eventStatus === '0',
               },
-              // 甲方 - 使用方流程确认
+              // 维护方、使用方流程确认
               {
                 label: '流程确认',
                 onClick: handleOpenConfirmModal.bind(null, record),
-                auth: 'manage:maintenance-record:process-user',
-                ifShow: record.eventStatus === '1' && record.apReceiveFlag === '1',
-              },
-              // 乙方 - 维护方流程确认
-              {
-                label: '流程确认',
-                onClick: handleOpenConfirmModal.bind(null, record),
-                auth: 'manage:maintenance-record:process-maintainer',
-                ifShow: record.eventStatus === '1' && record.bpReceiveFlag === '1',
+                auth: 'manage:maintenance-record:process',
+                ifShow: record.eventStatus === '1',
               },
               {
                 label: '工单报告',
@@ -80,7 +87,6 @@
               {
                 label: record?.isNotice === '1' ? '已通知监管方' : '通知监管方',
                 auth: 'manage:maintenance-record:notify',
-                // disabled: record.eventStatus !== '2',
                 disabled: record.eventStatus === '0' || record?.isNotice === '1',
                 popConfirm: {
                   title: '是否通知监管方',
@@ -123,6 +129,8 @@
 </template>
 <script lang="ts" setup>
   import { onMounted } from 'vue';
+  import { Tooltip as ATooltip } from 'ant-design-vue';
+
   // hooks
   import { useMessage } from '/@/hooks/web/useMessage';
   // 组件
@@ -137,6 +145,8 @@
 
   // 接口
   import {
+    equipmentMaintenanceRecordApReceive,
+    equipmentMaintenanceRecordBpReceive,
     equipmentMaintenanceRecordPage,
     equipmentMaintenanceRecordDelete,
     equipmentMaintenanceRecordUpdateState,
@@ -259,8 +269,6 @@
     await equipmentMaintenanceRecordSend({ id: record.id });
 
     await reload();
-
-    // notification.warning({ message: `该功能还在完善中` });
   }
 
   /**
@@ -271,12 +279,14 @@
   async function handleFirstPartyConfirm(record: Recordable) {
     console.log('------------甲方接收确认-------------', record);
 
-    await equipmentMaintenanceRecordUpdateState({
-      id: record.id,
-      apReceiveFlag: '1',
-      bpReceiveFlag: record.bpReceiveFlag,
-      processStep: '000',
-    });
+    // await equipmentMaintenanceRecordUpdateState({
+    //   id: record.id,
+    //   apReceiveFlag: '1',
+    //   bpReceiveFlag: record.bpReceiveFlag,
+    //   processStep: '000',
+    // });
+
+    equipmentMaintenanceRecordApReceive({ id: record.id });
 
     reload();
   }
@@ -289,12 +299,14 @@
   async function handleSecondPartyConfirm(record: Recordable) {
     console.log('------------乙方接收确认------------', record);
 
-    await equipmentMaintenanceRecordUpdateState({
-      id: record.id,
-      bpReceiveFlag: '1',
-      apReceiveFlag: record.apReceiveFlag,
-      processStep: '050',
-    });
+    // await equipmentMaintenanceRecordUpdateState({
+    //   id: record.id,
+    //   bpReceiveFlag: '1',
+    //   apReceiveFlag: record.apReceiveFlag,
+    //   processStep: '050',
+    // });
+
+    equipmentMaintenanceRecordBpReceive({ id: record.id });
 
     reload();
   }

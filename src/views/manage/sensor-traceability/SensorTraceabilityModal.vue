@@ -12,18 +12,19 @@
     <div style="padding-right: 10px; padding-left: 10px">
       <BasicForm autoFocusFirstItem @register="registerForm">
         <template #list>
-          <a-form-item :wrapper-col="{ span: 24 }" :label-col="{ lg: 5, md: 24 }" label="附件">
-            <BasicUpload
-              :maxSize="20"
-              :maxNumber="10"
-              :showPreviewNumber="false"
-              :emptyHidePreview="true"
-              :multiple="false"
-              @change="handleUploadChange"
-              :api="uploadApi"
-              :value="fileList"
-            />
-          </a-form-item>
+          ddddd
+          <!-- <a-form-item :wrapper-col="{ span: 24 }" :label-col="{ lg: 5, md: 24 }" label="附件"> -->
+          <!-- <BasicUpload
+            :maxSize="20"
+            :maxNumber="10"
+            :showPreviewNumber="false"
+            :emptyHidePreview="true"
+            :multiple="false"
+            @change="handleUploadChange"
+            :api="uploadApi"
+            :value="fileList"
+          /> -->
+          <!-- </a-form-item> -->
         </template>
       </BasicForm>
     </div>

@@ -2,11 +2,12 @@ import { h, ref } from 'vue';
 // hooks
 import { useI18n } from '/@/hooks/web/useI18n';
 // 公共组件
-import { FormProps } from '/@/components/Form';
+import { FormProps, FormSchema } from '/@/components/Form';
 import { BasicColumn } from '/@/components/Table/src/types/table';
-import { FormSchema } from '/@/components/Form';
+
 // 接口
 import { optionsListApi } from '/@/api/sys/dict';
+import { enterpriseSelect } from '/@/api/manage/enterprise';
 import { Tag } from 'ant-design-vue';
 import { VxeGridPropTypes } from '/@/components/VxeTable';
 
@@ -38,6 +39,17 @@ export const searchForm: FormProps = {
   labelWidth: 90,
   schemas: [
     {
+      label: t('关联企业'),
+      field: 'organizationId',
+      component: 'ApiSelect',
+      componentProps: {
+        showSearch: true,
+        optionFilterProp: 'label',
+        api: enterpriseSelect,
+        getPopupContainer: () => document.body,
+      },
+    },
+    {
       label: t('工单类型'),
       field: 'workType',
       component: 'Select',
@@ -55,7 +67,17 @@ export const searchForm: FormProps = {
         allowClear: true,
       },
     },
+    {
+      label: t('发生时间'),
+      field: 'timeRange',
+      component: 'RangePicker',
+      componentProps: {
+        showTime: true,
+        style: { width: '100%' },
+      },
+    },
   ],
+  fieldMapToTime: [['timeRange', ['startTime', 'endTime'], 'YYYY-MM-DD HH:mm:ss']],
 };
 
 /**
@@ -64,18 +86,18 @@ export const searchForm: FormProps = {
 export const tableColumns: BasicColumn[] = [
   {
     title: t('公司名称'),
-    dataIndex: 'orgName',
+    dataIndex: 'bizEnterprise',
     sorter: true,
     width: 120,
     align: 'center',
   },
-  // {
-  //   title: t('工单类型'),
-  //   dataIndex: 'workType',
-  //   sorter: true,
-  //   width: 120,
-  //   align: 'center',
-  // },
+  {
+    title: t('工单类型'),
+    dataIndex: 'workType',
+    sorter: true,
+    width: 120,
+    align: 'center',
+  },
   {
     title: t('维护状态'),
     dataIndex: 'eventStatus',
@@ -87,7 +109,7 @@ export const tableColumns: BasicColumn[] = [
     title: t('创建时间'),
     dataIndex: 'createTime',
     sorter: true,
-    width: 120,
+    width: 100,
     align: 'center',
   },
 ];
@@ -238,7 +260,7 @@ export const sensorTableColumns: BasicColumn[] = [
   // },
   {
     title: t('传感器名称'),
-    dataIndex: 'dtuipSensorName', // sensorName
+    dataIndex: 'sensorName', // sensorName
     sorter: true,
     width: 130,
     align: 'center',

@@ -53,6 +53,17 @@ export const DataViewRoute: AppRouteRecordRaw = {
   meta: {
     title: t('驾驶舱'),
   },
+  redirect: '/dataview/home',
+  children: [
+    {
+      path: '/dataview/home',
+      name: 'DataViewHome',
+      component: () => import('/@/views/dataview/home/index.vue'),
+      meta: {
+        title: t('驾驶舱'),
+      },
+    },
+  ],
 };
 
 export const SocialLoginRoute: AppRouteRecordRaw = {

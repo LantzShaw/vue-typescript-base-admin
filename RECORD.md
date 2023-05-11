@@ -652,4 +652,119 @@ export const inputFormSchemas: FormSchema[] = [
   },
 ```
 
+`FullScreenConatiner`
+
+```vue
+<template>
+  <div id="full-screen-container" ref="fullScreenContainerRef">
+    <slot></slot>
+  </div>
+</template>
+
+<script setup lang="ts">
+  import { onMounted, nextTick, onUnmounted } from 'vue';
+  import { ref } from 'vue';
+
+  type Option = {
+    width: number;
+    height: number;
+  };
+
+  type Props = {
+    options: Option;
+  };
+
+  const props = withDefaults(defineProps<Props>(), {});
+
+  const width = ref<number>(0); // 大屏真实宽度
+  const height = ref<number>(0); // 大屏真实高度
+  const originalWidth = ref<number>(0); // 窗口原始宽度
+  const originalHeight = ref<number>(0); // 窗口原始高度
+  const fullScreenContainerRef = ref<HTMLDivElement | null>(null);
+
+  // 获取相关尺寸数据
+  function initSize() {
+    return new Promise((resolve) => {
+      // 使用 nextTick 确保容器中的内容渲染完成
+      nextTick(() => {
+        // 获取大屏真实尺寸
+        if (props.options.width && props.options.height) {
+          width.value = props.options.width;
+          height.value = props.options.height;
+        } else {
+          // 若未传递大屏真实尺寸，则获取容器被内容撑满后的尺寸 作为大屏真实尺寸
+          width.value = fullScreenContainerRef.value?.clientWidth as number;
+          height.value = fullScreenContainerRef.value?.clientHeight as number;
+        }
+
+        // 获取窗口原始尺寸
+        if (!originalWidth || !originalHeight) {
+          originalWidth.value = window.screen.width;
+          originalHeight.value = window.screen.height;
+        }
+      });
+
+      resolve(null);
+    });
+  }
+
+  // 设置容器尺寸，让容器尺寸与内容尺寸一致
+  function updateSize() {
+    if (width.value && height.value) {
+      fullScreenContainerRef.value!.style.width = `${width.value}px`;
+      fullScreenContainerRef.value!.style.height = `${height.value}px`;
+    }
+  }
+
+  // 设置容器缩放比例，实现内容一屏完整显示
+  function updateScale() {
+    // 屏幕视口存在认为缩放，拖动，导致真实视口发生变化，这里获取真实的视口尺寸
+    const currentWidth = document.body.clientWidth;
+    const currentHeight = document.body.clientHeight;
+    // 获取大屏最终宽高， 若未获得大屏幕尺寸，则将屏幕视口原始尺寸作为大屏最终宽高
+    const realWidth = width.value || originalWidth.value;
+    const realHeight = height.value || originalHeight.value;
+    // 计算宽高比
+    const widthScale = currentWidth / realWidth;
+    const heightScale = currentHeight / realHeight;
+
+    fullScreenContainerRef.value!.style.transform = `scale(${widthScale}, ${heightScale})`;
+  }
+
+  // 监听 resize 事件， 动态更新容器缩放比
+  async function onResize() {
+    await initSize();
+
+    updateScale();
+  }
+
+  onMounted(async () => {
+    // 获取相关尺寸数据
+    await initSize();
+
+    // 设置容器尺寸，让容器尺寸与内容尺寸一致
+    updateSize();
+    // 设置容器缩放比例，实现内容一屏完整显示
+    updateScale();
+    // 监听 resize事件，实现页面动态适配
+    window.addEventListener('resize', onResize);
+  });
+
+  onUnmounted(() => {
+    // 页面销毁前 移除 resize 事件监听
+    window.removeEventListener('resize', onResize);
+  });
+</script>
+
+<style lang="less">
+  #full-screen-container {
+    position: fixed;
+    top: 0;
+    overflow: hidden;
+    transform-origin: left top;
+    z-index: 9999;
+  }
+</style>
+```
+
 ### Question

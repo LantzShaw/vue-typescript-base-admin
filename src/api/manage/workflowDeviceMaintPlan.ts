@@ -1,12 +1,12 @@
 import { defHttp } from '/@/utils/http/axios';
 
 enum Api {
-  WorkflowDeviceMaintPlanPage = '/biz/workflow/main/page',
+  WorkflowDeviceMaintPlanPage = '/biz/workflow/device-maint-plan/page',
   DeviceGroupDelete = '/biz/device-group/delete',
   DeviceGroupAdd = '/biz/device-group/add',
   DeviceGroupUpdate = '/biz/device-group/update',
   DeviceGroupList = '/biz/device-group/list',
-  WorkflowDeviceMaintPlanForm = '/biz/workflow/main/form',
+  WorkflowDeviceMaintPlanForm = '/biz/workflow/device-maint-plan/form',
   DeviceGroupSync = '/biz/device-group/sync',
 }
 

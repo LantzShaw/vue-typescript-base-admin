@@ -146,7 +146,7 @@
    * 跳转至关联设备
    */
   function navigateToAssociationDevice(record: Recordable) {
-    go(`/association/device/${record.id}?organizationId=${record.organizationId}`);
+    go(`/association/device/${record.id}`);
   }
 
   /**

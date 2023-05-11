@@ -168,7 +168,7 @@ export const tableColumns: BasicColumn[] = [
   {
     title: t('设备平台添加时间'),
     dataIndex: 'createTime',
-    width: 150,
+    width: 100,
     align: 'center',
     ellipsis: true,
     sorter: true,

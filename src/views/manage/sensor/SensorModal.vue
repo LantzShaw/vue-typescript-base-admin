@@ -81,6 +81,7 @@
   } from './sensor.data';
   import { companyPage } from '/@/api/manage/company';
   import { installRegionPage } from '/@/api/manage/installRegion';
+
   const okAuth = ref(['manage:sensor:add']);
   const emit = defineEmits(['success', 'register']);
 

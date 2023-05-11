@@ -4,7 +4,7 @@ import { defHttp } from '/@/utils/http/axios';
 const { apiUrl } = useGlobSetting();
 
 enum Api {
-  EventTriggerPage = '/biz/workflow/alarm-deal-record/page',
+  EventTriggerPage = '/biz/workflow/alarm-deal-record/page-with-time',
   EventTriggerDelete = '/biz/device-alarm/delete',
   EventTriggerAdd = '/biz/device-alarm/add',
   EventTriggerUpdate = '/biz/device-alarm/update',

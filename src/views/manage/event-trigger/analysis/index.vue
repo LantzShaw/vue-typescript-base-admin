@@ -13,7 +13,7 @@
             <dict-label
               style="display: inline-block"
               :options="sensorTypeOptions"
-              :value="sensorInformation.dtuipSensorTypeId"
+              :value="sensorInformation.sensorName"
             />
           </div>
           <div class="cell">
@@ -54,11 +54,13 @@
           <BasicTable
             :loading="isTableLoading"
             rowKey="id"
+            :clickToRowSelect="false"
             :maxHeight="160"
             :columns="columns"
             :dataSource="sensorTableData"
             :row-selection="{
               checkStrictly: false,
+              type: 'checkbox',
               selectedRowKeys: checkedKeys,
               onSelect: onSelect,
               onSelectAll: onSelectAll,
@@ -91,7 +93,6 @@
   import { BasicColumn } from '/@/components/Table';
   import { sensorForm, sensorPage } from '/@/api/manage/sensor';
   import { optionsListBatchApi } from '/@/api/sys/dict';
-  import { useMessage } from '/@/hooks/web/useMessage';
   import { useTabs } from '/@/hooks/web/useTabs';
 
   type SensorInformation = {
@@ -107,7 +108,6 @@
   };
 
   const route = useRoute();
-  const { notification } = useMessage();
   const { closeCurrent } = useTabs();
 
   const onlineStatusOptions = ref<any[]>([]);
@@ -115,7 +115,8 @@
   const alarmStatusOptions = ref<any[]>([]);
   const sensorTypeOptions = ref<any[]>([]);
   const checkedKeys = ref<Array<string | number>>([route.params?.id as string]);
-  // const checkedKeys = ref<string[] | number[]>([route.params?.id as string]);
+
+  console.log('----', checkedKeys.value);
 
   const sensorInformation = reactive<SensorInformation>({});
   const isCardLoading = ref<boolean>(false);
@@ -178,7 +179,7 @@
     const response = await sensorForm({ id: id.value });
 
     const {
-      dtuipSensorName,
+      sensorName,
       dtuipUnit,
       dtuipValue,
       dtuipUpdateDate,
@@ -190,7 +191,7 @@
       locationNo,
     } = response;
 
-    sensorInformation.sensorName = dtuipSensorName;
+    sensorInformation.sensorName = sensorName;
     sensorInformation.dtuipUnit = dtuipUnit;
     sensorInformation.dtuipValue = dtuipValue;
     sensorInformation.dtuipUpdateDate = dtuipUpdateDate;
@@ -202,9 +203,7 @@
 
     region.value = regionId;
 
-    pageTitle.value = `${dtuipSensorName}传感器`;
-
-    // checkedKeys.value.push(regionId);
+    pageTitle.value = `${sensorName}`;
 
     await getRegionSensor();
 

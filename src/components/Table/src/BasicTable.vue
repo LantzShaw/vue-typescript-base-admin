@@ -186,6 +186,7 @@
         getViewColumns,
         getColumns,
         setCacheColumnsByField,
+        setCacheColumns,
         setColumns,
         getColumnsRef,
         getCacheColumns,
@@ -325,6 +326,7 @@
         getSize: () => {
           return unref(getBindValues).size as SizeType;
         },
+        setCacheColumns,
       };
       createTableContext({ ...tableAction, wrapRef, getBindValues });
 

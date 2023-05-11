@@ -1,20 +1,11 @@
 <template>
-  <div>
-    <ScreenContainer> dataview </ScreenContainer>
-
-    <AMapSearch v-model:position="currentPosition" />
-
-    <div>{{ currentPosition }}</div>
-  </div>
+  <FullScreenConatiner :width="1920" :height="1080">
+    <router-view />
+  </FullScreenConatiner>
 </template>
 
 <script lang="ts" setup>
-  import { ref } from 'vue';
-
-  import { ScreenContainer } from '/@/components/ScreenContainer';
-  import { AMapSearch } from '/@/components/AMap';
-
-  const currentPosition = ref<string[]>([]);
+  import FullScreenConatiner from './FullScreenConatiner.vue';
 </script>
 
 <style lang="less" scoped></style>

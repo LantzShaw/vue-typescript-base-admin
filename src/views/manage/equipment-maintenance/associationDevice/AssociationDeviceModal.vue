@@ -1,25 +1,34 @@
 <template>
   <BasicModal
-    width="70%"
     v-bind="$attrs"
     @register="registerModal"
-    showFooter
     title="新增关联设备"
+    width="75%"
+    :min-height="500"
     :centered="true"
-    @ok="handleSubmit"
-    :okAuth="okAuth"
+    :showCancelBtn="false"
+    :showOkBtn="false"
   >
-    <div style="padding-right: 10px; padding-left: 10px">
-      <BasicTable @register="registerTable" :selectedRowKeys="checkedKeys">
+    <div>
+      <BasicTable @register="registerTable">
+        <!-- 按钮工具栏 -->
+        <template #toolbar>
+          <a-button
+            v-if="getSelectRowKeys().length > 0"
+            type="primary"
+            danger
+            @click="handleBatchBind"
+          >
+            批量关联
+          </a-button>
+        </template>
+        <!-- 表格内容 -->
         <template #bodyCell="{ column, record }">
-          <template v-if="column.key === 'dtuipSensorTypeId'">
-            <dict-label :options="sensorTypeOptions" :value="record.dtuipSensorTypeId" />
-          </template>
-          <template v-else-if="column.key === 'installRegion'">
+          <template v-if="column.key === 'regionId'">
             {{ record.bizInstallRegion?.regionName }}
           </template>
-          <template v-else-if="column.key === 'dtuipIsAlarms'">
-            <dict-label :options="alarmStatusOptions" :value="record.dtuipIsAlarms" />
+          <template v-else-if="column.key === 'dtuipSensorTypeId'">
+            <dict-label :options="sensorTypeOptions" :value="record.dtuipSensorTypeId" />
           </template>
           <template v-else-if="column.key === 'dtuipIsDelete'">
             <dict-label :options="deleteStatusOptions" :value="record.dtuipIsDelete" />
@@ -33,9 +42,9 @@
   </BasicModal>
 </template>
 <script lang="ts" setup>
-  import { onMounted, ref } from 'vue';
-
+  import { onMounted, nextTick, h } from 'vue';
   // hooks
+  import { useI18n } from '/@/hooks/web/useI18n';
   import { useMessage } from '/@/hooks/web/useMessage';
   // 组件
   import { BasicModal, useModalInner } from '/@/components/Modal';
@@ -43,188 +52,93 @@
   import { DictLabel } from '/@/components/DictLabel/index';
 
   // 接口
-  import { associationDeviceAdd, associationDevicePage } from '/@/api/manage/associationDevice';
+
+  import { associationDevicePage2, associationDeviceAdd } from '/@/api/manage/associationDevice';
+  import { optionsListBatchApi } from '/@/api/sys/dict';
   // data
   import {
-    isUpdate,
-    record,
+    planId,
+    organizationId,
     sensorSearchForm,
     sensorTableColumns,
     sensorTypeOptions,
     alarmStatusOptions,
     deleteStatusOptions,
     onlineStatusOptions,
-    enterpriseOptions,
-    regionOptions,
-    organizationId,
   } from './associationDevice.data';
-  import { sensorPage } from '/@/api/manage/sensor';
-  import { companyPage } from '/@/api/manage/company';
-  import { installRegionPage } from '/@/api/manage/installRegion';
-  import { optionsListBatchApi } from '/@/api/sys/dict';
-  import { useRoute } from 'vue-router';
 
-  const okAuth = ref(['manage:maintenance-record:add']);
   const emit = defineEmits(['success', 'register']);
 
-  const route = useRoute();
-
-  const { notification } = useMessage();
-  const checkedKeys = ref<Array<string | number>>([]);
-  const deviceIds = ref<Array<string | number>>([]);
-
-  const isRegionSelectLoading = ref<boolean>(false);
-
-  organizationId.value = route?.query.organizationId as string;
+  const { t } = useI18n();
+  const { notification, createConfirm } = useMessage();
 
   /**
    * 构建registerTable
    */
-  const [registerTable, { reload, getForm }] = useTable({
+  const [registerTable, { reload, getForm, getSelectRowKeys, clearSelectedRowKeys }] = useTable({
     title: '',
-    api: sensorPage,
-    // fetchSetting: {
-    //   sizeField: '100000',
-    // },
+    api: associationDevicePage2,
+    rowSelection: {
+      type: 'checkbox',
+    },
+    rowKey: 'id',
+    beforeFetch: (params) => {
+      params.planId = planId.value;
+      return params;
+    },
+    immediate: false,
     pagination: true,
     columns: sensorTableColumns,
     formConfig: sensorSearchForm,
-    searchInfo: {
-      organizationId: route?.query.organizationId,
-    },
     useSearchForm: true,
     canResize: false,
-    showTableSetting: false,
+    showTableSetting: true,
     showIndexColumn: false,
-    rowKey: 'id',
-    rowSelection: {
-      type: 'checkbox',
-      selectedRowKeys: checkedKeys.value,
-      onSelect: onSelect,
-      onSelectAll: onSelectAll,
-    },
+    maxHeight: 350,
   });
 
   /**
    * 构建Drawer
    */
-  const [registerModal, { setModalProps, closeModal }] = useModalInner(async (data) => {
-    setModalProps({ loading: true, confirmLoading: true });
-
-    checkedKeys.value = [];
-    deviceIds.value = [];
+  const [registerModal, { setModalProps }] = useModalInner(async (data) => {
     getForm().resetFields();
-
-    getEnterpriseList();
-    getRegionList();
-    getSelectedSensor();
-
-    // 判断是否是更新
-    isUpdate.value = !!data?.isUpdate;
-    record.value = [];
+    setModalProps({ loading: true, confirmLoading: true });
+    planId.value = data?.planId;
+    organizationId.value = data?.organizationId;
+    nextTick(() => {
+      reload();
+    });
 
     setModalProps({ loading: false, confirmLoading: false });
   });
 
   /**
-   * 选择事件
-   *
-   * @param record
-   * @param selected
+   * 执行成功
    */
-  function onSelect(record, selected) {
-    if (selected) {
-      deviceIds.value = [...deviceIds.value, record.dtuipDeviceId];
-      checkedKeys.value = [...checkedKeys.value, record.id];
-    } else {
-      deviceIds.value = deviceIds.value.filter((id) => id !== record.id);
-      checkedKeys.value = checkedKeys.value.filter((id) => id !== record.id);
-    }
-  }
+  async function handleBatchBind() {
+    if (getSelectRowKeys().length > 0) {
+      createConfirm({
+        iconType: 'warning',
+        title: () => h('span', t('sys.app.logoutTip')),
+        content: () => h('span', t('确认关联')),
+        onOk: async () => {
+          await associationDeviceAdd({
+            planId: planId.value,
+            organizationId: organizationId.value,
+            ids: getSelectRowKeys(),
+          });
 
-  /**
-   * 全部选中
-   *
-   * @param record
-   */
-  function onSelectAll(selected, selectedRows, changeRows) {
-    const changeIds = changeRows.map((item) => item.id);
-    if (selected) {
-      checkedKeys.value = [...checkedKeys.value, ...changeIds];
-    } else {
-      checkedKeys.value = checkedKeys.value.filter((id) => {
-        return !changeIds.includes(id);
+          notification.success({ message: `执行成功` });
+          clearSelectedRowKeys();
+          handleSuccess();
+          emit('success');
+        },
       });
     }
   }
 
-  /**
-   * 获取所属区域列表
-   */
-  async function getRegionList() {
-    regionOptions.value = [];
-    isRegionSelectLoading.value = true;
-
-    const response = await installRegionPage({
-      organizationId: route?.query?.organizationId,
-      pageIndex: 1,
-      pageSize: 100000,
-    });
-
-    regionOptions.value = response?.records?.map((region) => {
-      return {
-        label: region.regionName,
-        value: region.id,
-      };
-    });
-
-    isRegionSelectLoading.value = false;
-  }
-
-  /**
-   * 获取所有企业列表
-   */
-  async function getEnterpriseList() {
-    const response = await companyPage({ pageIndex: 1, pageSize: 100000 });
-
-    enterpriseOptions.value = response?.records?.map((company) => {
-      return {
-        label: company.enterpriseName,
-        value: company.id,
-      };
-    });
-  }
-
-  /**
-   * 提交表单
-   */
-  async function handleSubmit() {
-    try {
-      setModalProps({ loading: true, confirmLoading: true });
-
-      await associationDeviceAdd({
-        planId: route?.params?.id,
-        ids: checkedKeys.value,
-      });
-      notification.success({ message: `执行成功` });
-      closeModal();
-      emit('success');
-    } finally {
-      setModalProps({ loading: false, confirmLoading: false });
-    }
-  }
-
-  /**
-   * 获取选中的传感器 - 选中已选的传感器
-   */
-  async function getSelectedSensor() {
-    const response = await associationDevicePage({
-      pageIndex: 1,
-      pageSize: 10000,
-      planId: route?.params?.id,
-    });
-
-    checkedKeys.value = response.records.map((item) => item.sensorId);
+  function handleSuccess() {
+    reload();
   }
 
   /**
@@ -236,8 +150,6 @@
       'delete_status',
       'online_status',
       'sensor_type',
-      'maintenance_status',
-      'maintenance_work_order_type',
     ]);
     alarmStatusOptions.value = alarm_status || [];
     deleteStatusOptions.value = delete_status || [];

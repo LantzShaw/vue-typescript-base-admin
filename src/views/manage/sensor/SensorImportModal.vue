@@ -132,20 +132,4 @@
   });
 </script>
 
-<style lang="less" scoped>
-  .map {
-    // width: 95%;
-    min-height: 350px;
-    // overflow: hidden;
-    // margin: 0;
-    // position: absolute;
-  }
-
-  .BMap_cpyCtrl {
-    display: none;
-  }
-
-  .anchorBL {
-    display: none;
-  }
-</style>
+<style lang="less" scoped></style>

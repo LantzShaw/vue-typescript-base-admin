@@ -2,13 +2,12 @@ import { ref } from 'vue';
 // hooks
 import { useI18n } from '/@/hooks/web/useI18n';
 // 公共组件
-import { FormProps } from '/@/components/Form';
+import { FormProps, FormSchema } from '/@/components/Form';
 import { BasicColumn } from '/@/components/Table/src/types/table';
-import { FormSchema } from '/@/components/Form';
+
 // 接口
 import { optionsListApi } from '/@/api/sys/dict';
-
-import { installRegionPage } from '/@/api/manage/installRegion';
+import { enterpriseSelect } from '/@/api/manage/enterprise';
 
 export const isUpdate = ref(true);
 export const idRef = ref('');
@@ -35,12 +34,19 @@ export const searchForm: FormProps = {
   labelWidth: 90,
   schemas: [
     {
-      label: t('是否在线'),
-      field: 'dtuipIsLine',
-      component: 'Select',
+      label: t('传感器名称'),
+      field: 'sensorName',
+      component: 'Input',
+    },
+    {
+      label: t('关联企业'),
+      field: 'organizationId',
+      component: 'ApiSelect',
       componentProps: {
-        options: onlineStatusOptions,
-        allowClear: true,
+        showSearch: true,
+        optionFilterProp: 'label',
+        api: enterpriseSelect,
+        getPopupContainer: () => document.body,
       },
     },
     {
@@ -50,19 +56,25 @@ export const searchForm: FormProps = {
       componentProps: {
         options: sensorTypeOptions,
         allowClear: true,
+        getPopupContainer: () => document.body,
       },
     },
+    {
+      label: t('是否在线'),
+      field: 'dtuipIsLine',
+      component: 'Select',
+      componentProps: {
+        options: onlineStatusOptions,
+        allowClear: true,
+        getPopupContainer: () => document.body,
+      },
+    },
+    {
+      label: t('位号'),
+      field: 'locationNo',
+      component: 'Input',
+    },
 
-    {
-      label: t('传感器名称'),
-      field: 'sensorName',
-      component: 'Input',
-    },
-    {
-      label: t('关联企业'),
-      field: 'orgName',
-      component: 'Input',
-    },
     // {
     //   label: t('传感器编号'),
     //   field: 'sensorNo',
@@ -112,29 +124,30 @@ export const tableColumns: BasicColumn[] = [
   },
   {
     title: t('关联企业'),
-    dataIndex: 'enterpriseName',
+    dataIndex: 'organizationId',
     sorter: true,
     width: 130,
-    align: 'center',
+    align: 'left',
+    ellipsis: true,
   },
   {
     title: t('所属区域'),
-    dataIndex: 'regionName',
+    dataIndex: 'regionId',
     sorter: true,
-    width: 130,
+    width: 100,
     align: 'center',
   },
   {
     title: t('位号'),
     dataIndex: 'locationNo',
     sorter: true,
-    width: 130,
+    width: 100,
     align: 'center',
   },
   {
     title: t('传感器类型'),
     dataIndex: 'dtuipSensorTypeId',
-    width: 150,
+    width: 120,
     align: 'center',
     ellipsis: true,
     sorter: true,
@@ -142,20 +155,22 @@ export const tableColumns: BasicColumn[] = [
   {
     title: t('是否在线'),
     dataIndex: 'dtuipIsLine',
-    width: 90,
+    sorter: true,
+    width: 80,
     align: 'center',
   },
   {
     title: t('数据最后上报时间'),
     dataIndex: 'dtuipUpdateDate',
     sorter: true,
-    width: 160,
+    width: 100,
     align: 'center',
   },
   {
     title: t('是否删除'),
     dataIndex: 'dtuipIsDelete',
-    width: 90,
+    sorter: true,
+    width: 80,
     align: 'center',
   },
   // {
@@ -437,7 +452,8 @@ export const inputFormSchemas: FormSchema[] = [
     },
   },
   {
-    label: t('最高容许浓度'),
+    label: t('浓度1'),
+    helpMessage: '最高容许浓度',
     field: 'maxConc',
     component: 'Input',
     componentProps: {
@@ -445,25 +461,9 @@ export const inputFormSchemas: FormSchema[] = [
       placeholder: '请输入最高容许浓度',
     },
   },
-  // {
-  //   label: t('位号'),
-  //   field: 'locationNo',
-  //   component: 'ApiSelect',
-  //   componentProps: {
-  //     maxlength: 100,
-  //     placeholder: '请选择位号',
-  //     api: installRegionPage,
-  //     params: {
-  //       pageIndex: 1,
-  //       pageSize: 100000,
-  //     },
-  //     resultField: 'records',
-  //     labelField: 'regionName',
-  //     valueField: 'id',
-  //   },
-  // },
   {
-    label: t('短时间接触容许浓度'),
+    label: t('浓度2'),
+    helpMessage: '短时间接触容许浓度',
     field: 'shortTimeConc',
     component: 'Input',
     componentProps: {
@@ -472,7 +472,8 @@ export const inputFormSchemas: FormSchema[] = [
     },
   },
   {
-    label: t('直接致害浓度'),
+    label: t('浓度3'),
+    helpMessage: '直接致害浓度',
     field: 'directHarmfulConc',
     component: 'Input',
     componentProps: {
@@ -481,7 +482,8 @@ export const inputFormSchemas: FormSchema[] = [
     },
   },
   {
-    label: t('时间加权平均容许浓度'),
+    label: t('浓度4'),
+    helpMessage: '时间加权平均容许浓度',
     field: 'timeConc',
     component: 'Input',
     componentProps: {
@@ -495,7 +497,6 @@ export const inputFormSchemas: FormSchema[] = [
     field: 'router',
     component: 'Divider',
     colProps: { lg: 24, md: 24 },
-    // ifShow: ({ values }) => !isButton(values.type),
   },
   {
     label: t('位号'),

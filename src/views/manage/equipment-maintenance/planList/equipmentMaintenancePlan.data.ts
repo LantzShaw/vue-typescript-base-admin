@@ -81,7 +81,7 @@ export const tableColumns: BasicColumn[] = [
     title: t('关联企业'),
     dataIndex: 'bizEnterprise',
     width: 160,
-    align: 'center',
+    align: 'left',
   },
   {
     title: t('生效日期'),
@@ -160,6 +160,7 @@ export const inputFormSchemas: FormSchema[] = [
       params: {
         dictCode: 'plan_cycle',
       },
+      getPopupContainer: () => document.body,
     },
   },
   {
@@ -180,6 +181,7 @@ export const inputFormSchemas: FormSchema[] = [
         dictCode: 'data_item_status',
         excludeItems: ['2', '3'],
       },
+      getPopupContainer: () => document.body,
     },
   },
   {

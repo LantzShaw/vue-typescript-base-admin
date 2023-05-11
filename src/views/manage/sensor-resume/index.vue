@@ -1,8 +1,8 @@
 <template>
-  <PageWrapper dense contentFullHeight>
+  <PageWrapper dense :title="pageTitle" contentFullHeight :contentBackground="false" @back="goBack">
     <BasicTable @register="registerTable">
       <!-- 按钮工具栏 -->
-      <template #toolbar>
+      <!-- <template #toolbar>
         <a-button
           v-auth="'manage:sensor-resume:add'"
           type="primary"
@@ -11,7 +11,7 @@
         >
           新增
         </a-button>
-      </template>
+      </template> -->
       <!-- 表格内容 -->
       <template #bodyCell="{ column, record }">
         <!-- 表格按钮 -->
@@ -19,11 +19,11 @@
           <TableAction
             stopButtonPropagation
             :actions="[
-              {
-                label: '编辑',
-                onClick: handleEdit.bind(null, record),
-                auth: 'manage:sensor-resume:edit',
-              },
+              // {
+              //   label: '编辑',
+              //   onClick: handleEdit.bind(null, record),
+              //   auth: 'manage:sensor-resume:edit',
+              // },
               {
                 label: '删除',
                 color: 'error',
@@ -42,7 +42,7 @@
   </PageWrapper>
 </template>
 <script lang="ts" setup>
-  import { onMounted } from 'vue';
+  import { onMounted, ref } from 'vue';
   // hooks
   import { useMessage } from '/@/hooks/web/useMessage';
   // 组件
@@ -63,15 +63,20 @@
     planPeriodTypeOptions,
     searchForm,
     tableColumns,
-    sensorId,
   } from './sensorResume.data';
   import { useRoute } from 'vue-router';
+  import { useGo } from '/@/hooks/web/usePage';
+  import { useTabs } from '/@/hooks/web/useTabs';
 
+  const go = useGo();
   const route = useRoute();
+  const { closeCurrent } = useTabs();
 
   const { notification } = useMessage();
 
-  sensorId.value = route?.params?.id as string;
+  const sensorId = route?.params?.id as string;
+
+  const pageTitle = ref<string>(`${route?.query?.sensorName}传感器`);
 
   /**
    * 构建registerModal
@@ -88,6 +93,10 @@
     columns: tableColumns,
     formConfig: searchForm,
     useSearchForm: true,
+    searchInfo: {
+      sensorId,
+      // sensorId: '1635874470806687744',
+    },
     canResize: false,
     showTableSetting: true,
     showIndexColumn: true,
@@ -101,6 +110,15 @@
       // auth: 'system:application:operation',
     },
   });
+
+  /**
+   * 返回报表总览页面
+   */
+  function goBack() {
+    closeCurrent();
+
+    go('/sensor/list');
+  }
 
   /**
    * 新增

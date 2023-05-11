@@ -1,7 +1,7 @@
 import { defHttp } from '/@/utils/http/axios';
 
 enum Api {
-  SensorResumePage = '/biz/sensortrace/getpagelist',
+  SensorResumePage = '/biz/sensorcv/getpagelist',
   SensorResumeDelete = '/biz/sensortrace/delete',
   SensorResumeAdd = '/biz/sensortrace/add',
   SensorResumeUpdate = '/biz/sensortrace/update',

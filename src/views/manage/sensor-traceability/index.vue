@@ -11,14 +11,6 @@
         >
           新增
         </a-button>
-        <a-button
-          v-auth="'manage:sensor-traceability:import'"
-          type="default"
-          preIcon="ant-design:upload-outlined"
-          @click="handleImport"
-        >
-          导入
-        </a-button>
       </template>
       <!-- 表格内容 -->
       <template #bodyCell="{ column, record }">

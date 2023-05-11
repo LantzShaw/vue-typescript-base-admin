@@ -26,7 +26,7 @@ enum Api {
   EventTriggerStepSevenAffirm = '/biz/workflow/alarm-deal-record/step-seven-affirm',
 
   EventTriggerUpdateEventState = '/biz/workflow/alarm-deal-record/statecheck',
-  EventTriggerEventDetail = '/biz/workflow/alarm-deal-record/querybyid',
+  EventTriggerEventDetail = '/biz/workflow/alarm-deal-record/form',
 }
 
 export const alarmDealRecordApReceive = (data?: any) =>

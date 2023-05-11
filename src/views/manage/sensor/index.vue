@@ -19,6 +19,14 @@
         >
           导入
         </a-button>
+        <a-button
+          v-auth="'manage:sensor:import'"
+          type="default"
+          preIcon="ant-design:upload-outlined"
+          @click="handleImportTrace"
+        >
+          导入溯源
+        </a-button>
       </template>
       <!-- 表格内容 -->
       <template #bodyCell="{ column, record }">
@@ -42,10 +50,16 @@
         <template v-else-if="column.key === 'dtuipValue'">
           {{ record.dtuipValue + record.dtuipUnit }}
         </template>
-        <template v-else-if="column.key === 'enterpriseName'">
-          {{ record?.bizEnterprise?.enterpriseName }}
+        <template v-else-if="column.key === 'organizationId'">
+          <span
+            v-if="record.bizEnterprise?.enterpriseNo"
+            style="text-overflow: ellipsis"
+            :title="`[${record.bizEnterprise?.enterpriseNo}]${record.bizEnterprise?.enterpriseName}`"
+          >
+            [{{ record.bizEnterprise?.enterpriseNo }}] {{ record.bizEnterprise?.enterpriseName }}
+          </span>
         </template>
-        <template v-else-if="column.key === 'regionName'">
+        <template v-else-if="column.key === 'regionId'">
           {{ record?.bizInstallRegion?.regionName }}
         </template>
 
@@ -60,12 +74,12 @@
                 auth: 'manage:sensor:edit',
               },
               {
-                label: '溯源信息',
+                label: '溯源',
                 onClick: handleViewTraceability.bind(null, record),
                 auth: 'manage:sensor:view-traceability',
               },
               {
-                label: '履历信息',
+                label: '履历',
                 onClick: handleViewResume.bind(null, record),
                 auth: 'manage:sensor:view-resume',
               },
@@ -85,6 +99,7 @@
     </BasicTable>
     <SensorModal @register="registerModal" @success="handleSuccess" />
     <SensorImportModal @register="registerSensorImportModal" @success="handleSuccess" />
+    <SensorImportTraceModal @register="registerSensorImportTraceModal" @success="handleSuccess" />
   </PageWrapper>
 </template>
 <script lang="ts" setup>
@@ -99,6 +114,8 @@
   import { useModal } from '/@/components/Modal';
   import SensorModal from './SensorModal.vue';
   import SensorImportModal from './SensorImportModal.vue';
+  import SensorImportTraceModal from './SensorImportTraceModal.vue';
+
   // 接口
   import { sensorPage, sensorDelete, sensorExport, sensorImport } from '/@/api/manage/sensor';
   import { optionsListBatchApi } from '/@/api/sys/dict';
@@ -129,6 +146,10 @@
    * 构建registerModal
    */
   const [registerSensorImportModal, { openModal: openSensorImportModal }] = useModal();
+  /**
+   * 构建registerModal
+   */
+  const [registerSensorImportTraceModal, { openModal: openSensorImportTraceModal }] = useModal();
 
   /**
    * 构建registerTable
@@ -143,13 +164,10 @@
     showTableSetting: true,
     showIndexColumn: false,
     actionColumn: {
-      width: 300,
+      width: 140,
       title: '操作',
       dataIndex: 'action',
-      // slots: { customRender: 'action' },
       fixed: 'right',
-      // fixed: undefined,
-      // auth: 'system:application:operation',
     },
   });
 
@@ -164,7 +182,7 @@
    * 跳转至至履历信息页面
    */
   function handleViewResume(record: Recordable) {
-    go(`/sensor/resume/${record.id}`);
+    go(`/sensor/resume/${record.id}?sensorName=${record.sensorName}`);
   }
 
   /**
@@ -185,20 +203,15 @@
   /**
    * 导入
    */
-  async function handleImport() {
+  function handleImport() {
     openSensorImportModal(true, {});
+  }
 
-    // try {
-    //   const resposne = await sensorImport({ file: rawFile });
-
-    //   if (resposne.status === 200) {
-    //     notification.success({ message: '导入成功!' });
-    //   } else {
-    //     notification.error({ message: '导入失败!' });
-    //   }
-    // } catch (error) {
-    //   console.log(error);
-    // }
+  /**
+   * 导入溯源
+   */
+  function handleImportTrace() {
+    openSensorImportTraceModal(true, {});
   }
 
   /**

@@ -43,13 +43,13 @@
             <span>可燃: </span>
             <DigitDisplay
               :value="dataList.gasTypeCount"
-              unit="种"
+              unit="个"
               @on-click="navigateToReport(1)"
             />，
             <span>有毒: </span>
             <DigitDisplay
               :value="dataList.gasTypeCount"
-              unit="种"
+              unit="个"
               @on-click="navigateToReport(1)"
             />
           </a-descriptions-item>

@@ -3,8 +3,10 @@
     width="70%"
     v-bind="$attrs"
     @register="registerModal"
+    @cancel="handleCancel"
     :showOkBtn="false"
     :show-cancel-btn="true"
+    cancel-text="关闭"
     :okAuth="okAuth"
     title="维护记录流程处理"
     okType="primary"
@@ -106,7 +108,7 @@
                 </a-form-item>
               </a-col>
               <a-col :span="24">
-                <a-form-item :label-col="{ span: 2 }" label="备注说明" name="remark">
+                <a-form-item :label-col="{ span: 3 }" label="备注说明" name="remark">
                   <a-textarea
                     :rows="2"
                     v-model:value="formState.remark"
@@ -132,11 +134,12 @@
 
           <a-tab-pane key="1" tab="工单实施">
             <!-- 工单实施 -->
-            <a-row style="height: 350px">
+            <a-row style="height: 350px; padding-top: 10px">
               <a-col :span="24">
-                <div class="ml-2 mb-2 text-md text-black font-bold">工单实施</div>
-
+                <!-- <div class="ml-2 mb-2 text-md text-black font-bold">工单实施</div> -->
                 <a-form-item
+                  :label-col="{ span: 2 }"
+                  :colon="false"
                   label="说明内容"
                   name="stepOneRemark"
                   :rules="[{ required: true, message: '工单实施说明内容不能为空!' }]"
@@ -150,7 +153,7 @@
                 </a-form-item>
               </a-col>
               <a-col :span="24">
-                <a-form-item label="附件" name="list">
+                <a-form-item :label-col="{ span: 2 }" :colon="false" label="附件" name="list">
                   <BasicUpload
                     :maxSize="20"
                     :maxNumber="10"
@@ -178,19 +181,21 @@
                   :current-step="record.stepOneStatus"
                   :commit-id="record.stepOneEnterpriseId"
                   :commit-date="record.stepOneSubmitDate"
-                  :commit-person="record.stepOneBy"
+                  :commit-person="record.stepOneByUser?.nickName"
                   :confirm-date="record.stepOneAffirmDate"
-                  :confirm-person="record.stepOneAffirmBy"
+                  :confirm-person="record.stepOneAffirmByUser?.nickName"
                 />
               </a-col>
             </a-row>
           </a-tab-pane>
           <a-tab-pane key="2" tab="实施成果">
             <!-- 实施成果 -->
-            <a-row style="height: 350px">
+            <a-row style="height: 350px; padding-top: 10px">
               <a-col :span="24">
-                <div class="ml-2 mb-2 text-md text-black font-bold">实施成果</div>
+                <!-- <div class="ml-2 mb-2 text-md text-black font-bold">实施成果</div> -->
                 <a-form-item
+                  :label-col="{ span: 2 }"
+                  :colon="false"
                   label="说明内容"
                   name="stepTwoRemark"
                   :rules="[{ required: true, message: '实施成果说明内容不能为空!' }]"
@@ -204,7 +209,7 @@
                 </a-form-item>
               </a-col>
               <a-col :span="24">
-                <a-form-item label="附件" name="username">
+                <a-form-item :label-col="{ span: 2 }" :colon="false" label="附件" name="username">
                   <BasicUpload
                     :maxSize="20"
                     :maxNumber="10"
@@ -232,19 +237,21 @@
                   :current-step="record.stepTwoStatus"
                   :commit-id="record.stepTwoEnterpriseId"
                   :commit-date="record.stepTwoSubmitDate"
-                  :commit-person="record.stepTwoBy"
+                  :commit-person="record.stepTwoByUser?.nickName"
                   :confirm-date="record.stepTwoAffirmDate"
-                  :confirm-person="record.stepTwoAffirmBy"
+                  :confirm-person="record.stepTwoAffirmByUser?.nickName"
                 />
               </a-col>
             </a-row>
           </a-tab-pane>
           <a-tab-pane key="3" tab="完工单">
             <!-- 完工单 -->
-            <a-row style="height: 350px">
+            <a-row style="height: 350px; padding-top: 10px">
               <a-col :span="24">
-                <div class="ml-2 mb-2 text-md text-black font-bold">完工单</div>
+                <!-- <div class="ml-2 mb-2 text-md text-black font-bold">完工单</div> -->
                 <a-form-item
+                  :label-col="{ span: 2 }"
+                  :colon="false"
                   label="说明内容"
                   name="stepThreeRemark"
                   :rules="[{ required: true, message: '完工单说明内容不能为空!' }]"
@@ -258,7 +265,7 @@
                 </a-form-item>
               </a-col>
               <a-col :span="24">
-                <a-form-item label="附件" name="username">
+                <a-form-item :label-col="{ span: 2 }" :colon="false" label="附件" name="username">
                   <BasicUpload
                     :maxSize="20"
                     :maxNumber="10"
@@ -281,16 +288,15 @@
                   :rejectLoading="isRejectLoading"
                   :confirmLoading="isConfirmLoading"
                   :isDisabledCommit="!formState.stepThreeRemark"
-                  :isDisabledConfirm="!isDisabledConfirm(record)"
                   :status="['300', '350', '400']"
                   name="完工单"
                   :current-step="record.stepThreeStatus"
                   :commit-id="record.stepThreeEnterpriseId"
                   :commit-date="record.stepThreeSubmitDate"
-                  :commit-person="record.stepThreeBy"
+                  :commit-person="record.stepThreeByUser?.nickName"
                   :confirm-date="record.stepThreeAffirmDate"
-                  :confirm-person="record.stepThreeAffirmBy"
-                  :show-tips="true"
+                  :confirm-person="record.stepThreeAffirmByUser?.nickName"
+                  :show-tips="false"
                 />
               </a-col>
             </a-row>
@@ -343,13 +349,19 @@
   import {
     equipmentMaintenanceRecordForm,
     equipmentMaintenanceRecordUpdateState,
+    equipmentMaintenanceRecordStepOneSubmit,
+    equipmentMaintenanceRecordStepOneAffirm,
+    equipmentMaintenanceRecordStepTwoSubmit,
+    equipmentMaintenanceRecordStepTwoAffirm,
+    equipmentMaintenanceRecordStepThreeSubmit,
+    equipmentMaintenanceRecordStepThreeAffirm,
   } from '/@/api/manage/equipmentMaintenanceRecord';
-  import { getOrganizationId } from '/@/utils/auth';
   import { optionsListBatchApi } from '/@/api/sys/dict';
+  import { useUserStore } from '/@/store/modules/user';
 
   type FileList = {
-    processStep?: string;
     attPath?: string;
+    recordId?: string; // 设备记录id
   };
 
   type FormState = {
@@ -365,7 +377,9 @@
     apReceiveContacts?: string;
     agreement?: string;
     apReceiveName?: string;
-    list: FileList[];
+    stepOneBizWorkflowDeviceMaintRecordAttList: FileList[];
+    stepTwoBizWorkflowDeviceMaintRecordAttList: FileList[];
+    stepThreeBizWorkflowDeviceMaintRecordAttList: FileList[];
   };
   const okAuth = ref(['manage:maintenance-record:process']);
   const emit = defineEmits(['success', 'register']);
@@ -382,8 +396,9 @@
   const fileList = ref(fileState());
 
   const { notification } = useMessage();
+  const userStore = useUserStore();
 
-  const organizationId = getOrganizationId() as string;
+  const organizationId = ref<string>('');
 
   const rules = {};
 
@@ -400,7 +415,9 @@
     apReceiveContacts: '',
     agreement: '',
     apReceiveName: '',
-    list: [],
+    stepOneBizWorkflowDeviceMaintRecordAttList: [],
+    stepTwoBizWorkflowDeviceMaintRecordAttList: [],
+    stepThreeBizWorkflowDeviceMaintRecordAttList: [],
   });
 
   /**
@@ -426,8 +443,15 @@
    */
   const [registerModal, { setModalProps }] = useModalInner(async (data) => {
     resetForm();
+    activeKey.value = '0';
+    isSubmitLoading.value = false;
+    isRejectLoading.value = false;
+    isConfirmLoading.value = false;
+    isSaveLoading.value = false;
+    isExportLoading.value = false;
 
-    // resetFields();
+    organizationId.value = userStore.getOrganizationId;
+
     setModalProps({ loading: true, confirmLoading: true });
 
     // 判断是否是更新
@@ -441,17 +465,15 @@
       idRef.value = '';
     }
 
-    const { stepOneStatus, stepTwoStatus, stepThreeStatus } = record.value;
-
-    const tempArr = [stepOneStatus, stepTwoStatus, stepThreeStatus];
-
-    const index = tempArr.findIndex(
-      (item) => item === undefined || item === '100' || item === '150',
-    );
-
-    if (index !== -1) {
-      activeKey.value = `${index + 1}`;
-    }
+    // NOTE: 根据流程状态 - 设置tab选中
+    // const { stepOneStatus, stepTwoStatus, stepThreeStatus } = record.value;
+    // const tempArr = [stepOneStatus, stepTwoStatus, stepThreeStatus];
+    // const index = tempArr.findIndex(
+    //   (item) => item === undefined || item === '100' || item === '150',
+    // );
+    // if (index !== -1) {
+    //   activeKey.value = `${index + 1}`;
+    // }
 
     formState.stepOneRemark = record.value.stepOneRemark;
     formState.stepTwoRemark = record.value.stepTwoRemark;
@@ -468,25 +490,15 @@
     // formState.apReceiveName = record.value.apReceiveName;
     formState.apReceiveName = data.record.orgName;
 
-    console.log('-----------list------------', record.value.list);
-
-    if (record.value?.list.length > 0) {
-      record.value.list.forEach((item) => {
-        switch (item.processStep) {
-          case '150':
-            // TODO: 是否需要考虑item.attPath为空的情况
-            // fileOne.value = ''.split(',');
-            fileList.value.fileOne = item.attPath.split(',');
-            break;
-          case '250':
-            fileList.value.fileTwo = item.attPath.split(',');
-            break;
-          case '350':
-            fileList.value.fileThree = item.attPath.split(',');
-            break;
-        }
-      });
-    }
+    fileList.value.fileOne = record.value?.stepOneBizWorkflowDeviceMaintRecordAttList?.map(
+      (item) => item.attPath,
+    );
+    fileList.value.fileTwo = record.value?.stepTwoBizWorkflowDeviceMaintRecordAttList?.map(
+      (item) => item.attPath,
+    );
+    fileList.value.fileThree = record.value?.stepThreeBizWorkflowDeviceMaintRecordAttList?.map(
+      (item) => item.attPath,
+    );
 
     setModalProps({ loading: false, confirmLoading: false });
   });
@@ -499,7 +511,14 @@
   }
 
   /**
-   * 保存按钮事件
+   * 关闭弹框
+   */
+  function handleCancel() {
+    emit('success');
+  }
+
+  /**
+   * 文件上传 - 保存按钮事件
    *
    * 150 - 工单实施，250 - 实施成果，350 - 完工单
    *
@@ -509,29 +528,48 @@
   function handleUploadChange(flag: string, list: string[]) {
     const filterList = list.filter((item) => item !== undefined || item !== '');
 
-    formState.list.push({
-      processStep: flag,
-      attPath: filterList.toString(),
-    });
+    switch (flag) {
+      case '150':
+        formState.stepOneBizWorkflowDeviceMaintRecordAttList.push({
+          attPath: filterList.toString(),
+          recordId: idRef.value,
+        });
+
+        break;
+      case '250':
+        formState.stepTwoBizWorkflowDeviceMaintRecordAttList.push({
+          attPath: filterList.toString(),
+          recordId: idRef.value,
+        });
+
+        break;
+      case '350':
+        formState.stepThreeBizWorkflowDeviceMaintRecordAttList.push({
+          attPath: filterList.toString(),
+          recordId: idRef.value,
+        });
+
+        break;
+    }
   }
 
   // 文本框、按钮是否只读
   const isReadOnly = computed(() => {
     return (status, commitId) => {
       if (commitId) {
-        return status === '150' || status === '200' || commitId !== organizationId;
+        return status === '50' || status === '100' || commitId !== organizationId.value;
       }
 
-      return status === '200' || status === '150';
+      return status === '50' || status === '100';
     };
   });
 
   // 最后一步结果确认，只有前面几个步骤都已完成，方可点击
-  const isDisabledConfirm = computed(() => {
-    return (record) => {
-      return record.stepOneStatus === '200' && record.stepTwoStatus === '200';
-    };
-  });
+  // const isDisabledConfirm = computed(() => {
+  //   return (record) => {
+  //     return record.stepOneStatus === '100' && record.stepTwoStatus === '100';
+  //   };
+  // });
 
   function handleReportDownload() {
     console.log('reportRef.value', reportRef.value);
@@ -545,9 +583,11 @@
     });
   }
 
+  /**
+   * 保存基本信息
+   */
   async function handleSaveInformation() {
     isSaveLoading.value = true;
-    console.log(formState);
 
     await equipmentMaintenanceRecordUpdateState({
       id: idRef.value,
@@ -560,7 +600,6 @@
       apReceiveContacts: formState.apReceiveContacts,
       agreement: formState.agreement,
       apReceiveName: formState.apReceiveName,
-      // list: formState.list,
       apReceiveFlag: record.value.apReceiveFlag,
       bpReceiveFlag: record.value.bpReceiveFlag,
     });
@@ -574,8 +613,6 @@
    * 提交表单
    */
   async function handleSubmitAll() {
-    console.log(formState);
-
     console.log('handleSubmitAll', formState);
 
     // await equipmentMaintenanceRecordUpdate({
@@ -603,7 +640,6 @@
     let params = {
       id: idRef.value,
       processStep: status,
-      list: formState.list,
       apReceiveFlag: record.value.apReceiveFlag,
       bpReceiveFlag: record.value.bpReceiveFlag,
     };
@@ -611,29 +647,39 @@
     switch (status) {
       case '150':
         params['stepOneRemark'] = formState.stepOneRemark;
-        params['stepOneStatus'] = '150';
+        params['stepOneStatus'] = '50';
+        params['stepOneBizWorkflowDeviceMaintRecordAttList'] =
+          formState.stepOneBizWorkflowDeviceMaintRecordAttList;
+
+        await equipmentMaintenanceRecordStepOneSubmit({ ...params });
+
         break;
       case '250':
         params['stepTwoRemark'] = formState.stepTwoRemark;
-        params['stepTwoStatus'] = '150';
+        params['stepTwoStatus'] = '50';
+        params['stepTwoBizWorkflowDeviceMaintRecordAttList'] =
+          formState.stepTwoBizWorkflowDeviceMaintRecordAttList;
+
+        await equipmentMaintenanceRecordStepTwoSubmit({ ...params });
+
         break;
       case '350':
         params['stepThreeRemark'] = formState.stepThreeRemark;
-        params['stepThreeStatus'] = '150';
+        params['stepThreeStatus'] = '50';
+
+        await equipmentMaintenanceRecordStepThreeSubmit({ ...params });
+
+        params['stepThreeBizWorkflowDeviceMaintRecordAttList'] =
+          formState.stepThreeBizWorkflowDeviceMaintRecordAttList;
+
         break;
     }
-
-    await equipmentMaintenanceRecordUpdateState({
-      ...params,
-    });
 
     record.value = await equipmentMaintenanceRecordForm({ id: idRef.value });
 
     formState.stepOneRemark = record.value.stepOneRemark;
     formState.stepTwoRemark = record.value.stepTwoRemark;
     formState.stepThreeRemark = record.value.stepThreeRemark;
-
-    emit('success');
 
     notification.success({ message: `信息提交成功!` });
 
@@ -645,29 +691,33 @@
    */
   async function onRejectHandler(status: string) {
     isRejectLoading.value = true;
-    const params = {};
+    const params = {
+      id: idRef.value,
+      processStep: status,
+      apReceiveFlag: record.value.apReceiveFlag,
+      bpReceiveFlag: record.value.bpReceiveFlag,
+    };
 
     switch (status) {
       case '150':
-        params['stepOneStatus'] = '100';
+        params['stepOneStatus'] = '150';
+
+        await equipmentMaintenanceRecordStepOneAffirm({ ...params });
+
         break;
       case '250':
-        params['stepTwoStatus'] = '100';
+        params['stepTwoStatus'] = '150';
+
+        await equipmentMaintenanceRecordStepTwoAffirm({ ...params });
+
         break;
       case '350':
-        params['stepThreeStatus'] = '100';
+        params['stepThreeStatus'] = '150';
+
+        equipmentMaintenanceRecordStepThreeAffirm({ ...params });
+
         break;
     }
-
-    await equipmentMaintenanceRecordUpdateState({
-      id: idRef.value,
-      processStep: status,
-      ...params,
-      apReceiveFlag: record.value.apReceiveFlag,
-      bpReceiveFlag: record.value.bpReceiveFlag,
-    });
-
-    emit('success');
 
     record.value = await equipmentMaintenanceRecordForm({ id: idRef.value });
 
@@ -691,24 +741,24 @@
 
     switch (status) {
       case '100':
-        params['stepOneStatus'] = '200';
+        params['stepOneStatus'] = '100';
+
+        await equipmentMaintenanceRecordStepOneAffirm({ ...params });
 
         break;
       case '200':
-        params['stepTwoStatus'] = '200';
+        params['stepTwoStatus'] = '100';
+
+        await equipmentMaintenanceRecordStepTwoAffirm({ ...params });
 
         break;
       case '300':
-        params['stepThreeStatus'] = '200';
+        params['stepThreeStatus'] = '100';
+
+        await equipmentMaintenanceRecordStepThreeAffirm({ ...params });
 
         break;
     }
-
-    await equipmentMaintenanceRecordUpdateState({
-      ...params,
-    });
-
-    emit('success');
 
     record.value = await equipmentMaintenanceRecordForm({ id: idRef.value });
 

@@ -14,7 +14,11 @@
     <div style="padding-right: 10px; padding-left: 10px">
       <a-row>
         <a-col :span="12">
-          <BasicTable @register="registerTable" :selectedRowKeys="checkedKeys">
+          <BasicTable
+            :clickToRowSelect="false"
+            @register="registerTable"
+            :selectedRowKeys="checkedKeys"
+          >
             <template #bodyCell="{ column, record }">
               <template v-if="column.key === 'dtuipSensorTypeId'">
                 <dict-label :options="sensorTypeOptions" :value="record.dtuipSensorTypeId" />
@@ -32,6 +36,7 @@
                 {{ record?.bizInstallRegion?.regionName }}
               </template>
               <template v-else-if="column.key === 'enterpriseName'">
+                [{{ record.bizEnterprise?.enterpriseNo }}]
                 {{ record?.bizEnterprise?.enterpriseName }}
               </template>
             </template>
@@ -69,6 +74,7 @@
                 {{ record?.bizInstallRegion?.regionName }}
               </template>
               <template v-else-if="column.key === 'enterpriseName'">
+                [{{ record.bizEnterprise?.enterpriseNo }}]
                 {{ record?.bizEnterprise?.enterpriseName }}
               </template>
             </template>
@@ -136,7 +142,7 @@
   /**
    * 构建registerTable
    */
-  const [registerTable, { getForm, reload, clearSelectedRowKeys, setSelectedRowKeys }] = useTable({
+  const [registerTable, { getForm, clearSelectedRowKeys, setSelectedRowKeys }] = useTable({
     title: '',
     api: sensorPage,
     // fetchSetting: {
@@ -162,7 +168,6 @@
             placeholder: '请选择所属单位',
             options: enterpriseOptions,
             onChange: (e) => {
-              console.log('e', e);
               formState.organizationId = e;
 
               getRegionList();
@@ -182,6 +187,9 @@
         },
       ],
     },
+    afterFetch: () => {
+      setSelectedRowKeys(checkedKeys.value as string[]);
+    },
     useSearchForm: true,
     searchInfo: {
       flag: undefined,
@@ -192,7 +200,7 @@
     rowKey: 'id',
     rowSelection: {
       type: 'checkbox',
-      selectedRowKeys: checkedKeys.value,
+      // selectedRowKeys: checkedKeys.value,
       onSelect: onSelect,
       onSelectAll: onSelectAll,
     },
@@ -221,15 +229,7 @@
     // TODO:
     // clearSelectedRowKeys();
 
-    // setProps({
-    //   rowSelection:
-    // })
-
-    // setColumns({data: 'organizationId' })
-
     getEnterpriseList();
-
-    // reload();
 
     // 判断是否是更新
     isUpdate.value = !!data?.isUpdate;
@@ -248,8 +248,6 @@
   });
 
   function onSelect(record, selected) {
-    console.log('------------record------', record);
-
     if (selected) {
       deviceIds.value = [...deviceIds.value, record.dtuipDeviceId];
       checkedKeys.value = [...checkedKeys.value, record.id];
@@ -262,8 +260,7 @@
       selectedTableData.value = selectedTableData.value.filter((item) => item.id !== record.id);
     }
 
-    // TODO:
-    // setSelectedRowKeys([...checkedKeys.value])
+    // setSelectedRowKeys(checkedKeys.value as string[]);
   }
 
   function onSelectAll(selected, selectedRows, changeRows) {
@@ -282,6 +279,9 @@
     checkedKeys.value = checkedKeys.value.filter((id) => id !== record.id);
 
     selectedTableData.value = selectedTableData.value.filter((item) => item.id !== record.id);
+
+    // TODO:
+    setSelectedRowKeys(checkedKeys.value as string[]);
   }
 
   /**
@@ -290,8 +290,6 @@
   async function getRegionList() {
     regionOptions.value = [];
     isRegionSelectLoading.value = true;
-
-    console.log('getForm', getForm(), getForm().getFieldsValue());
 
     const response = await installRegionPage({
       organizationId: formState.organizationId,
@@ -314,7 +312,6 @@
    */
   async function getEnterpriseList() {
     const response = await companyPage({ pageIndex: 1, pageSize: 100000 });
-    // const response = await companyOption({ pageIndex: 1, pageSize: 100000 });
 
     enterpriseOptions.value = response?.records?.map((company) => {
       return {

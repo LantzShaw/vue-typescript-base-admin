@@ -81,7 +81,7 @@ export const tableColumns: BasicColumn[] = [
   //   align: 'center',
   // },
   {
-    title: t('溯源日期'),
+    title: t('检定日期'),
     dataIndex: 'traceDate',
     sorter: true,
     width: 130,
@@ -90,11 +90,12 @@ export const tableColumns: BasicColumn[] = [
   {
     title: t('周期(月)'),
     dataIndex: 'traceCycle',
+    sorter: true,
     width: 130,
     align: 'center',
   },
   {
-    title: t('有效期'),
+    title: t('到期日期'),
     dataIndex: 'actualExpirationDate',
     sorter: true,
     width: 130,
@@ -120,7 +121,7 @@ export const tableColumns: BasicColumn[] = [
  */
 export const inputFormSchemas: FormSchema[] = [
   {
-    label: t('溯源日期'),
+    label: t('检定日期'),
     field: 'traceDate',
     component: 'DatePicker',
     required: true,
@@ -182,8 +183,8 @@ export const inputFormSchemas: FormSchema[] = [
   {
     label: t('附件'),
     field: 'list',
-    // slot: 'list',
-    colSlot: 'list',
+    slot: 'list',
+    // colSlot: 'list',
     component: 'Upload',
     // render: () => '<button />',
     // component: 'Upload',
