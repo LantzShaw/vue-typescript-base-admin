@@ -183,8 +183,8 @@ export const inputFormSchemas: FormSchema[] = [
   {
     label: t('附件'),
     field: 'list',
-    slot: 'list',
-    // colSlot: 'list',
+    // slot: 'list',
+    colSlot: 'list',
     component: 'Upload',
     // render: () => '<button />',
     // component: 'Upload',

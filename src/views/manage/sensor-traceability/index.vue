@@ -115,9 +115,8 @@
    * 返回事件触发列表页面
    */
   function goBack() {
-    go('/sensor/list');
-
     closeCurrent();
+    go('/sensor/list');
   }
 
   /**

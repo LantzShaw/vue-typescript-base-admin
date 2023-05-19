@@ -83,7 +83,7 @@
                   </thead>
                   <tbody>
                     <tr v-for="(sensor, index) in sensorTableData" :key="sensor.id">
-                      <td>{{ index }}</td>
+                      <td>{{ index + 1 }}</td>
                       <td>{{ sensor?.sensorName }}</td>
                       <td>{{ sensor.regionName }}</td>
                       <td>{{ sensor?.locationNo }}</td>

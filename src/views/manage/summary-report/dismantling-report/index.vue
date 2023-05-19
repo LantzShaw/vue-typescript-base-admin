@@ -29,7 +29,7 @@
   import { BasicTable, useTable } from '/@/components/Table';
 
   // 接口
-  import { sensorPage } from '/@/api/manage/sensor';
+  import { additionReportPage } from '/@/api/manage/summaryReport';
 
   // data
   import { searchForm, tableColumns } from './dismantlingReport.data';
@@ -49,7 +49,10 @@
    */
   const [registerTable, { getForm, getColumns, getDataSource }] = useTable({
     title: '',
-    api: sensorPage,
+    api: additionReportPage,
+    searchInfo: {
+      type: '2',
+    },
     columns: tableColumns,
     formConfig: searchForm,
     useSearchForm: true,

@@ -6,12 +6,12 @@ const { apiUrl } = useGlobSetting();
 enum Api {
   OverviewData = '/biz/device/gether',
   InstallationReportPage = '/biz/device/getgaslist',
-  AdditionReportPage = '',
+  AdditionReportPage = '/biz/device/get-gastype-list',
   DismantlingReportPage = '',
   EventReportPage = '/biz/device/getalarmlist',
   MaintenanceReport = '/biz/device/getmainlist',
-  TraceabilityListPage = '/biz/device/gettracealist',
-  TraceabilityReport = '/biz/device/gettraceaitem',
+  TraceabilityListPage = '/biz/device/get-overdue-list',
+  TraceabilityReport = '/biz/device/get-overdue-item',
 }
 
 export const overviewData = (params?: any) => defHttp.get({ url: Api.OverviewData, params });

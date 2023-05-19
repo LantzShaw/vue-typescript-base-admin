@@ -10,6 +10,7 @@ enum Api {
   SensorTraceUpdate = '/biz/sensor-trace/update',
   SensorTraceForm = '/biz/sensor-trace/form',
   SensorTraceImport = '/biz/sensor-trace/import-data',
+  SensorTraceAtt = '/biz/sensor-trace/att',
 }
 
 export const sensorTracePage = (params?: any) => defHttp.get({ url: Api.SensorTracePage, params });
@@ -22,6 +23,8 @@ export const sensorTraceAdd = (data?: any) => defHttp.post({ url: Api.SensorTrac
 export const sensorTraceUpdate = (data?: any) => defHttp.post({ url: Api.SensorTraceUpdate, data });
 
 export const sensorTraceForm = (params?: any) => defHttp.get({ url: Api.SensorTraceForm, params });
+
+export const sensorTraceAtt = (params?: any) => defHttp.get({ url: Api.SensorTraceAtt, params });
 
 export const sensorTraceImport = (params?: any) =>
   defHttp.uploadFile(

@@ -248,11 +248,14 @@
           return createMessage.warning(t('component.upload.saveWarn'));
         }
         const fileList: string[] = [];
+        const fileNameList: string[] = [];
 
         for (const item of fileListRef.value) {
           const { status, responseData } = item;
           if (status === UploadResultStatus.SUCCESS && responseData) {
             fileList.push(responseData.url);
+
+            fileNameList.push(responseData.originalName);
           }
         }
         // 存在一个上传成功的即可保存
@@ -261,7 +264,7 @@
         }
         fileListRef.value = [];
         closeModal();
-        emit('change', fileList);
+        emit('change', fileList, fileNameList);
       }
 
       // 点击关闭：则所有操作不保存，包括上传的

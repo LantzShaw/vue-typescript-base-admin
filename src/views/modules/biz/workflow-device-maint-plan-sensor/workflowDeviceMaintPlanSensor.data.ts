@@ -280,3 +280,19 @@ export const sensorSearchForm: FormProps = {
     },
   ],
 };
+
+/**
+ * 表格字段
+ */
+export const regionTableColumns: BasicColumn[] = [
+  {
+    title: t('区域名称'),
+    dataIndex: 'regionName',
+    align: 'center',
+  },
+  {
+    title: t('传感器数量'),
+    dataIndex: 'bizDeviceSensorNum',
+    align: 'center',
+  },
+];

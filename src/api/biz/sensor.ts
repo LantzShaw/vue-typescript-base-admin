@@ -8,16 +8,16 @@ enum Api {
   SensorDelete = '/biz/device-sensor/delete',
 
   SensorUpdate = '/biz/device-sensor/update',
-  SensorList = '/biz/device-sensor/list',
+  SensorList = '/biz/device-sensor/query',
   SensorForm = '/biz/device-sensor/form',
-  SensorExport = '/biz/device-sensor/export',
+  SensorExport = '/biz/device-sensor/export-data',
   SensorImport = '/biz/device-sensor/import-data',
   SensorHistoryData = '/biz/device-sensor/getfigure',
 }
 
 export const sensorPage = (params?: any) => defHttp.get({ url: Api.SensorPage, params });
 export const sensorDelete = (params?: any) => defHttp.get({ url: Api.SensorDelete, params });
-
+export const sensorList = (params?: any) => defHttp.get({ url: Api.SensorList, params });
 export const sensorUpdate = (data?: any) => defHttp.post({ url: Api.SensorUpdate, data });
 export const sensorForm = (params?: any) => defHttp.get({ url: Api.SensorForm, params });
 export const sensorHistoryData = (data?: any) => defHttp.post({ url: Api.SensorHistoryData, data });

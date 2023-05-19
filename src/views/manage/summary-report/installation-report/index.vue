@@ -1,7 +1,7 @@
 <template>
   <PageWrapper
     dense
-    title="报警器新增情况明细表"
+    title="报警器安装情况明细表"
     contentFullHeight
     :contentBackground="false"
     @back="goBack"
@@ -11,11 +11,7 @@
         <div>
           <span class="font-bold mr-4 prefix">操作时间: </span>
           <a-space>
-            <a-range-picker
-              format="YYYY-MM-DD"
-              valueFormat="YYYY-MM-DD HH:mm:ss"
-              v-model:value="params"
-            />
+            <a-range-picker format="YYYY-MM-DD" valueFormat="YYYY-MM-DD" v-model:value="params" />
             <a-button type="primary" @click="clickHandler">查询</a-button>
           </a-space>
         </div>
@@ -33,7 +29,7 @@
 
       <a-spin :spinning="isLoading">
         <div class="p-10">
-          <div class="h-10 leading-10 text-center text-lg font-bold">报警器新增情况明细表</div>
+          <div class="h-10 leading-10 text-center text-lg font-bold">报警器安装情况明细表</div>
           <table>
             <thead>
               <tr>
@@ -52,7 +48,7 @@
   </PageWrapper>
 </template>
 <script lang="ts" setup>
-  import { onMounted, ref, unref } from 'vue';
+  import { onMounted, ref } from 'vue';
   import { jsPDF } from 'jspdf';
   import autoTable from 'jspdf-autotable';
   import { Spin as ASpin, RangePicker as ARangePicker, Space as ASpace } from 'ant-design-vue';
@@ -246,7 +242,7 @@
         endDate: params.value?.[1],
       });
 
-      if (response.status === 200) {
+      if (response) {
         const { list = [], texts = [] } = response;
 
         const tailRow: Array<string | number> = ['列统计总数量(种)'];
@@ -255,51 +251,29 @@
 
         header.value = ['使用单位', ...texts, '行统计数量(种)'];
 
-        let total: number = 0;
-
         tableData.value = list.map((item, index) => {
           const formatValues: number[] = item.value.map(Number);
 
+          // 行统计数量
           const values: number[] = [...formatValues, sum(formatValues)];
-
-          total = 0;
-
-          // for (const i = 0; i < values.length; i++) {
-          //   total += item.value[i];
-          // }
-
-          console.log('------step total-------', total);
 
           tempArr.push(values);
 
           return [item.name, ...values];
         });
 
-        console.log('-----------tempArr------------', tempArr, list);
+        // 设置列统计数量
+        for (let i = 0; i < header.value.length - 1; i++) {
+          let total = 0;
 
-        // tempArr.forEach((item, index) => {
-        //   total = 0;
+          tempArr.forEach((item, index) => {
+            total += +item[i];
+          });
 
-        //   for (let i = 0; i < list.length; i++) {
-        //     total += item[i];
-        //   }
+          tailRow.push(total);
+        }
 
-        //   console.log('----total------------', total);
-
-        //   tailRow.push(total);
-        // });
-
-        // for (let i = 0; i < list.length; i++) {
-        //   total = 0
-
-        //   tempArr.forEach((item, index) => {
-        //     total += item[i];
-
-        //     tailRow.push(total);
-        //   })
-        // }
-
-        console.log('-------getList------', response, unref(tableData), tailRow);
+        tableData.value.push(tailRow);
       }
     } catch (e) {
       console.error(e);
@@ -320,11 +294,6 @@
   }
 
   onMounted(() => {
-    // params.value = [
-    //   (route?.query?.startDate as string) && '',
-    //   (route?.query?.endDate as string) && '',
-    // ];
-
     initDict();
     getList();
   });

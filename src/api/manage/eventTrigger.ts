@@ -10,7 +10,7 @@ enum Api {
   EventTriggerUpdate = '/biz/device-alarm/update',
   EventTriggerList = '/biz/device-alarm/list',
   EventTriggerForm = '/biz/device-alarm/form',
-  EventTriggerExport = '/biz/device-alarm/export',
+  EventTriggerExport = '/biz/workflow/alarm-deal-record/export-data',
   EventTriggerImport = '/biz/device-alarm/importexcel',
   EventTriggerSend = '/biz/device-alarm/send',
 }

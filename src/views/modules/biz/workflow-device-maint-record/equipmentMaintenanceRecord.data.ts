@@ -392,3 +392,30 @@ export const sensorSearchForm: FormProps = {
     },
   ],
 };
+
+/**
+ * 表格字段
+ */
+export const sensorResultTableColumns: BasicColumn[] = [
+  {
+    title: t('传感器名称'),
+    dataIndex: 'sensorName', // sensorName
+    sorter: true,
+    width: 130,
+    align: 'center',
+  },
+  {
+    title: t('所属区域'),
+    dataIndex: 'regionName',
+    sorter: true,
+    width: 130,
+    align: 'center',
+  },
+  {
+    title: t('位号'),
+    dataIndex: 'locationNo',
+    sorter: true,
+    width: 130,
+    align: 'center',
+  },
+];

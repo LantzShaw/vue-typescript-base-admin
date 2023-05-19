@@ -29,13 +29,13 @@ export const searchForm: FormProps = {
   schemas: [
     {
       label: t('操作时间'),
-      field: '[startDate, endDate]',
-      component: 'RangePicker',
+      field: 'startDate',
+      component: 'DatePicker',
       componentProps: {
         style: { width: '100%' },
-        valueFormat: 'YYYY-MM-DD HH:mm:ss',
+        valueFormat: 'YYYY-MM-DD',
         format: 'YYYY-MM-DD',
-        placeholder: ['开始时间', '结束时间'],
+        // placeholder: ['开始时间', '结束时间'],
         getPopupContainer: () => document.body,
       },
     },
@@ -48,7 +48,7 @@ export const searchForm: FormProps = {
 export const tableColumns: BasicColumn[] = [
   {
     title: t('单位名称'),
-    dataIndex: 'sensorNo',
+    dataIndex: 'organizationName',
     sorter: true,
     width: 100,
     align: 'center',
@@ -62,22 +62,21 @@ export const tableColumns: BasicColumn[] = [
   },
   {
     title: t('位号'),
-    dataIndex: 'sensorName',
+    dataIndex: 'locationNo',
     sorter: true,
     width: 130,
     align: 'center',
   },
   {
     title: t('所属区域'),
-    dataIndex: 'sensorName',
+    dataIndex: 'regionName',
     sorter: true,
     width: 130,
     align: 'center',
   },
   {
     title: t('超期天数'),
-    dataIndex: 'sensorName',
-    sorter: true,
+    dataIndex: 'maxDate',
     width: 130,
     align: 'center',
   },

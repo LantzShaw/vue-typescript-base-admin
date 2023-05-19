@@ -20,11 +20,7 @@
       />
       <a-row>
         <a-col :span="12">
-          <BasicTable
-            :clickToRowSelect="false"
-            @register="registerTable"
-            :selectedRowKeys="checkedKeys"
-          >
+          <BasicTable :clickToRowSelect="false" @register="registerTable">
             <template #bodyCell="{ column, record }">
               <template v-if="column.key === 'dtuipSensorTypeId'">
                 <dict-label :options="sensorTypeOptions" :value="record.dtuipSensorTypeId" />
@@ -132,6 +128,7 @@
   import { optionsListBatchApi } from '/@/api/sys/dict';
   import { t } from '/@/hooks/web/useI18n';
 
+  type Key = string | number;
   type Sensor = {
     id?: string;
     sensorName?: string;
@@ -140,7 +137,7 @@
   const emit = defineEmits(['success', 'register']);
 
   const { notification } = useMessage();
-  const checkedKeys = ref<Array<string | number>>([]);
+  const checkedKeys = ref<Key[]>([]);
   const deviceIds = ref<Array<string | number>>([]);
 
   const selectedTableData = ref<any[]>([]);
@@ -199,20 +196,33 @@
         },
       ],
     },
-    afterFetch: () => {
-      setSelectedRowKeys(checkedKeys.value as string[]);
-    },
+    // NOTE: 这里调用setSelectedRowKeys方法后 - table 不更新
+    // afterFetch: (v) => {
+    //   console.log('v', v);
+
+    //   console.log('dd');
+    //   setSelectedRowKeys(checkedKeys.value as string[]);
+    //   console.log('dd2');
+
+    //   // setTableData(v);
+    //   // reload();
+
+    //   return false;
+
+    //   // reload();
+    // },
+    // afterFetch: () => setSelectedRowKeys(checkedKeys.value as string[]),
     useSearchForm: true,
-    searchInfo: {
-      flag: undefined,
-    },
+    // searchInfo: {
+    //   flag: undefined,
+    // },
     canResize: false,
     showTableSetting: false,
     showIndexColumn: false,
     rowKey: 'id',
     rowSelection: {
       type: 'checkbox',
-      // selectedRowKeys: checkedKeys.value,
+      selectedRowKeys: checkedKeys,
       onSelect: onSelect,
       onSelectAll: onSelectAll,
     },
@@ -229,7 +239,7 @@
     setModalProps({ loading: true, confirmLoading: true });
 
     // NOTE: 重置查询字段
-    getForm().resetFields();
+    await getForm().resetFields();
 
     tableData.value = [];
     sensorOptions.value = [];
@@ -241,7 +251,7 @@
     // TODO:
     // clearSelectedRowKeys();
 
-    getEnterpriseList();
+    await getEnterpriseList();
 
     // 判断是否是更新
     isUpdate.value = !!data?.isUpdate;
@@ -279,10 +289,16 @@
     const changeIds = changeRows.map((item) => item.id);
     if (selected) {
       checkedKeys.value = [...checkedKeys.value, ...changeIds];
+
+      selectedTableData.value = [...selectedTableData.value, ...changeRows];
     } else {
       checkedKeys.value = checkedKeys.value.filter((id) => {
         return !changeIds.includes(id);
       });
+
+      selectedTableData.value = selectedTableData.value.filter(
+        (item) => !changeIds.includes(item.id),
+      );
     }
   }
 

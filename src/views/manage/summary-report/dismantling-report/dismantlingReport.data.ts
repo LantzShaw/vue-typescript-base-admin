@@ -33,7 +33,7 @@ export const searchForm: FormProps = {
       component: 'RangePicker',
       componentProps: {
         style: { width: '100%' },
-        valueFormat: 'YYYY-MM-DD HH:mm:ss',
+        valueFormat: 'YYYY-MM-DD',
         format: 'YYYY-MM-DD',
         placeholder: ['开始时间', '结束时间'],
         getPopupContainer: () => document.body,
@@ -48,7 +48,7 @@ export const searchForm: FormProps = {
 export const tableColumns: BasicColumn[] = [
   {
     title: t('单位名称'),
-    dataIndex: 'organizationId',
+    dataIndex: 'organizationName',
     sorter: true,
     width: 100,
     align: 'center',
@@ -69,7 +69,7 @@ export const tableColumns: BasicColumn[] = [
   },
   {
     title: t('所属区域'),
-    dataIndex: 'installRegion',
+    dataIndex: 'regionName',
     sorter: true,
     width: 160,
     align: 'center',

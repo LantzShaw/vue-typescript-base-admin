@@ -3,11 +3,7 @@
     <div class="h-16 leading-16 bg-light-100 rounded-8px pl-4">
       <span class="font-bold mr-4 prefix">操作时间: </span>
       <a-space>
-        <a-range-picker
-          format="YYYY-MM-DD"
-          valueFormat="YYYY-MM-DD HH:mm:ss"
-          v-model:value="params"
-        />
+        <a-range-picker format="YYYY-MM-DD" valueFormat="YYYY-MM-DD" v-model:value="params" />
         <a-button type="primary" @click="clickHandler">查询</a-button>
       </a-space>
     </div>
@@ -42,28 +38,24 @@
           >
             <span>可燃: </span>
             <DigitDisplay
-              :value="dataList.gasTypeCount"
+              :value="dataList.combustibleCount"
               unit="个"
               @on-click="navigateToReport(1)"
             />，
             <span>有毒: </span>
-            <DigitDisplay
-              :value="dataList.gasTypeCount"
-              unit="个"
-              @on-click="navigateToReport(1)"
-            />
+            <DigitDisplay :value="dataList.poisonous" unit="个" @on-click="navigateToReport(1)" />
           </a-descriptions-item>
           <a-descriptions-item
             label="新增数量"
             :label-style="{ fontWeight: 'bold', color: '#777' }"
           >
-            <DigitDisplay value="23" unit="个" @on-click="navigateToReport(2)" />
+            <DigitDisplay :value="dataList.insertCount" unit="个" @on-click="navigateToReport(2)" />
           </a-descriptions-item>
           <a-descriptions-item
             label="拆除数量"
             :label-style="{ fontWeight: 'bold', color: '#777' }"
           >
-            <DigitDisplay value="8" unit="个" @on-click="navigateToReport(3)" />
+            <DigitDisplay :value="dataList.deleteCount" unit="个" @on-click="navigateToReport(3)" />
           </a-descriptions-item>
           <a-descriptions-item
             label="事件触发数量"
@@ -92,7 +84,11 @@
               @on-click="navigateToReport(6)"
             />，
             <span>部分超期: </span>
-            <DigitDisplay :value="dataList.traceCount" unit="个" @on-click="navigateToReport(6)" />
+            <DigitDisplay
+              :value="dataList.overdueCount"
+              unit="个"
+              @on-click="navigateToReport(7)"
+            />
           </a-descriptions-item>
         </a-descriptions>
       </a-spin>
@@ -125,7 +121,12 @@
     sensorCount?: string; // 报警器总数量
     deviceCount?: string;
     recordCount?: string; // 事件触发数量
-    traceCount?: string; // 周期溯源情况
+    deleteCount?: string; // 拆除数量
+    insertCount?: string; // 新增数量
+    combustibleCount?: string; // 可燃气体数量
+    poisonous?: string; // 有毒气体数量
+    overdueCount?: string; // 部分超期
+    traceCount?: string; // 全部在有效期
   };
 
   const go = useGo();
@@ -164,6 +165,11 @@
         deviceCount = '0',
         recordCount = '0',
         traceCount = '0',
+        deleteCount = '0',
+        insertCount = '0',
+        type_0 = '0',
+        type_1 = '0',
+        overdueCount = '0',
       } = response;
 
       dataList.gasTypeCount = gasTypeCount;
@@ -172,6 +178,13 @@
       dataList.sensorCount = sensorCount;
       dataList.recordCount = recordCount;
       dataList.traceCount = traceCount;
+      dataList.overdueCount = overdueCount;
+
+      dataList.deleteCount = deleteCount;
+      dataList.insertCount = insertCount;
+
+      dataList.combustibleCount = type_0;
+      dataList.poisonous = type_1;
     } catch (error) {
       console.error(error);
     }
@@ -185,27 +198,30 @@
   function navigateToReport(type: number) {
     const queryString =
       params.value && params.value?.length > 0
-        ? `?startDate=${params.value?.[0]}&endDate=${params.value?.[1]}`
+        ? `startDate=${params.value?.[0]}&endDate=${params.value?.[1]}`
         : '';
 
     switch (type) {
       case 1:
-        go(`/summary/installation/report${queryString}`);
+        go(`/summary/installation/report?${queryString}`);
         break;
       case 2:
-        go(`/summary/addition/report${queryString}`);
+        go(`/summary/addition/report?${queryString}`);
         break;
       case 3:
-        go(`/summary/dismantling/report${queryString}`);
+        go(`/summary/dismantling/report?${queryString}`);
         break;
       case 4:
-        go(`/summary/event/report${queryString}`);
+        go(`/summary/event/report?${queryString}`);
         break;
       case 5:
-        go(`/summary/maintenance/report${queryString}`);
+        go(`/summary/maintenance/report?${queryString}`);
         break;
       case 6:
-        go(`/summary/traceability/list${queryString}`);
+        go(`/summary/traceability/list?${queryString}&fig=1`);
+        break;
+      case 7:
+        go(`/summary/traceability/list?${queryString}&fig=2`);
         break;
     }
   }

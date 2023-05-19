@@ -7,6 +7,7 @@ import { BasicColumn } from '/@/components/Table/src/types/table';
 
 // 接口
 import { enterpriseSelect } from '/@/api/biz/enterprise';
+import { optionsListApi } from '/@/api/sys/dict';
 
 export const isUpdate = ref(true);
 export const idRef = ref('');
@@ -23,6 +24,10 @@ export const scopeOptions = ref<any[]>([]);
 export const deviceOptions = ref<any[]>([]);
 export const enterpriseOptions = ref<any[]>([]);
 export const regionOptions = ref<any[]>([]);
+
+export const appearanceControllerStatusOptions = ref<any[]>([]);
+export const acoustoOpticAlarmStatusOptions = ref<any[]>([]);
+export const registrationErrorStatusOptions = ref<any[]>([]);
 
 const { t } = useI18n();
 
@@ -126,42 +131,84 @@ export const tableColumns: BasicColumn[] = [
   },
   {
     title: t('外观/通电及控制器'),
-    dataIndex: 'measuringRange',
-    width: 100,
+    dataIndex: 'result1',
+    width: 160,
     align: 'center',
+    edit: true,
+    // editRow: true,
+    // editable: true,
+    editComponent: 'Select',
+    editComponentProps: {
+      options: appearanceControllerStatusOptions,
+      // api: optionsListApi,
+      // params: {
+      //   dictCode: 'appearance_controller_status',
+      // },
+    },
   },
   {
     title: t('标准值'),
-    dataIndex: 'measuringRange',
-    width: 100,
+    dataIndex: 'result2',
+    width: 200,
     align: 'center',
+    edit: true,
+    editComponent: 'Input',
+    // editRow: true,
+    editable: true,
   },
   {
     title: t('检查结果'),
-    dataIndex: 'measuringRange',
+    dataIndex: 'result',
     width: 100,
     align: 'center',
     children: [
       {
         title: t('示值误差'),
-        dataIndex: 'measuringRange',
-        width: 100,
+        dataIndex: 'result3',
+        width: 130,
         align: 'center',
+        edit: true,
+        // editRow: true,
+        // editable: true,
+        editComponent: 'Select',
+        editComponentProps: {
+          options: registrationErrorStatusOptions,
+          // api: optionsListApi,
+          // params: {
+          //   dictCode: 'appearance_controller_status',
+          // },
+        },
       },
       {
         title: t('声光报警'),
-        dataIndex: 'measuringRange',
-        width: 100,
+        dataIndex: 'result4',
+        width: 130,
         align: 'center',
+        edit: true,
+        // editRow: true,
+        // editable: true,
+        editComponent: 'Select',
+        editComponentProps: {
+          options: acoustoOpticAlarmStatusOptions,
+          // api: optionsListApi,
+          // params: {
+          //   dictCode: 'acousto_optic_alarm_status',
+          // },
+        },
       },
     ],
   },
-
   {
     title: t('建议'),
-    dataIndex: 'measuringRange',
-    width: 100,
+    dataIndex: 'suggestion',
+    width: 200,
     align: 'center',
+    edit: true,
+    // editRow: true,
+    editable: true,
+    editComponentProps: {
+      defaultValue: '请填写建议',
+    },
   },
 ];
 

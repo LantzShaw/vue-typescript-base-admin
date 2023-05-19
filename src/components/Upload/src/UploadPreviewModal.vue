@@ -32,21 +32,25 @@
       const { t } = useI18n();
 
       const fileListRef = ref<PreviewFileItem[]>([]);
+
       watch(
         () => props.value,
         (value) => {
+          console.log('value', value);
+
           if (!isArray(value)) value = [];
           fileListRef.value = value
             .filter((item) => !!item)
-            .map((item) => {
+            .map((item, index) => {
               return {
                 url: item,
                 type: item.split('.').pop() || '',
-                name: item.split('/').pop() || '',
+                // name: item.split('/').pop() || '',
+                name: props.fileNames[index] || '',
               };
             });
         },
-        { immediate: true },
+        { immediate: true, deep: true },
       );
 
       // 删除

@@ -25,7 +25,15 @@
           preIcon="ant-design:plus-outlined"
           @click="handleCreate"
         >
-          新增
+          按传感器新增
+        </a-button>
+        <a-button
+          v-auth="'manage:association-device:add'"
+          type="primary"
+          preIcon="ant-design:plus-outlined"
+          @click="handleCreateRegion"
+        >
+          按区域新增
         </a-button>
         <a-button
           v-if="getSelectRowKeys().length > 0"
@@ -51,10 +59,14 @@
       </template>
     </BasicTable>
     <WorkflowDeviceMaintPlanSensorModal @register="registerModal" @success="handleSuccess" />
+    <WorkflowDeviceMaintPlanSensorRegionModal
+      @register="registerWorkflowDeviceMaintPlanSensorRegionModal"
+      @success="handleSuccess"
+    />
   </PageWrapper>
 </template>
 <script lang="ts" setup>
-  import { onMounted, unref, ref, h } from 'vue';
+  import { defineComponent, onMounted, unref, ref, h } from 'vue';
   import { useRouter, useRoute } from 'vue-router';
   // hooks
   import { useGo } from '/@/hooks/web/usePage';
@@ -69,6 +81,7 @@
   import { useModal } from '/@/components/Modal';
   import WorkflowDeviceMaintPlanSensorModal from './WorkflowDeviceMaintPlanSensorModal.vue';
 
+  import WorkflowDeviceMaintPlanSensorRegionModal from './WorkflowDeviceMaintPlanSensorRegionModal.vue';
   // 接口
 
   import { workflowDeviceMaintPlanForm } from '/@/api/biz/workflowDeviceMaintPlan';
@@ -108,7 +121,14 @@
    */
   // 编辑
   const [registerModal, { openModal }] = useModal();
-
+  /**
+   * 构建registerModal
+   */
+  // 编辑
+  const [
+    registerWorkflowDeviceMaintPlanSensorRegionModal,
+    { openModal: openWorkflowDeviceMaintPlanSensorRegionModal },
+  ] = useModal();
   /**
    * 构建registerTable
    */
@@ -143,6 +163,16 @@
   }
 
   /**
+   * 新增
+   */
+  function handleCreateRegion() {
+    openWorkflowDeviceMaintPlanSensorRegionModal(true, {
+      isUpdate: false,
+      planId: planId.value,
+      organizationId: organizationId.value,
+    });
+  }
+  /**
    * 删除
    */
   async function handleBatchDelete() {
@@ -171,8 +201,8 @@
   function goBack() {
     const path = unref(currentRoute).path;
     var paths = path.split('/sensor/');
-    go(paths[0]);
     closeCurrent();
+    go(paths[0]);
   }
 
   /**
@@ -202,5 +232,11 @@
 
   onMounted(() => {
     initDict();
+  });
+</script>
+<script lang="ts">
+  export default defineComponent({
+    // 需要和路由的name一致
+    name: 'WorkflowDeviceMaintPlanSensorPage',
   });
 </script>

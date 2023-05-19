@@ -77,7 +77,7 @@
   </PageWrapper>
 </template>
 <script lang="ts" setup>
-  import { onMounted, ref, unref } from 'vue';
+  import { defineComponent, onMounted, ref, unref } from 'vue';
   import { useRouter } from 'vue-router';
   // hooks
   import { useGo } from '/@/hooks/web/usePage';
@@ -212,5 +212,10 @@
     initDict();
   });
 </script>
-
+<script lang="ts">
+  export default defineComponent({
+    // 需要和路由的name一致
+    name: 'WorkflowDeviceMaintPlanPage',
+  });
+</script>
 <style lang="less" scoped></style>

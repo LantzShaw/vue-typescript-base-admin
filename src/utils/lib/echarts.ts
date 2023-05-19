@@ -1,4 +1,5 @@
 import * as echarts from 'echarts/core';
+import 'echarts-liquidfill';
 
 import {
   BarChart,

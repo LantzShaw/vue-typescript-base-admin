@@ -50,9 +50,37 @@
               >台<span>{{ maintenanceInformation.sensorNames ?? '--' }}</span
               >进行技术服务工作，工作成果汇总如下：
             </span>
-            <div class="tracking-4px pl-8"><span>2</span>台外观\通电及控制器异常；</div>
-            <div class="tracking-4px pl-8"><span>3</span>台示值误差异常； </div>
-            <div class="tracking-4px pl-8"><span>3</span>台声光报警异常； </div>
+            <div
+              v-if="maintenanceInformation?.appearanceControllerAmount !== 0"
+              class="tracking-4px pl-8"
+              ><span>{{ maintenanceInformation.appearanceControllerAmount }}</span
+              >台外观\通电及控制器异常；（位号:
+              {{ maintenanceInformation?.appearanceControllerLocationNos }}）
+            </div>
+            <div v-else class="tracking-4px pl-8">
+              <span>未发现外观\通电及控制器异常；</span>
+            </div>
+
+            <div
+              v-if="maintenanceInformation?.registrationErrorAmount !== 0"
+              class="tracking-4px pl-8"
+              ><span>{{ maintenanceInformation.registrationErrorAmount }}</span
+              >台示值误差异常；（位号: {{ maintenanceInformation?.registrationErrorLocationNos }}）
+            </div>
+            <div v-else class="tracking-4px pl-8">
+              <span>未发现示值误差异常；</span>
+            </div>
+
+            <div
+              v-if="maintenanceInformation?.acoustoOpticAlarmAmount !== 0"
+              class="tracking-4px pl-8"
+              ><span>{{ maintenanceInformation.acoustoOpticAlarmAmount }}</span
+              >台声光报警异常；（位号: {{ maintenanceInformation?.acoustoOpticAlarmLocationNos }}）
+            </div>
+            <div v-else class="tracking-4px pl-8">
+              <span>未发现声光报警异常；</span>
+            </div>
+
             <div class="h-12 leading-12 tracking-4px">
               <span>&nbsp;&nbsp;&nbsp;&nbsp;详情见附表清单。</span>
             </div>
@@ -64,13 +92,19 @@
               <div class="flex" style="justify-content: space-between">
                 <div>
                   <div> 乙方：浙江力基计量技术有限公司 </div>
-                  <div>授权代表（签名）：</div>
-                  <div>签章日期：</div>
+                  <div
+                    ><span>实施人员（签名）：</span
+                    ><span>{{ maintenanceInformation.implementationUser }}</span></div
+                  >
+                  <div>日期：{{ formatToDate(new Date(), 'YYYY年MM月DD日') }}</div>
                 </div>
                 <div>
                   <div> 甲方：{{ maintenanceInformation.apReceiveName ?? '--' }} </div>
-                  <div>授权代表（签名）：</div>
-                  <div>签章日期：</div>
+                  <div
+                    ><span>陪同人员（签名）：</span
+                    ><span>{{ maintenanceInformation.accompanyUser }}</span></div
+                  >
+                  <div>日期：{{ formatToDate(new Date(), 'YYYY年MM月DD日') }}</div>
                 </div>
               </div>
             </div>
@@ -109,6 +143,12 @@
     stepThreeRemark?: string; //
     totalAmount?: string; // 传感器维护总数量
     sensorNames?: string; // 传感器
+    appearanceControllerAmount?: number; // 外观\通电及控制器异常数量
+    appearanceControllerLocationNos?: string; // 外观\通电及控制器异常位号
+    registrationErrorAmount?: number; // 示值误差异常数量
+    registrationErrorLocationNos?: string; // 示值误差异常位号
+    acoustoOpticAlarmAmount?: number; // 声光报警异常数量
+    acoustoOpticAlarmLocationNos?: string; // 声光报警异常位号
   };
 
   const route = useRoute();
@@ -167,12 +207,41 @@
 
     maintenanceInformation.totalAmount = data?.records?.length;
 
-    const updatedSensorNames =
-      data?.records.map((item) => {
-        return item.sensorName;
-      }) ?? [];
+    if (data?.records?.length > 0) {
+      const updatedSensorNames =
+        data?.records.map((item) => {
+          return item.sensorName;
+        }) ?? [];
 
-    maintenanceInformation.sensorNames = [...new Set(updatedSensorNames)].join('、');
+      maintenanceInformation.sensorNames = [...new Set(updatedSensorNames)].join('、');
+
+      const appearanceControllerAmountArray = data?.records.filter((item) => {
+        return item.result1 === '0';
+      });
+
+      maintenanceInformation.appearanceControllerLocationNos = appearanceControllerAmountArray
+        .map((item) => item.locationNo)
+        .join('、');
+      maintenanceInformation.appearanceControllerAmount = appearanceControllerAmountArray.length;
+
+      const registrationErrorArray = data?.records.filter((item) => {
+        return item.result3 === '0';
+      });
+
+      maintenanceInformation.registrationErrorLocationNos = registrationErrorArray
+        .map((item) => item.locationNo)
+        .join('、');
+      maintenanceInformation.registrationErrorAmount = registrationErrorArray.length;
+
+      const acoustoOpticAlarmArray = data?.records.filter((item) => {
+        return item.result4 === '0';
+      });
+
+      maintenanceInformation.acoustoOpticAlarmLocationNos = acoustoOpticAlarmArray
+        .map((item) => item.locationNo)
+        .join('、');
+      maintenanceInformation.acoustoOpticAlarmAmount = acoustoOpticAlarmArray.length;
+    }
 
     isLoading.value = false;
   }

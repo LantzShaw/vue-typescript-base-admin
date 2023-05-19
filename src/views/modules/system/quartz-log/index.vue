@@ -113,8 +113,8 @@
   function goBack() {
     const path = unref(currentRoute).path;
     var paths = path.split('/item/');
-    go(paths[0]);
     closeCurrent();
+    go(paths[0]);
   }
 
   /**

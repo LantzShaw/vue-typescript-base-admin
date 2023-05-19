@@ -144,9 +144,9 @@ export const inputFormSchemas: FormSchema[] = [
     required: true,
     componentProps: {
       style: { width: '100%' },
-      valueFormat: 'YYYY-MM-DD',
-      // showTime: true,
-      format: 'YYYY-MM-DD',
+      // valueFormat: 'YYYY-MM-DD',
+      // // showTime: true,
+      // format: 'YYYY-MM-DD',
     },
   },
   {

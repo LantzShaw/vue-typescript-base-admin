@@ -128,12 +128,6 @@ export const tableColumns: BasicColumn[] = [
     align: 'center',
     sorter: true,
   },
-  {
-    title: t('是否删除'),
-    dataIndex: 'dtuipIsDelete',
-    width: 90,
-    align: 'center',
-  },
 ];
 
 /**

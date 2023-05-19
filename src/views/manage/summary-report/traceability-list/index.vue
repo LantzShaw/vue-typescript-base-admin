@@ -20,9 +20,9 @@
       </template>
       <!-- 表格内容 -->
       <template #bodyCell="{ column, record }">
-        <template v-if="column.key === 'organizationName'">
-          <a @click="navigateToTraceabilityReport(record)" :title="record.organizationName">
-            {{ record.organizationName }}
+        <template v-if="column.key === 'maxDate'">
+          <a @click="navigateToTraceabilityReport(record)" :title="record.maxDate">
+            {{ record.maxDate }}
           </a>
         </template>
       </template>
@@ -61,6 +61,9 @@
     api: traceabilityListPage,
     columns: tableColumns,
     formConfig: searchForm,
+    searchInfo: {
+      fig: route?.query?.fig,
+    },
     useSearchForm: true,
     canResize: false,
     showTableSetting: true,
@@ -119,7 +122,8 @@
     // NOTE: 根据路由参数 - 设置默认查询时间区间
     getForm().setFieldsValue({
       startDate: route?.query?.startDate,
-      endDate: route?.query?.endDate,
+
+      // endDate: route?.query?.endDate,
     });
   });
 </script>

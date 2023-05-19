@@ -75,7 +75,7 @@
                 label: '工作单',
                 onClick: handleOpenReportModal.bind(null, record),
                 auth: 'manage:maintenance-record:process',
-                // ifShow: record.eventStatus === '1',
+                ifShow: record.eventStatus !== '0',
               },
               // 维护方、使用方流程确认
               {
@@ -84,6 +84,7 @@
                 auth: 'manage:maintenance-record:process',
                 ifShow: record.eventStatus === '1',
               },
+
               {
                 label: '工单报告',
                 onClick: navigateToEquipmentMaintenanceReport.bind(null, record),
@@ -91,19 +92,32 @@
                 ifShow: record.eventStatus === '2',
               },
               {
-                label: record?.isNotice === '1' ? '已通知监管方' : '通知监管方',
+                label: '查看设备',
+                onClick: handleView.bind(null, record),
+                auth: 'manage:maintenance-record:view',
+                ifShow: true,
+              },
+            ]"
+            :dropDownActions="[
+              {
+                label: '通知监管方',
                 auth: 'manage:maintenance-record:notify',
-                disabled: record.eventStatus === '0' || record?.isNotice === '1',
                 popConfirm: {
                   title: '是否通知监管方',
                   confirm: handleNotify.bind(null, record),
                 },
               },
               {
-                label: '查看设备',
-                onClick: handleView.bind(null, record),
-                auth: 'manage:maintenance-record:view',
-                ifShow: true,
+                label: '设置停用',
+                onClick: handleOpenDisabledModal.bind(null, record),
+                auth: 'manage:maintenance-record:generate-maintainer',
+                ifShow: record.eventStatus === '1',
+              },
+              {
+                label: '设置待处置',
+                onClick: handleOpenPendingModal.bind(null, record),
+                auth: 'manage:maintenance-record:generate-maintainer',
+                ifShow: record.eventStatus === '1',
               },
               {
                 label: '删除',
@@ -131,11 +145,27 @@
       @register="registerEquipmentMaintenanceRecordViewModal"
       @success="handleSuccess"
     />
+    <EquipmentMaintenanceRecordReceiveModal
+      @register="registerEquipmentMaintenanceRecordReceiveModal"
+      @success="handleSuccess"
+    />
     <ReportModal @register="registerReportModal" @success="handleSuccess" />
+
+    <EquipmentMaintenanceRecordDisabledModal
+      :id="recordId"
+      @register="registerEquipmentMaintenanceRecordDisabledModal"
+      @success="handleSuccess"
+    />
+
+    <EquipmentMaintenanceRecordPendingModal
+      :id="recordId"
+      @register="registerEquipmentMaintenanceRecordPendingModal"
+      @success="handleSuccess"
+    />
   </PageWrapper>
 </template>
 <script lang="ts" setup>
-  import { onMounted, unref } from 'vue';
+  import { defineComponent, onMounted, unref, ref } from 'vue';
   import { useRouter } from 'vue-router';
 
   // hooks
@@ -151,7 +181,10 @@
   import { jsonToSheetXlsx } from '/@/components/Excel';
   import EquipmentMaintenanceRecordConfirmModal from './EquipmentMaintenanceRecordConfirmModal.vue';
   import EquipmentMaintenanceRecordViewModal from './EquipmentMaintenanceRecordViewModal.vue';
+  import EquipmentMaintenanceRecordReceiveModal from './EquipmentMaintenanceRecordReceiveModal.vue';
   import ReportModal from './ReportModal.vue';
+  import EquipmentMaintenanceRecordDisabledModal from './EquipmentMaintenanceRecordDisabledModal.vue';
+  import EquipmentMaintenanceRecordPendingModal from './EquipmentMaintenanceRecordPendingModal.vue';
 
   // 接口
   import {
@@ -179,12 +212,20 @@
   const { currentRoute } = useRouter();
   const { notification } = useMessage();
 
+  const recordId = ref<string>('');
+
   /**
    * 构建registerModal
    */
   // 编辑
   const [registerEquipmentMaintenanceRecordModal, { openModal: openEquipmentMaintenanceModal }] =
     useModal();
+
+  // 接收确认
+  const [
+    registerEquipmentMaintenanceRecordReceiveModal,
+    { openModal: openEquipmentMaintenanceRecordReceiveModal },
+  ] = useModal();
 
   // 流程确认
   const [
@@ -200,6 +241,18 @@
 
   // 生成工作单
   const [registerReportModal, { openModal: openReportModal }] = useModal();
+
+  // 停用
+  const [
+    registerEquipmentMaintenanceRecordDisabledModal,
+    { openModal: openEquipmentMaintenanceRecordDisabledModal },
+  ] = useModal();
+
+  // 待处置
+  const [
+    registerEquipmentMaintenanceRecordPendingModal,
+    { openModal: openEquipmentMaintenanceRecordPendingModal },
+  ] = useModal();
 
   /**
    * 构建registerTable
@@ -281,6 +334,8 @@
   async function handleNotify(record: Recordable) {
     await equipmentMaintenanceRecordSend({ id: record.id });
 
+    notification.success({ message: `执行成功` });
+
     await reload();
   }
 
@@ -292,9 +347,14 @@
   async function handleFirstPartyConfirm(record: Recordable) {
     console.log('------------甲方接收确认-------------', record);
 
-    await equipmentMaintenanceRecordApReceive({ id: record.id });
+    openEquipmentMaintenanceRecordReceiveModal(true, {
+      record,
+      type: '0',
+    });
 
-    reload();
+    // await equipmentMaintenanceRecordApReceive({ id: record.id });
+
+    // reload();
   }
 
   /**
@@ -305,9 +365,14 @@
   async function handleSecondPartyConfirm(record: Recordable) {
     console.log('------------乙方接收确认------------', record);
 
-    await equipmentMaintenanceRecordBpReceive({ id: record.id });
+    openEquipmentMaintenanceRecordReceiveModal(true, {
+      record,
+      type: '1',
+    });
 
-    reload();
+    // await equipmentMaintenanceRecordBpReceive({ id: record.id });
+
+    // reload();
   }
 
   /**
@@ -335,13 +400,40 @@
   }
 
   /**
+   * 停用
+   *
+   * @param record
+   */
+  function handleOpenDisabledModal(record: Recordable) {
+    recordId.value = record.id;
+
+    openEquipmentMaintenanceRecordDisabledModal(true, {
+      record,
+      isUpdate: true,
+    });
+  }
+
+  /**
+   * 待处置
+   *
+   * @param record
+   */
+  function handleOpenPendingModal(record: Recordable) {
+    recordId.value = record.id;
+
+    openEquipmentMaintenanceRecordPendingModal(true, {
+      record,
+      isUpdate: true,
+    });
+  }
+
+  /**
    * 跳转至工单报告
    */
   function navigateToEquipmentMaintenanceReport(record: Recordable) {
     const path = unref(currentRoute).path;
 
-    console.log('record ', record);
-    go(`${path}/report/${record.id}?enterpriseName=${record.bizEnterprise?.enterpriseName}`);
+    go(`${path}/report/${record.id}`);
   }
 
   /**
@@ -389,6 +481,12 @@
 
   onMounted(() => {
     initDict();
+  });
+</script>
+<script lang="ts">
+  export default defineComponent({
+    // 需要和路由的name一致
+    name: 'WorkflowDeviceMaintRecordPage',
   });
 </script>
 

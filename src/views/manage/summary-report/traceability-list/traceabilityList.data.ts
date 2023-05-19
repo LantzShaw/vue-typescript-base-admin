@@ -30,19 +30,19 @@ const { t } = useI18n();
  *  查询表单字段
  */
 export const searchForm: FormProps = {
-  baseColProps: { lg: 10, md: 8 },
+  baseColProps: { lg: 8, md: 8 },
   labelWidth: 90,
   colon: true,
   schemas: [
     {
       label: t('操作时间'),
-      field: '[startDate, endDate]',
-      component: 'RangePicker',
+      field: 'startDate',
+      component: 'DatePicker',
       componentProps: {
         style: { width: '100%' },
-        valueFormat: 'YYYY-MM-DD HH:mm:ss',
+        valueFormat: 'YYYY-MM-DD',
         format: 'YYYY-MM-DD',
-        placeholder: ['开始时间', '结束时间'],
+        // placeholder: ['开始时间', '结束时间'],
         getPopupContainer: () => document.body,
       },
     },
@@ -61,16 +61,15 @@ export const tableColumns: BasicColumn[] = [
     align: 'center',
   },
   {
-    title: t('超期数量'),
-    dataIndex: 'sensorName',
+    title: t('超期数量(个)'),
+    dataIndex: 'count',
     sorter: true,
     width: 130,
     align: 'center',
   },
   {
-    title: t('最长超期天数'),
+    title: t('最长超期天数(天)'),
     dataIndex: 'maxDate',
-    sorter: true,
     width: 130,
     align: 'center',
   },

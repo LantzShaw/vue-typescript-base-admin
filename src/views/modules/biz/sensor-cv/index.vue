@@ -147,8 +147,8 @@
   function goBack() {
     const path = unref(currentRoute).path;
     var paths = path.split('/sensor/');
-    go(paths[0]);
     closeCurrent();
+    go(paths[0]);
   }
 
   /**

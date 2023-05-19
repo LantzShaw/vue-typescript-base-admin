@@ -87,7 +87,7 @@
   import { BasicTable, BasicColumn, useTable } from '/@/components/Table';
   import { DictLabel } from '/@/components/DictLabel/index';
 
-  import { sensorForm, sensorPage } from '/@/api/biz/sensor';
+  import { sensorForm, sensorList } from '/@/api/biz/sensor';
   import { optionsListBatchApi } from '/@/api/sys/dict';
 
   type SensorInformation = {
@@ -143,16 +143,17 @@
    */
   const [registerTable] = useTable({
     title: '',
-    api: sensorPage,
+    api: sensorList,
     columns: tableColumns,
     searchInfo: {
       regionId: region.value,
     },
     canResize: true,
+    pagination: false,
     showTableSetting: false,
     showIndexColumn: true,
     rowKey: 'id',
-    maxHeight: 160,
+    maxHeight: 260,
   });
 
   function onSelect(record, selected) {
@@ -179,7 +180,7 @@
       checkedKeys.value = [...checkedKeys.value, ...changeIds];
     } else {
       checkedKeys.value = checkedKeys.value.filter((id) => {
-        return !changeIds.includes(id);
+        return !changeIds.includes(id) || id === sensorId.value;
       });
     }
   }

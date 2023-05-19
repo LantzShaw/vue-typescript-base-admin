@@ -91,10 +91,25 @@
 
     &-title {
       font-size: 18px;
+      height: 30px;
       color: #fff;
-      font-weight: bold;
-    }
+      font-family: Georgia, 'Times New Roman', Times, serif;
+      vertical-align: middle;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 30px;
 
+      &::before {
+        content: '';
+        width: 16px;
+        height: 21px;
+        display: inline-block;
+        vertical-align: middle;
+        margin-right: 10px;
+        // background-color: #f40;
+        background: url('/@/assets/images/dataview/icon_arrow.png') top left no-repeat;
+      }
+    }
     .display-box {
       display: flex;
       justify-content: space-between;

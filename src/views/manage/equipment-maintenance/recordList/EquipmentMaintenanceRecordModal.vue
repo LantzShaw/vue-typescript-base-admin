@@ -142,69 +142,73 @@
   /**
    * 构建registerTable
    */
-  const [registerTable, { getForm, clearSelectedRowKeys, setSelectedRowKeys }] = useTable({
-    title: '',
-    api: sensorPage,
-    // fetchSetting: {
-    //   sizeField: '100000',
-    // },
-    // parmas: {
-    //   flag: '0',
-    // },
-    pagination: true,
-    columns: sensorTableColumns,
-    // formConfig: sensorSearchForm,
-    formConfig: {
-      baseColProps: { lg: 12, md: 8 },
-      labelWidth: 80,
-      schemas: [
-        {
-          label: t('所属单位'),
-          field: 'organizationId',
-          component: 'Select',
-          defaultValue: '请选择所属单位',
-          componentProps: {
-            allowClear: false,
-            placeholder: '请选择所属单位',
-            options: enterpriseOptions,
-            onChange: (e) => {
-              formState.organizationId = e;
+  const [registerTable, { getForm, setTableData, clearSelectedRowKeys, setSelectedRowKeys }] =
+    useTable({
+      title: '',
+      api: sensorPage,
+      // fetchSetting: {
+      //   sizeField: '100000',
+      // },
+      // parmas: {
+      //   flag: '0',
+      // },
+      pagination: true,
+      columns: sensorTableColumns,
+      // formConfig: sensorSearchForm,
+      formConfig: {
+        baseColProps: { lg: 12, md: 8 },
+        labelWidth: 80,
+        schemas: [
+          {
+            label: t('所属单位'),
+            field: 'organizationId',
+            component: 'Select',
+            defaultValue: '请选择所属单位',
+            componentProps: {
+              allowClear: false,
+              placeholder: '请选择所属单位',
+              options: enterpriseOptions,
+              onChange: (e) => {
+                formState.organizationId = e;
 
-              getRegionList();
+                getRegionList();
+              },
             },
           },
-        },
-        {
-          label: t('所属区域'),
-          field: 'regionId',
-          component: 'Select',
-          // defaultValue: formState.regionId,
-          // colSlot: 'regionId',
-          componentProps: {
-            placeholder: '请选择所属区域',
-            options: regionOptions,
+          {
+            label: t('所属区域'),
+            field: 'regionId',
+            component: 'Select',
+            // defaultValue: formState.regionId,
+            // colSlot: 'regionId',
+            componentProps: {
+              placeholder: '请选择所属区域',
+              options: regionOptions,
+            },
           },
-        },
-      ],
-    },
-    afterFetch: () => {
-      setSelectedRowKeys(checkedKeys.value as string[]);
-    },
-    useSearchForm: true,
-    searchInfo: {
-      flag: undefined,
-    },
-    canResize: false,
-    showTableSetting: false,
-    showIndexColumn: false,
-    rowKey: 'id',
-    rowSelection: {
-      type: 'checkbox',
-      // selectedRowKeys: checkedKeys.value,
-      onSelect: onSelect,
-      onSelectAll: onSelectAll,
-    },
-  });
+        ],
+      },
+      afterFetch: (v) => {
+        setTableData(v);
+        setSelectedRowKeys(checkedKeys.value as string[]);
+
+        // return v;
+      },
+      useSearchForm: true,
+      searchInfo: {
+        flag: undefined,
+      },
+      canResize: false,
+      showTableSetting: false,
+      showIndexColumn: false,
+      rowKey: 'id',
+      rowSelection: {
+        type: 'checkbox',
+        // selectedRowKeys: checkedKeys.value,
+        onSelect: onSelect,
+        onSelectAll: onSelectAll,
+      },
+    });
 
   const sensorOptions = ref<Sensor[]>([]);
 

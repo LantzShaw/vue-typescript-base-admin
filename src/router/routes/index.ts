@@ -63,6 +63,14 @@ export const DataViewRoute: AppRouteRecordRaw = {
         title: t('驾驶舱'),
       },
     },
+    {
+      path: '/dataview/detail',
+      name: 'DataViewDetail',
+      component: () => import('/@/views/dataview/detail/index.vue'),
+      meta: {
+        title: t('驾驶舱'),
+      },
+    },
   ],
 };
 

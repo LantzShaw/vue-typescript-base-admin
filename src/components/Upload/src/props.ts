@@ -53,6 +53,10 @@ export const uploadContainerProps = {
     type: Array as PropType<string[]>,
     default: () => [],
   },
+  fileNames: {
+    type: Array as PropType<string[]>,
+    default: () => [],
+  },
   ...basicProps,
   showPreviewNumber: {
     type: Boolean as PropType<boolean>,
@@ -66,6 +70,10 @@ export const uploadContainerProps = {
 
 export const previewProps = {
   value: {
+    type: Array as PropType<string[]>,
+    default: () => [],
+  },
+  fileNames: {
     type: Array as PropType<string[]>,
     default: () => [],
   },

@@ -140,6 +140,7 @@
               {
                 label: '触发记录',
                 onClick: handleViewDeviceAlarm.bind(null, record),
+                auth: 'manage:event:alarm',
               },
               {
                 label: '删除',
@@ -185,7 +186,7 @@
   </PageWrapper>
 </template>
 <script lang="ts" setup>
-  import { onMounted, unref, ref } from 'vue';
+  import { defineComponent, onMounted, unref, ref } from 'vue';
   import { useRouter } from 'vue-router';
   // hooks
   import { useGo } from '/@/hooks/web/usePage';
@@ -341,14 +342,14 @@
    * @param record
    */
   function navigateToAnalysis(record: Recordable) {
-    console.log('record', record);
-
-    const regionId = record.bizDeviceSensor?.bizInstallRegion?.id;
-
-    // go(`/event-trigger/analysis/${record.sensorId}?deviceName=${record.dtuipDeviceName}`);
-    const path = unref(currentRoute).path;
-    go(`${path}/analysis/${record.id}?regionId=${regionId}&sensorId=${record.sensorId}`);
+    const regionId = record.bizDeviceSensor?.regionId;
+    if (regionId) {
+      const path = unref(currentRoute).path;
+      go(`${path}/analysis/${record.id}?regionId=${regionId}&sensorId=${record.sensorId}`);
+    }
   }
+
+  // go(`/event-trigger/analysis/${record.sensorId}?deviceName=${record.dtuipDeviceName}`);
 
   /**
    * 弹出流程处理框
@@ -428,6 +429,12 @@
   });
 </script>
 
+<script lang="ts">
+  export default defineComponent({
+    // 需要和路由的name一致
+    name: 'WorkflowAlarmDealRecordPage',
+  });
+</script>
 <style lang="less" scoped>
   .dict-label {
     :deep(.ant-tag) {

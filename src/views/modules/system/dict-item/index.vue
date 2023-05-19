@@ -64,7 +64,7 @@
 </template>
 
 <script lang="ts" setup>
-  import { onMounted, unref, ref } from 'vue';
+  import { defineComponent, onMounted, unref, ref } from 'vue';
   import { useRouter, useRoute } from 'vue-router';
   // hooks
   import { useI18n } from '/@/hooks/web/useI18n';
@@ -178,8 +178,8 @@
   function goBack() {
     const path = unref(currentRoute).path;
     var paths = path.split('/item/');
-    go(paths[0]);
     closeCurrent();
+    go(paths[0]);
   }
 
   /**
@@ -192,5 +192,11 @@
 
   onMounted(() => {
     initDict();
+  });
+</script>
+<script lang="ts">
+  export default defineComponent({
+    // 需要和路由的name一致
+    name: 'DictItemPage',
   });
 </script>

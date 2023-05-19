@@ -84,10 +84,14 @@
                     :emptyHidePreview="true"
                     :multiple="true"
                     :disabled="isReadOnly(record.stepOneStatus, record.stepOneEnterpriseId)"
-                    @change="handleUploadChange('150', $event)"
+                    v-on="{
+                      change: handleUploadChange('150'),
+                    }"
                     :api="uploadApi"
                     :value="fileList.fileOne"
+                    :file-names="fileList.fileNamesOne"
                   />
+                  <!-- @change="handleUploadChange($event, '150')" -->
                 </a-form-item>
               </a-col>
 
@@ -152,7 +156,9 @@
                     :emptyHidePreview="true"
                     :multiple="true"
                     :disabled="isReadOnly(record.stepTwoStatus, record.stepTwoEnterpriseId)"
-                    @change="handleUploadChange('250', $event)"
+                    v-on="{
+                      change: handleUploadChange('250'),
+                    }"
                     :api="uploadApi"
                     :value="fileList.fileTwo"
                   />
@@ -220,7 +226,9 @@
                     :emptyHidePreview="true"
                     :multiple="true"
                     :disabled="isReadOnly(record.stepThreeStatus, record.stepThreeEnterpriseId)"
-                    @change="handleUploadChange('350', $event)"
+                    v-on="{
+                      change: handleUploadChange('350'),
+                    }"
                     :api="uploadApi"
                     :value="fileList.fileThree"
                   />
@@ -289,7 +297,9 @@
                     :emptyHidePreview="true"
                     :multiple="true"
                     :disabled="isReadOnly(record.stepFourStatus, record.stepFourEnterpriseId)"
-                    @change="handleUploadChange('450', $event)"
+                    v-on="{
+                      change: handleUploadChange('450'),
+                    }"
                     :api="uploadApi"
                     :value="fileList.fileFour"
                   />
@@ -357,7 +367,9 @@
                     :emptyHidePreview="true"
                     :multiple="false"
                     :disabled="isReadOnly(record.stepFiveStatus, record.stepFiveEnterpriseId)"
-                    @change="handleUploadChange('550', $event)"
+                    v-on="{
+                      change: handleUploadChange('550'),
+                    }"
                     :api="uploadApi"
                     :value="fileList.fileFive"
                   />
@@ -425,7 +437,9 @@
                     :emptyHidePreview="true"
                     :multiple="false"
                     :disabled="isReadOnly(record.stepSixStatus, record.stepSixEnterpriseId)"
-                    @change="handleUploadChange('650', $event)"
+                    v-on="{
+                      change: handleUploadChange('650'),
+                    }"
                     :api="uploadApi"
                     :value="fileList.fileSix"
                   />
@@ -506,7 +520,9 @@
                     :emptyHidePreview="true"
                     :multiple="false"
                     :disabled="isReadOnly(record.stepSevenStatus, record.stepSevenEnterpriseId)"
-                    @change="handleUploadChange('750', $event)"
+                    v-on="{
+                      change: handleUploadChange('750'),
+                    }"
                     :api="uploadApi"
                     :value="fileList.fileSeven"
                   />
@@ -604,6 +620,25 @@
     processStep?: string;
     attPath?: string; // 文件名
     recordId?: string; // 处置单id
+    fileName?: string; // 源文件名
+  };
+
+  type FileState = {
+    fileOne: string[];
+    fileNamesOne: string[];
+    fileTwo: string[];
+    fileNamesTwo: string[];
+    fileThree: string[];
+    fileNamesThree: string[];
+    fileFour: string[];
+    fileNamesFour: string[];
+    fileFive: string[];
+    fileNamesFive: string[];
+    fileSix: string[];
+    fileNamesSix: string[];
+    fileSeven: string[];
+    fileNamesSeven: string[];
+    fileEight: string[];
   };
 
   type FormState = {
@@ -687,15 +722,22 @@
     fileList.value = fileState();
   }
 
-  function fileState() {
+  function fileState(): FileState {
     return {
       fileOne: [],
+      fileNamesOne: [],
       fileTwo: [],
+      fileNamesTwo: [],
       fileThree: [],
+      fileNamesThree: [],
       fileFour: [],
+      fileNamesFour: [],
       fileFive: [],
+      fileNamesFive: [],
       fileSix: [],
+      fileNamesSix: [],
       fileSeven: [],
+      fileNamesSeven: [],
       fileEight: [],
     };
   }
@@ -787,27 +829,61 @@
 
     formState.processResult = record.value.processResult;
 
-    fileList.value.fileOne = record.value?.stepOneBizWorkflowAlarmDealRecordAttList?.map(
-      (item) => item.attPath,
-    );
-    fileList.value.fileTwo = record.value?.stepTwoBizWorkflowAlarmDealRecordAttList?.map(
-      (item) => item.attPath,
-    );
-    fileList.value.fileThree = record.value?.stepThreeBizWorkflowAlarmDealRecordAttList?.map(
-      (item) => item.attPath,
-    );
-    fileList.value.fileFour = record.value?.stepFourBizWorkflowAlarmDealRecordAttList?.map(
-      (item) => item.attPath,
-    );
-    fileList.value.fileFive = record.value?.stepFiveBizWorkflowAlarmDealRecordAttList?.map(
-      (item) => item.attPath,
-    );
-    fileList.value.fileSix = record.value?.stepSixBizWorkflowAlarmDealRecordAttList?.map(
-      (item) => item.attPath,
-    );
-    fileList.value.fileSeven = record.value?.stepSevenBizWorkflowAlarmDealRecordAttList?.map(
-      (item) => item.attPath,
-    );
+    if (record.value?.stepOneBizWorkflowAlarmDealRecordAttList?.length > 0) {
+      record.value.stepOneBizWorkflowAlarmDealRecordAttList.forEach((item) => {
+        fileList.value.fileOne.push(item.attPath);
+
+        fileList.value.fileNamesOne.push(item.fileName);
+      });
+    }
+
+    if (record.value?.stepTwoBizWorkflowAlarmDealRecordAttList?.length > 0) {
+      record.value.stepTwoBizWorkflowAlarmDealRecordAttList.forEach((item) => {
+        fileList.value.fileTwo.push(item.attPath);
+
+        fileList.value.fileNamesTwo.push(item.fileName);
+      });
+    }
+
+    if (record.value?.stepThreeBizWorkflowAlarmDealRecordAttList?.length > 0) {
+      record.value.stepThreeBizWorkflowAlarmDealRecordAttList.forEach((item) => {
+        fileList.value.fileThree.push(item.attPath);
+
+        fileList.value.fileNamesThree.push(item.fileName);
+      });
+    }
+
+    if (record.value?.stepFourBizWorkflowAlarmDealRecordAttList?.length > 0) {
+      record.value.stepFourBizWorkflowAlarmDealRecordAttList.forEach((item) => {
+        fileList.value.fileFour.push(item.attPath);
+
+        fileList.value.fileNamesFour.push(item.fileName);
+      });
+    }
+
+    if (record.value?.stepFiveBizWorkflowAlarmDealRecordAttList?.length > 0) {
+      record.value.stepFiveBizWorkflowAlarmDealRecordAttList.forEach((item) => {
+        fileList.value.fileFive.push(item.attPath);
+
+        fileList.value.fileNamesFive.push(item.fileName);
+      });
+    }
+
+    if (record.value?.stepSixBizWorkflowAlarmDealRecordAttList?.length > 0) {
+      record.value.stepSixBizWorkflowAlarmDealRecordAttList.forEach((item) => {
+        fileList.value.fileSix.push(item.attPath);
+
+        fileList.value.fileNamesSix.push(item.fileName);
+      });
+    }
+
+    if (record.value?.stepSevenBizWorkflowAlarmDealRecordAttList?.length > 0) {
+      record.value.stepSevenBizWorkflowAlarmDealRecordAttList.forEach((item) => {
+        fileList.value.fileSeven.push(item.attPath);
+
+        fileList.value.fileNamesSeven.push(item.fileName);
+      });
+    }
 
     setModalProps({ loading: false, confirmLoading: false });
   });
@@ -826,74 +902,90 @@
    * @param flag 对应的流程
    * @param list 文件名数组
    */
-  function handleUploadChange(flag: string, list: string[]) {
-    const filterList = list.filter((item) => item !== undefined || item !== '');
 
-    switch (flag) {
-      case '150':
-        formState.stepOneBizWorkflowAlarmDealRecordAttList = filterList.map((item) => {
-          return {
-            attPath: item,
-            recordId: idRef.value,
-          };
-        });
+  function handleUploadChange(flag) {
+    console.log('flag', flag);
 
-        break;
-      case '250':
-        formState.stepTwoBizWorkflowAlarmDealRecordAttList = filterList.map((item) => {
-          return {
-            attPath: item,
-            recordId: idRef.value,
-          };
-        });
+    return (list: string[], fileNames: string[]) => {
+      console.log('flag', flag);
+      console.log('-----list-------', fileNames);
 
-        break;
-      case '350':
-        formState.stepThreeBizWorkflowAlarmDealRecordAttList = filterList.map((item) => {
-          return {
-            attPath: item,
-            recordId: idRef.value,
-          };
-        });
+      const filterList = list.filter((item) => item !== undefined || item !== '');
+      const filterFileNameList = fileNames.filter((item) => item !== undefined || item !== '');
 
-        break;
-      case '450':
-        formState.stepFourBizWorkflowAlarmDealRecordAttList = filterList.map((item) => {
-          return {
-            attPath: item,
-            recordId: idRef.value,
-          };
-        });
+      switch (flag) {
+        case '150':
+          formState.stepOneBizWorkflowAlarmDealRecordAttList = filterList.map((item, index) => {
+            return {
+              attPath: item,
+              recordId: idRef.value,
+              fileName: filterFileNameList[index],
+            };
+          });
 
-        break;
-      case '550':
-        formState.stepFiveBizWorkflowAlarmDealRecordAttList = filterList.map((item) => {
-          return {
-            attPath: item,
-            recordId: idRef.value,
-          };
-        });
+          break;
+        case '250':
+          formState.stepTwoBizWorkflowAlarmDealRecordAttList = filterList.map((item, index) => {
+            return {
+              attPath: item,
+              recordId: idRef.value,
+              fileName: filterFileNameList[index],
+            };
+          });
 
-        break;
-      case '650':
-        formState.stepSixBizWorkflowAlarmDealRecordAttList = filterList.map((item) => {
-          return {
-            attPath: item,
-            recordId: idRef.value,
-          };
-        });
+          break;
+        case '350':
+          formState.stepThreeBizWorkflowAlarmDealRecordAttList = filterList.map((item, index) => {
+            return {
+              attPath: item,
+              recordId: idRef.value,
+              fileName: filterFileNameList[index],
+            };
+          });
 
-        break;
-      case '750':
-        formState.stepSevenBizWorkflowAlarmDealRecordAttList = filterList.map((item) => {
-          return {
-            attPath: item,
-            recordId: idRef.value,
-          };
-        });
+          break;
+        case '450':
+          formState.stepFourBizWorkflowAlarmDealRecordAttList = filterList.map((item, index) => {
+            return {
+              attPath: item,
+              recordId: idRef.value,
+              fileName: filterFileNameList[index],
+            };
+          });
 
-        break;
-    }
+          break;
+        case '550':
+          formState.stepFiveBizWorkflowAlarmDealRecordAttList = filterList.map((item, index) => {
+            return {
+              attPath: item,
+              recordId: idRef.value,
+              fileName: filterFileNameList[index],
+            };
+          });
+
+          break;
+        case '650':
+          formState.stepSixBizWorkflowAlarmDealRecordAttList = filterList.map((item, index) => {
+            return {
+              attPath: item,
+              recordId: idRef.value,
+              fileName: filterFileNameList[index],
+            };
+          });
+
+          break;
+        case '750':
+          formState.stepSevenBizWorkflowAlarmDealRecordAttList = filterList.map((item, index) => {
+            return {
+              attPath: item,
+              recordId: idRef.value,
+              fileName: filterFileNameList[index],
+            };
+          });
+
+          break;
+      }
+    };
   }
 
   // 文本框、按钮是否只读

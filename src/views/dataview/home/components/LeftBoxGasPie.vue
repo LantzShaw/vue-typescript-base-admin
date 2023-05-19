@@ -1,5 +1,5 @@
 <template>
-  <div ref="gasPiechartRef" :style="{ height, width }"></div>
+  <div ref="gasPieChartRef" :style="{ height, width }"></div>
 </template>
 <script lang="ts">
   import { defineComponent, PropType, ref, Ref, onMounted } from 'vue';
@@ -8,7 +8,7 @@
   import { baseOption } from './data';
   import echarts from '/@/utils/lib/echarts';
 
-  type PieData = {
+  type ChartData = {
     name: string;
     value: number;
   };
@@ -26,8 +26,8 @@
       },
     },
     setup(props) {
-      const gasPiechartRef = ref<HTMLDivElement | null>(null);
-      const pieData = ref<PieData[]>([
+      const gasPieChartRef = ref<HTMLDivElement | null>(null);
+      const chartData = ref<ChartData[]>([
         { value: 1048, name: '甲烷' },
         { value: 735, name: '氯化氢' },
         { value: 580, name: '环氧乙烷' },
@@ -38,7 +38,7 @@
         { value: 360, name: '其他' },
       ]);
 
-      const { setOptions, getInstance } = useECharts(gasPiechartRef as Ref<HTMLDivElement>);
+      const { setOptions, getInstance } = useECharts(gasPieChartRef as Ref<HTMLDivElement>);
 
       const getChartData = async () => {
         getInstance()?.showLoading();
@@ -49,6 +49,17 @@
        */
       const onSetOptions = async () => {
         const seriesOption: any = {
+          // TODO: 这里设置颜色不行
+          // color: [
+          //   '#1D75F0',
+          //   '#FF701A',
+          //   '#FFEA00',
+          //   '#FFEA00',
+          //   '#00A8FF',
+          //   '#3FFFEA',
+          //   '#00E436',
+          //   '#78FF00',
+          // ],
           series: [],
         };
 
@@ -56,7 +67,24 @@
           type: 'pie',
           right: '50',
           radius: ['40%', '65%'],
-          data: pieData.value,
+          data: chartData.value,
+          itemStyle: {
+            normal: {
+              color: function (colors) {
+                const colorList = [
+                  '#1D75F0',
+                  '#FF701A',
+                  '#FFEA00',
+                  '#FFEA00',
+                  '#00A8FF',
+                  '#3FFFEA',
+                  '#00E436',
+                  '#78FF00',
+                ];
+                return colorList[colors.dataIndex];
+              },
+            },
+          },
           emphasis: {
             itemStyle: {
               shadowBlur: 10,
@@ -78,8 +106,6 @@
             color: '#fff',
             normal: {
               formatter: function (params) {
-                console.log('params:', params);
-
                 const index = params.dataIndex;
                 const name = params.name;
                 const percent = params.percent;
@@ -100,7 +126,7 @@
 
       function getRich() {
         let result = {};
-        pieData.value.forEach((v, i) => {
+        chartData.value.forEach((v, i) => {
           (result[`normal${i}`] = {
             fontSize: 16,
             align: 'left',
@@ -123,7 +149,7 @@
         onSetOptions();
       });
 
-      return { gasPiechartRef };
+      return { gasPieChartRef };
     },
   });
 </script>

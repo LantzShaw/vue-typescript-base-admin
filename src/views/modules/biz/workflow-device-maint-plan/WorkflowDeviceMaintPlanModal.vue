@@ -29,6 +29,7 @@
   import { enterpriseSelect } from '/@/api/biz/enterprise';
   // data
   import { isUpdate, idRef, record, inputFormSchemas } from './workflowDeviceMaintPlan.data';
+  import { formatToDateTime, formatToDate, dateUtil } from '/@/utils/dateUtil';
 
   const emit = defineEmits(['success', 'register']);
 
@@ -71,6 +72,7 @@
       // 请求数据
       idRef.value = data.record.id;
       var arr = [record.value.planStartDate, record.value.planEndDate];
+      console.log(arr);
       record.value.planDate = arr;
     } else {
       idRef.value = '';
@@ -99,15 +101,15 @@
         await workflowDeviceMaintPlanUpdate({
           ...values,
           id: idRef.value,
-          planStartDate: values.planDate[0],
-          planEndDate: values.planDate[1],
+          planStartDate: formatToDate(values.planDate[0]),
+          planEndDate: formatToDate(values.planDate[1]),
           planCycleArgument: planCycleArgument,
         });
       } else {
         await workflowDeviceMaintPlanAdd({
           ...values,
-          planStartDate: values.planDate[0],
-          planEndDate: values.planDate[1],
+          planStartDate: formatToDate(values.planDate[0]),
+          planEndDate: formatToDate(values.planDate[1]),
           planCycleArgument: planCycleArgument,
         });
       }

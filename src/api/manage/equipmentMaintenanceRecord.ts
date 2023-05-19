@@ -11,7 +11,7 @@ enum Api {
   EquipmentMaintenanceRecordList = '/biz/workflow/device-maint-record/list',
   EquipmentMaintenanceRecordForm = '/biz/workflow/device-maint-record/form',
   EquipmentMaintenanceRecordUpdateState = '/biz/workflow/device-maint-record/update-basic-info',
-  EquipmentMaintenanceRecordSend = '/biz/workflow/device-maint-record/send',
+  EquipmentMaintenanceRecordSend = '/biz/workflow/device-maint-record/notice',
 
   EquipmentMaintenanceRecordStepOneSubmit = '/biz/workflow/device-maint-record/step-one-submit',
   EquipmentMaintenanceRecordStepOneAffirm = '/biz/workflow/device-maint-record/step-one-affirm',
@@ -32,7 +32,7 @@ export const equipmentMaintenanceRecordBpReceive = (data?: any) =>
 export const equipmentMaintenanceRecordPage = (params?: any) =>
   defHttp.get({ url: Api.EquipmentMaintenanceRecordPage, params });
 export const equipmentMaintenanceRecordDelete = (params?: any) =>
-  defHttp.get({ url: Api.EquipmentMaintenanceRecordDelete, params });
+  defHttp.delete({ url: Api.EquipmentMaintenanceRecordDelete, params });
 export const equipmentMaintenanceRecordAdd = (data?: any) =>
   defHttp.post({ url: Api.EquipmentMaintenanceRecordAdd, data });
 export const equipmentMaintenanceRecordUpdate = (data?: any) =>
@@ -61,5 +61,5 @@ export const equipmentMaintenanceRecordStepThreeAffirm = (params?: any) =>
 export const equipmentMaintenanceRecordUpdateState = (params?: any) =>
   defHttp.post({ url: Api.EquipmentMaintenanceRecordUpdateState, params });
 
-export const equipmentMaintenanceRecordSend = (params?: any) =>
-  defHttp.get({ url: Api.EquipmentMaintenanceRecordSend, params });
+export const equipmentMaintenanceRecordSend = (data?: any) =>
+  defHttp.post({ url: Api.EquipmentMaintenanceRecordSend, data });

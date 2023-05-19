@@ -29,7 +29,8 @@
   import { BasicTable, useTable } from '/@/components/Table';
 
   // 接口
-  import { sensorPage } from '/@/api/manage/sensor';
+  import { additionReportPage } from '/@/api/manage/summaryReport';
+
   // data
   import { searchForm, tableColumns } from './additionReport.data';
   import { aoaToSheetXlsx } from '/@/components/Excel';
@@ -48,8 +49,11 @@
    */
   const [registerTable, { getColumns, getDataSource, getForm }] = useTable({
     title: '',
-    api: sensorPage,
+    api: additionReportPage,
     columns: tableColumns,
+    searchInfo: {
+      type: '1',
+    },
     formConfig: searchForm,
     useSearchForm: true,
     canResize: false,

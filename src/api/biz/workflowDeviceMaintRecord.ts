@@ -6,6 +6,10 @@ enum Api {
   WorkflowDeviceMaintRecordDelete = '/biz/workflow/device-maint-record/delete-batch',
   WorkflowDeviceMaintRecordAdd = '/biz/workflow/device-maint-record/add',
   WorkflowDeviceMaintRecordForm = '/biz/workflow/device-maint-record/form',
+  WorkflowDeviceMaintRecordUpdate = '/biz/workflow/device-maint-record/update-sheet',
+  WorkflowDeviceMaintRecordHandleStop = '/biz/workflow/device-maint-record/handle-stop',
+  WorkflowDeviceMaintRecordHandlePending = '/biz/workflow/device-maint-record/handle-pending',
+  WorkflowDeviceMaintRecordHandleNormal = '/biz/workflow/device-maint-record/handle-normal',
 }
 
 export const workflowDeviceMaintRecordPage = (params?: any) =>
@@ -22,3 +26,15 @@ export const workflowDeviceMaintRecordAdd = (data?: any) =>
 
 export const workflowDeviceMaintRecordForm = (params?: any) =>
   defHttp.get({ url: Api.WorkflowDeviceMaintRecordForm, params });
+
+export const workflowDeviceMaintRecordUpdate = (data?: any) =>
+  defHttp.post({ url: Api.WorkflowDeviceMaintRecordUpdate, data });
+
+export const workflowDeviceMaintRecordHandleStop = (data?: any) =>
+  defHttp.post({ url: Api.WorkflowDeviceMaintRecordHandleStop, data });
+
+export const workflowDeviceMaintRecordHandlePending = (data?: any) =>
+  defHttp.post({ url: Api.WorkflowDeviceMaintRecordHandlePending, data });
+
+export const workflowDeviceMaintRecordHandleNormal = (data?: any) =>
+  defHttp.post({ url: Api.WorkflowDeviceMaintRecordHandleNormal, data });

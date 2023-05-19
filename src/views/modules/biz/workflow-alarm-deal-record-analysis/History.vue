@@ -1,9 +1,9 @@
 <template>
   <a-card title="历史曲线" :bordered="false">
     <template #extra>
-      <a-typography-text style="margin-right: 12px" strong type="secondary"
-        >时间: {{ displayDate }}</a-typography-text
-      >
+      <a-typography-text strong type="secondary">
+        <span style="margin-right: 12px">时间: {{ displayDate }}</span>
+      </a-typography-text>
       <a-divider type="vertical" style="background-color: #ddd" />
       <a-button @click="onPrint" type="link" postIcon="ant-design:printer-outlined">
         打印
@@ -77,6 +77,11 @@
 
       const getChartData = async () => {
         getInstance()?.showLoading();
+        lineData.value = [];
+        legend.value = [];
+        itemList.value = [];
+        echartsRef.value = [];
+        printList.value = [];
 
         // TODO: 展示没有数据
         const response = await getfigure({
@@ -89,8 +94,6 @@
         displayDate.value = date.length > 0 ? `${date[0]} ~ ${date[date.length - 1]}` : '--';
 
         category.value = date;
-        // lineData.value = list;
-        // legend.value = name;
 
         list.forEach((item, index) => {
           if (item) {
@@ -106,7 +109,9 @@
        * 设置ref数组
        */
       const setRef = (el: HTMLDivElement): void => {
-        echartsRef.value?.push(el);
+        if (el) {
+          echartsRef.value?.push(el);
+        }
       };
 
       /**
@@ -114,16 +119,16 @@
        */
       const onPrint = () => {
         // NOTE: 去除页眉页脚
-        // const style = '@page {margin:0 20mm};';
+        const style = '@page {margin:0 20mm};';
 
         printJS({
           printable: printList.value,
           type: 'image',
           documentTitle: '嘉兴港区气体泄漏检测管理平台',
           header: '历史曲线',
-          // targetStyles: ['*'],
-          // style,
-          imageStyle: 'width:100%;margin-bottom:20px;',
+          targetStyles: ['*'],
+          style,
+          imageStyle: 'width:100%;margin-top:30px;margin-bottom:20px;',
         });
       };
 
@@ -140,23 +145,23 @@
             legend: {
               data: [],
             },
-            xAxis: { data: category.value },
+            xAxis: {
+              data: category.value,
+            },
             series: [],
           };
 
-          lineData.value.forEach((data) => {
-            seriesOption.legend.data = [legend.value[index]];
+          seriesOption.legend.data = [legend.value[index]];
 
-            seriesOption.series.push({
-              name: legend.value[index],
-              type: 'line',
-              smooth: true,
-              showAllSymbol: 'auto',
-              symbol: 'none',
-              symbolSize: 15,
-              data,
-              // animation: false, // NOTE: 如果不设置该属性，折线、柱状等内容将失效, 也可以在最外层设置该属性
-            });
+          seriesOption.series.push({
+            name: legend.value[index],
+            type: 'line',
+            smooth: true,
+            showAllSymbol: 'auto',
+            symbol: 'none',
+            symbolSize: 15,
+            data: lineData.value[index],
+            // animation: false, // NOTE: 如果不设置该属性，折线、柱状等内容将失效, 也可以在最外层设置该属性
           });
 
           const mergedOptions = echarts.util.merge(seriesOption, baseOption);
@@ -200,15 +205,16 @@
 
         const mergedOptions = echarts.util.merge(seriesOption, baseOption);
 
-        await setOptions(mergedOptions);
+        await setOptions(mergedOptions, true);
 
         getInstance()?.hideLoading();
       };
 
       watch(
-        () => props.ids,
+        () => props.sensorIds,
         async () => {
           await getChartData();
+
           onSetOptions();
           generageEchartsDom();
         },

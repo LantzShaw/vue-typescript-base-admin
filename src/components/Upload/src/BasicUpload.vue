@@ -34,6 +34,7 @@
 
     <UploadPreviewModal
       :value="fileList"
+      :fileNames="fileNameList"
       @register="registerPreviewModal"
       @list-change="handlePreviewChange"
       @delete="handlePreviewDelete"
@@ -68,6 +69,7 @@
       const [registerPreviewModal, { openModal: openPreviewModal }] = useModal();
 
       const fileList = ref<string[]>([]);
+      const fileNameList = ref<string[]>([]);
 
       const showPreview = computed(() => {
         const { emptyHidePreview } = props;
@@ -88,18 +90,30 @@
         { immediate: true },
       );
 
+      watch(
+        () => props.fileNames,
+        (value = []) => {
+          fileNameList.value = isArray(value) ? value : [];
+        },
+        { immediate: true },
+      );
+
       // 上传modal保存操作
-      function handleChange(urls: string[]) {
+      function handleChange(urls: string[], fileNames: string[]) {
         fileList.value = [...unref(fileList), ...(urls || [])];
-        emit('update:value', fileList.value);
-        emit('change', fileList.value);
+        fileNameList.value = [...unref(fileNameList), ...(fileNames || [])];
+
+        emit('update:value', fileList.value, fileNameList.value);
+        emit('change', fileList.value, fileNameList.value);
       }
 
       // 预览modal保存操作
-      function handlePreviewChange(urls: string[]) {
+      function handlePreviewChange(urls: string[], fileNames: string[]) {
         fileList.value = [...(urls || [])];
-        emit('update:value', fileList.value);
-        emit('change', fileList.value);
+        fileNameList.value = [...(fileNames || [])];
+
+        emit('update:value', fileList.value, fileNameList.value);
+        emit('change', fileList.value, fileNameList.value);
       }
 
       function handleDelete(record: Recordable<any>) {
@@ -118,6 +132,7 @@
         registerPreviewModal,
         openPreviewModal,
         fileList,
+        fileNameList,
         showPreview,
         bindValue,
         handleDelete,

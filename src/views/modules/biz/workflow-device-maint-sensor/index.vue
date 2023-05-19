@@ -162,9 +162,8 @@
     const path = unref(currentRoute).path;
     console.log(path);
     var paths = path.split('/sensor/');
-    console.log(paths);
-    go(paths[0]);
     closeCurrent();
+    go(paths[0]);
   }
 
   /**

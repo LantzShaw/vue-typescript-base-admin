@@ -1,7 +1,9 @@
 <template>
   <div
     class="full-screen-container"
-    :style="{ background: backgroundColor }"
+    :style="{
+      background: `linear-gradient(to right, ${backgroundColor})`,
+    }"
     ref="fullScreenContainerRef"
   >
     <slot></slot>
@@ -14,11 +16,12 @@
   type Props = {
     width?: number;
     height?: number;
+    // backgroundColors?: string[];
     backgroundColor?: string;
   };
 
   const props = withDefaults(defineProps<Props>(), {
-    backgroundColor: '#0D1F3E',
+    backgroundColor: '#05132C 0%, #05132c 20%, #0D1F3E, #051A38, #05132C',
   });
 
   const width = ref<number>(props.width || screen.width); // 大屏真实宽度

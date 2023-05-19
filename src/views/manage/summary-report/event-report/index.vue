@@ -128,7 +128,7 @@
    * @param record
    */
   function navigateToReport(record: Recordable) {
-    go(`/event/trigger/report/${record.recordId}`);
+    go(`/biz/alarm-management/record/report/${record.recordId}`);
   }
 
   /**

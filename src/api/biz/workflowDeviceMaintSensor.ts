@@ -5,6 +5,8 @@ enum Api {
   WorkflowDeviceMaintSensorPage2 = '/biz/workflow/device-maint-sensor/page-sensor-without-record',
   WorkflowDeviceMaintSensorDelete = '/biz/workflow/device-maint-sensor/delete-batch',
   WorkflowDeviceMaintSensorAdd = '/biz/workflow/device-maint-sensor/allocatable',
+  WorkflowDeviceMaintSensorUpdate = '/biz/workflow/device-maint-sensor/update-sheet',
+  WorkflowDeviceMaintSensorExport = '/biz/workflow/device-maint-sensor/export',
 }
 
 export const workflowDeviceMaintSensorPage = (params?: any) =>
@@ -18,3 +20,12 @@ export const workflowDeviceMaintSensorDelete = (params?: any) =>
 
 export const workflowDeviceMaintSensorAdd = (data?: any) =>
   defHttp.post({ url: Api.WorkflowDeviceMaintSensorAdd, data });
+
+export const workflowDeviceMaintSensorUpdate = (data?: any) =>
+  defHttp.post({ url: Api.WorkflowDeviceMaintSensorUpdate, data });
+
+export const workflowDeviceMaintSensorExport = (params?: any) =>
+  defHttp.get(
+    { url: Api.WorkflowDeviceMaintSensorExport, params, responseType: 'blob' },
+    { isTransformResponse: false },
+  );

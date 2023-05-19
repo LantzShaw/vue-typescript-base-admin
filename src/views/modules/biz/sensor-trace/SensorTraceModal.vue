@@ -21,6 +21,7 @@
             @change="handleUploadChange"
             :api="uploadApi"
             :value="fileList"
+            :fileNames="fileNameList"
           />
         </template>
       </BasicForm>
@@ -28,7 +29,7 @@
   </BasicModal>
 </template>
 <script lang="ts" setup>
-  import { computed, ref, unref, reactive } from 'vue';
+  import { computed, ref, unref } from 'vue';
 
   // hooks
   import { useMessage } from '/@/hooks/web/useMessage';
@@ -54,10 +55,12 @@
     sensorId?: string;
     traceId?: string;
     attPath?: string;
+    fileName?: string;
   };
 
-  const fileData = reactive<FileData[]>([]);
+  const fileData = ref<FileData[]>([]);
   const fileList = ref<string[]>([]);
+  const fileNameList = ref<string[]>([]);
 
   /**
    * 构建表单
@@ -77,6 +80,7 @@
     setModalProps({ loading: true, confirmLoading: true });
 
     fileList.value = [];
+    fileNameList.value = [];
 
     // 判断是否是更新
     isUpdate.value = !!data?.isUpdate;
@@ -92,7 +96,9 @@
 
       if (record.value?.bizDeviceSensorTraceAttList?.length > 0) {
         record.value.bizDeviceSensorTraceAttList.forEach((item) => {
-          fileList.value = item.attPath.split(',');
+          fileList.value.push(item.attPath);
+
+          fileNameList.value.push(item.fileName);
         });
       }
     } else {
@@ -117,13 +123,13 @@
           ...values,
           id: idRef.value,
           sensorId: sensorId.value,
-          bizDeviceSensorTraceAttList: fileData,
+          bizDeviceSensorTraceAttList: fileData.value,
         });
       } else {
         await sensorTraceAdd({
           ...values,
           sensorId: sensorId.value,
-          bizDeviceSensorTraceAttList: fileData,
+          bizDeviceSensorTraceAttList: fileData.value,
         });
       }
       notification.success({ message: `执行成功` });
@@ -144,16 +150,20 @@
    * @param flag 对应的流程
    * @param list 文件名数组
    */
-  function handleUploadChange(list: string[]) {
+  function handleUploadChange(list: string[], fileNames: string[]) {
+    console.log('list', fileNames);
+
     const filterList = list.filter((item) => item !== undefined || item !== '');
+    const filterFileNameList = fileNames.filter((item) => item !== undefined || item !== '');
 
-    fileData.push({
-      traceId: idRef.value,
-      sensorId: sensorId.value,
-      attPath: filterList.toString(),
+    fileData.value = filterList.map((item, index) => {
+      return {
+        attPath: item,
+        sensorId: sensorId.value,
+        traceId: idRef.value,
+        fileName: filterFileNameList[index],
+      };
     });
-
-    console.log('form state', fileData);
   }
 
   /**

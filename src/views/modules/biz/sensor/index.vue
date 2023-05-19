@@ -195,7 +195,7 @@
 
     sensorExport({})
       .then((response) => {
-        downloadByData(response, `事件触发_${new Date().getTime()}.xlsx`);
+        downloadByData(response, `传感器导出_${new Date().getTime()}.xlsx`);
       })
       .finally(() => {
         isExportLoading.value = false;

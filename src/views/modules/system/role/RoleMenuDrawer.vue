@@ -23,7 +23,14 @@
         :checkedKeys="item.grantMenuIdList"
         :expandedKeys="item.grantMenuIdList"
         :ref="setTreeRefs(item.sysApplication.id)"
-      />
+      >
+        <template #title="item">
+          <dict-label :options="menuTypeOptions" :value="item.type" />
+          {{ item.title }}
+
+          {{ item.permission }}
+        </template>
+      </BasicTree>
     </CollapseContainer>
   </BasicDrawer>
 </template>
@@ -34,10 +41,12 @@
   import { BasicDrawer, useDrawerInner } from '/@/components/Drawer';
   import { CollapseContainer } from '/@/components/Container';
   import { BasicTree, TreeActionType } from '/@/components/Tree';
+  import { DictLabel } from '/@/components/DictLabel/index';
   // 接口
   import { roleGrantMenu, roleOwnMenu } from '/@/api/system/role';
+  import { optionsListBatchApi } from '/@/api/sys/dict';
   // data
-  import { idRef } from './role.data';
+  import { idRef, menuTypeOptions } from './role.data';
   import { isArray } from '/@/utils/is';
 
   const okAuth = ref(['system:role:grant']);
@@ -61,7 +70,8 @@
    */
   const [registerDrawer, { setDrawerProps, closeDrawer }] = useDrawerInner(async (data) => {
     setDrawerProps({ loading: true, confirmLoading: true });
-
+    const { menu_type } = await optionsListBatchApi(['menu_type']);
+    menuTypeOptions.value = menu_type || [];
     // 需要在setFieldsValue之前先填充treeData，否则Tree组件可能会报key not exist警告
 
     // 请求数据

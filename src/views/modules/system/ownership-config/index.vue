@@ -103,8 +103,8 @@
   function goBack() {
     const path = unref(currentRoute).path;
     var paths = path.split('/config/');
-    go(paths[0]);
     closeCurrent();
+    go(paths[0]);
   }
 
   /**

@@ -16,135 +16,7 @@
   >
     <div style="padding-right: 10px; padding-left: 10px">
       <a-tabs v-model:active-key="activeKey">
-        <a-tab-pane key="0" tab="基础信息">
-          <!-- 基础信息 -->
-          <a-form
-            :model="formState"
-            name="basic"
-            :label-col="{ span: 3 }"
-            :wrapper-col="{ span: 21 }"
-            autocomplete="off"
-            :rules="rules"
-            @finish="handleSaveInformation"
-          >
-            <a-row :gutter="20" style="height: 350px">
-              <a-col :span="12">
-                <a-form-item label="公司名称" :label-col="{ span: 5 }" name="apReceiveName">
-                  <a-input
-                    disabled
-                    v-model:value="formState.apReceiveName"
-                    placeholder="请输入甲方公司名称"
-                  />
-                </a-form-item>
-              </a-col>
-              <a-col :span="12">
-                <a-form-item
-                  :rules="[{ required: true, message: '请选择服务类型!' }]"
-                  :label-col="{ span: 5 }"
-                  label="服务类型"
-                  name="taskType"
-                >
-                  <a-select
-                    placeholder="请选择服务类型"
-                    :params="['maintenance_task_type']"
-                    v-model:value="formState.taskType"
-                    :options="maintenanceTaskTypeOptions"
-                  />
-                </a-form-item>
-              </a-col>
-              <a-col :span="12">
-                <a-form-item :label-col="{ span: 5 }" label="计划时间" name="startDate">
-                  <a-date-picker
-                    style="width: 100%"
-                    v-model:value="formState.startDate"
-                    format="YYYY-MM-DD"
-                    value-format="YYYY-MM-DD"
-                  />
-                </a-form-item>
-              </a-col>
-              <a-col :span="12">
-                <a-form-item :label-col="{ span: 5 }" label="预计时长" name="duration">
-                  <a-input-number
-                    placeholder="请输入预计时长"
-                    v-model:value="formState.duration"
-                    :min="0"
-                    addon-after="天"
-                  />
-                </a-form-item>
-              </a-col>
-              <a-col :span="12">
-                <a-form-item :label-col="{ span: 5 }" name="implementationUser">
-                  <template #label>
-                    <a-tooltip>
-                      <template #title>多个实施人员可使用分号“;”分割</template>
-                      <Icon icon="ant-design:question-circle-outlined" />
-                    </a-tooltip>
-
-                    <span>实施人员</span>
-                  </template>
-                  <a-input
-                    v-model:value="formState.implementationUser"
-                    placeholder="请输入实施人员姓名"
-                  />
-                </a-form-item>
-              </a-col>
-              <a-col :span="12">
-                <a-form-item :label-col="{ span: 5 }" name="accompanyUser">
-                  <template #label>
-                    <a-tooltip>
-                      <template #title>多个陪同人员可使用分号“;”分割</template>
-                      <Icon icon="ant-design:question-circle-outlined" />
-                    </a-tooltip>
-                    <span>陪同人员</span>
-                  </template>
-                  <a-input
-                    v-model:value="formState.accompanyUser"
-                    placeholder="请输入陪同人员姓名"
-                  />
-                </a-form-item>
-              </a-col>
-              <a-col :span="12">
-                <a-form-item label="联系人/电话" :label-col="{ span: 5 }" name="apReceiveContacts">
-                  <a-input
-                    v-model:value="formState.apReceiveContacts"
-                    placeholder="请输入联系人+联系电话"
-                  />
-                </a-form-item>
-              </a-col>
-              <a-col :span="12">
-                <a-form-item label="服务协议" :label-col="{ span: 5 }" name="agreement">
-                  <a-input v-model:value="formState.agreement" placeholder="请输入协议内容" />
-                </a-form-item>
-              </a-col>
-              <a-col :span="20">
-                <a-form-item :label-col="{ span: 3 }" label="备注说明" name="remark">
-                  <a-textarea
-                    :rows="2"
-                    v-model:value="formState.remark"
-                    placeholder="请填写备注说明..."
-                  />
-                </a-form-item>
-
-                <a-form-item :wrapper-col="{ span: 21, offset: 3 }">
-                  <a-space>
-                    <!-- <a-button
-                      preIcon="ant-design:download-outlined"
-                      :loading="isExportLoading"
-                      @click="handleReportDownload"
-                      >生成当前工作单</a-button
-                    > -->
-
-                    <a-button html-type="submit" :loading="isSaveLoading" type="primary"
-                      >保存基本信息</a-button
-                    >
-                  </a-space>
-                </a-form-item>
-              </a-col>
-            </a-row>
-          </a-form>
-        </a-tab-pane>
-
-        <a-tab-pane key="1" tab="工单实施">
+        <a-tab-pane key="0" tab="工单实施">
           <!-- 工单实施 -->
           <a-form
             :model="formState"
@@ -180,7 +52,9 @@
                     :emptyHidePreview="true"
                     :multiple="true"
                     :disabled="isReadOnly(record.stepOneStatus, record.stepOneEnterpriseId)"
-                    @change="handleUploadChange('150', $event)"
+                    v-on="{
+                      change: handleUploadChange('150'),
+                    }"
                     :api="uploadApi"
                     :value="fileList.fileOne"
                   />
@@ -208,7 +82,7 @@
             </a-row>
           </a-form>
         </a-tab-pane>
-        <a-tab-pane key="2" tab="实施成果">
+        <a-tab-pane key="1" tab="实施成果">
           <!-- 实施成果 -->
           <a-form
             :model="formState"
@@ -244,7 +118,9 @@
                     :emptyHidePreview="true"
                     :multiple="true"
                     :disabled="isReadOnly(record.stepTwoStatus, record.stepTwoEnterpriseId)"
-                    @change="handleUploadChange('250', $event)"
+                    v-on="{
+                      change: handleUploadChange('250'),
+                    }"
                     :api="uploadApi"
                     :value="fileList.fileTwo"
                   />
@@ -272,7 +148,7 @@
             </a-row>
           </a-form>
         </a-tab-pane>
-        <a-tab-pane key="3" tab="完工单">
+        <a-tab-pane key="2" tab="完工单">
           <!-- 完工单 -->
           <a-form
             :model="formState"
@@ -323,7 +199,9 @@
                     :emptyHidePreview="true"
                     :multiple="true"
                     :disabled="isReadOnly(record.stepThreeStatus, record.stepThreeEnterpriseId)"
-                    @change="handleUploadChange('350', $event)"
+                    v-on="{
+                      change: handleUploadChange('350'),
+                    }"
                     :api="uploadApi"
                     :value="fileList.fileThree"
                   />
@@ -367,11 +245,6 @@
     Textarea as ATextarea,
     Tabs as ATabs,
     TabPane as ATabPane,
-    DatePicker as ADatePicker,
-    InputNumber as AInputNumber,
-    Space as ASpace,
-    Select as ASelect,
-    Tooltip as ATooltip,
     Radio as ARadio,
     RadioGroup as ARadioGroup,
   } from 'ant-design-vue';
@@ -381,7 +254,6 @@
   import { useMessage } from '/@/hooks/web/useMessage';
   // 组件
   import { BasicModal, useModal, useModalInner } from '/@/components/Modal';
-  import Icon from '/@/components/Icon/Icon.vue';
   import ReportModal from './components/ReportModal.vue';
 
   // data
@@ -400,7 +272,6 @@
 
   import {
     equipmentMaintenanceRecordForm,
-    equipmentMaintenanceRecordUpdateState,
     equipmentMaintenanceRecordStepOneSubmit,
     equipmentMaintenanceRecordStepOneAffirm,
     equipmentMaintenanceRecordStepTwoSubmit,
@@ -414,6 +285,16 @@
   type FileList = {
     attPath?: string;
     recordId?: string; // 设备记录id
+    fileName?: string;
+  };
+
+  type FileState = {
+    fileOne: string[];
+    fileNamesOne: string[];
+    fileTwo: string[];
+    fileNamesTwo: string[];
+    fileThree: string[];
+    fileNamesThree: string[];
   };
 
   type FormState = {
@@ -481,11 +362,14 @@
     fileList.value = fileState();
   }
 
-  function fileState() {
+  function fileState(): FileState {
     return {
       fileOne: [],
+      fileNamesOne: [],
       fileTwo: [],
+      fileNamesTwo: [],
       fileThree: [],
+      fileNamesThree: [],
     };
   }
 
@@ -546,15 +430,29 @@
     // formState.apReceiveName = data.record.orgName;
     formState.apReceiveName = data.record.bizEnterprise.enterpriseName;
 
-    fileList.value.fileOne = record.value?.stepOneBizWorkflowDeviceMaintRecordAttList?.map(
-      (item) => item.attPath,
-    );
-    fileList.value.fileTwo = record.value?.stepTwoBizWorkflowDeviceMaintRecordAttList?.map(
-      (item) => item.attPath,
-    );
-    fileList.value.fileThree = record.value?.stepThreeBizWorkflowDeviceMaintRecordAttList?.map(
-      (item) => item.attPath,
-    );
+    if (record.value?.stepOneBizWorkflowDeviceMaintRecordAttList?.length > 0) {
+      record.value.stepOneBizWorkflowDeviceMaintRecordAttList.forEach((item) => {
+        fileList.value.fileOne.push(item.attPath);
+
+        fileList.value.fileNamesOne.push(item.fileName);
+      });
+    }
+
+    if (record.value?.stepTwoBizWorkflowDeviceMaintRecordAttList?.length > 0) {
+      record.value.stepTwoBizWorkflowDeviceMaintRecordAttList.forEach((item) => {
+        fileList.value.fileTwo.push(item.attPath);
+
+        fileList.value.fileNamesTwo.push(item.fileName);
+      });
+    }
+
+    if (record.value?.stepThreeBizWorkflowDeviceMaintRecordAttList?.length > 0) {
+      record.value.stepThreeBizWorkflowDeviceMaintRecordAttList.forEach((item) => {
+        fileList.value.fileThree.push(item.attPath);
+
+        fileList.value.fileNamesThree.push(item.fileName);
+      });
+    }
 
     setModalProps({ loading: false, confirmLoading: false });
   });
@@ -581,38 +479,44 @@
    * @param flag 对应的流程
    * @param list 文件名数组
    */
-  function handleUploadChange(flag: string, list: string[]) {
-    const filterList = list.filter((item) => item !== undefined || item !== '');
+  function handleUploadChange(flag: string) {
+    return (list: string[], fileNames: string[]) => {
+      const filterList = list.filter((item) => item !== undefined || item !== '');
+      const filterFileNameList = fileNames.filter((item) => item !== undefined || item !== '');
 
-    switch (flag) {
-      case '150':
-        formState.stepOneBizWorkflowDeviceMaintRecordAttList = filterList.map((item) => {
-          return {
-            attPath: item,
-            recordId: idRef.value,
-          };
-        });
+      switch (flag) {
+        case '150':
+          formState.stepOneBizWorkflowDeviceMaintRecordAttList = filterList.map((item, index) => {
+            return {
+              attPath: item,
+              recordId: idRef.value,
+              fileName: filterFileNameList[index],
+            };
+          });
 
-        break;
-      case '250':
-        formState.stepTwoBizWorkflowDeviceMaintRecordAttList = filterList.map((item) => {
-          return {
-            attPath: item,
-            recordId: idRef.value,
-          };
-        });
+          break;
+        case '250':
+          formState.stepTwoBizWorkflowDeviceMaintRecordAttList = filterList.map((item, index) => {
+            return {
+              attPath: item,
+              recordId: idRef.value,
+              fileName: filterFileNameList[index],
+            };
+          });
 
-        break;
-      case '350':
-        formState.stepThreeBizWorkflowDeviceMaintRecordAttList = filterList.map((item) => {
-          return {
-            attPath: item,
-            recordId: idRef.value,
-          };
-        });
+          break;
+        case '350':
+          formState.stepThreeBizWorkflowDeviceMaintRecordAttList = filterList.map((item, index) => {
+            return {
+              attPath: item,
+              recordId: idRef.value,
+              fileName: filterFileNameList[index],
+            };
+          });
 
-        break;
-    }
+          break;
+      }
+    };
   }
 
   // 文本框、按钮是否只读
@@ -643,32 +547,6 @@
       // record,
       // isUpdate: true,
     });
-  }
-
-  /**
-   * 保存基本信息
-   */
-  async function handleSaveInformation() {
-    isSaveLoading.value = true;
-
-    await equipmentMaintenanceRecordUpdateState({
-      id: idRef.value,
-      remark: formState.remark,
-      taskType: formState.taskType,
-      implementationUser: formState.implementationUser,
-      accompanyUser: formState.accompanyUser,
-      startDate: formState.startDate,
-      duration: formState.duration,
-      apReceiveContacts: formState.apReceiveContacts,
-      agreement: formState.agreement,
-      apReceiveName: formState.apReceiveName,
-      apReceiveFlag: record.value.apReceiveFlag,
-      bpReceiveFlag: record.value.bpReceiveFlag,
-    });
-
-    notification.success({ message: `保存成功!` });
-
-    isSaveLoading.value = false;
   }
 
   /**
@@ -730,10 +608,10 @@
         params['stepThreeStatus'] = '50';
         params['processResult'] = formState.processResult;
 
-        await equipmentMaintenanceRecordStepThreeSubmit({ ...params });
-
         params['stepThreeBizWorkflowDeviceMaintRecordAttList'] =
           formState.stepThreeBizWorkflowDeviceMaintRecordAttList;
+
+        await equipmentMaintenanceRecordStepThreeSubmit({ ...params });
 
         break;
     }

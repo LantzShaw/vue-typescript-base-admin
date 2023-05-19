@@ -31,6 +31,8 @@
   // 接口
   import { sensorPage } from '/@/api/manage/sensor';
 
+  import { traceabilityReport } from '/@/api/manage/summaryReport';
+
   // data
   import { searchForm, tableColumns } from './traceabilityReport.data';
   import { useGo } from '/@/hooks/web/usePage';
@@ -47,7 +49,7 @@
    */
   const [registerTable, { getDataSource, getColumns }] = useTable({
     title: '',
-    api: sensorPage,
+    api: traceabilityReport,
     columns: tableColumns,
     formConfig: searchForm,
     useSearchForm: true,
@@ -55,6 +57,7 @@
     showTableSetting: true,
     showIndexColumn: false,
     actionColumn: {
+      ifShow: false,
       width: 140,
       title: '操作',
       dataIndex: 'action',
@@ -71,7 +74,7 @@
   function goBack() {
     closeCurrent();
 
-    go('/summary/report/list');
+    go('/summary/traceability/list');
   }
 
   /**

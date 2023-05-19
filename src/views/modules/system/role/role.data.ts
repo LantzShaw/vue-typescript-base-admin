@@ -16,6 +16,7 @@ export const isUpdate = ref(true);
 export const idRef = ref('');
 export const record = ref<Recordable>({});
 
+export const menuTypeOptions = ref<any[]>([]);
 export const requestMethodOptions = ref<any[]>([]);
 export const dataItemStatusOptions = ref<any[]>([]);
 export const dataScopeTypeOptions = ref<any[]>([]);
