@@ -6,27 +6,29 @@
     :contentBackground="false"
     @back="goBack"
   >
-    <BasicTable @register="registerTable">
-      <!-- 按钮工具栏 -->
-      <template #toolbar>
-        <a-button
-          :loading="isExcelExportLoading"
-          v-auth="'manage:sensor:export'"
-          preIcon="ant-design:download-outlined"
-          @click="handleExport"
-        >
-          导出Excel
-        </a-button>
-      </template>
-      <!-- 表格内容 -->
-      <template #bodyCell="{ column, record }">
-        <template v-if="column.key === 'maxDate'">
-          <a @click="navigateToTraceabilityReport(record)" :title="record.maxDate">
-            {{ record.maxDate }}
-          </a>
+    <div class="ml-2 mr-2 mt-2">
+      <BasicTable @register="registerTable">
+        <!-- 按钮工具栏 -->
+        <template #toolbar>
+          <a-button
+            :loading="isExcelExportLoading"
+            v-auth="'manage:sensor:export'"
+            preIcon="ant-design:download-outlined"
+            @click="handleExport"
+          >
+            导出Excel
+          </a-button>
         </template>
-      </template>
-    </BasicTable>
+        <!-- 表格内容 -->
+        <template #bodyCell="{ column, record }">
+          <template v-if="column.key === 'enterpriseName'">
+            <a @click="navigateToTraceabilityReport(record)" :title="record.enterpriseName">
+              {{ record.enterpriseName }}
+            </a>
+          </template>
+        </template>
+      </BasicTable>
+    </div>
   </PageWrapper>
 </template>
 <script lang="ts" setup>
@@ -64,7 +66,7 @@
     searchInfo: {
       fig: route?.query?.fig,
     },
-    useSearchForm: true,
+    useSearchForm: false,
     canResize: false,
     showTableSetting: true,
     showIndexColumn: false,

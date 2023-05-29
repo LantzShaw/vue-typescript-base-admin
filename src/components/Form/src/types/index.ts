@@ -114,4 +114,6 @@ export type ComponentType =
   | 'Slider'
   | 'Rate'
   | 'Divider'
+  | 'None'
+  | 'FormGroup'
   | 'ApiTransfer';

@@ -113,7 +113,7 @@ export function useFormEvents({
     fields.forEach((key) => {
       const schema = unref(getSchema).find((item) => item.field === key);
       let value = get(values, key);
-      const hasKey = !!get(values, key);
+      const hasKey = Reflect.has(values, key);
 
       value = handleInputNumberValue(schema?.component, value);
       const { componentProps } = schema || {};
@@ -237,13 +237,15 @@ export function useFormEvents({
     }
 
     const hasField = updateData.every(
-      (item) => item.component === 'Divider' || (Reflect.has(item, 'field') && item.field),
+      (item) =>
+        item.component === 'None' ||
+        item.component === 'Divider' ||
+        item.component === 'FormGroup' ||
+        (Reflect.has(item, 'field') && item.field),
     );
 
     if (!hasField) {
-      error(
-        'All children of the form Schema array that need to be updated must contain the `field` field',
-      );
+      error('重载的元素不能是 None、Divider 或 FormGroup 组件，必须包含 field 字段。');
       return;
     }
     schemaRef.value = updateData as FormSchema[];
@@ -259,13 +261,15 @@ export function useFormEvents({
     }
 
     const hasField = updateData.every(
-      (item) => item.component === 'Divider' || (Reflect.has(item, 'field') && item.field),
+      (item) =>
+        item.component === 'None' ||
+        item.component === 'Divider' ||
+        item.component === 'FormGroup' ||
+        (Reflect.has(item, 'field') && item.field),
     );
 
     if (!hasField) {
-      error(
-        'All children of the form Schema array that need to be updated must contain the `field` field',
-      );
+      error('更新的元素不能是 None、Divider 或 FormGroup 组件，必须包含 field 字段。');
       return;
     }
     const schema: FormSchema[] = [];

@@ -33,6 +33,11 @@ export const searchForm: FormProps = {
   labelWidth: 90,
   schemas: [
     {
+      label: t('流水号'),
+      field: 'alarmSnNo',
+      component: 'Input',
+    },
+    {
       label: t('使用单位'),
       field: 'organizationId',
       component: 'ApiSelect',
@@ -70,34 +75,41 @@ export const searchForm: FormProps = {
  */
 export const tableColumns: BasicColumn[] = [
   {
+    title: t('流水号'),
+    dataIndex: 'alarmSnNo',
+    width: 145,
+    ellipsis: true,
+    align: 'center',
+  },
+  {
     title: t('使用单位'),
     dataIndex: 'bizEnterprise',
-    width: 120,
+    width: 150,
     ellipsis: true,
     align: 'center',
   },
   {
     title: t('所属区域'),
     dataIndex: 'bizInstallRegion',
-    width: 120,
+    width: 80,
     align: 'center',
   },
   {
     title: t('安装位置'),
     dataIndex: 'installLocation',
-    width: 100,
+    width: 90,
     align: 'center',
   },
   {
     title: t('位号'),
     dataIndex: 'locationNo',
-    width: 100,
+    width: 80,
     align: 'center',
   },
   {
     title: t('气体类型'),
     dataIndex: 'gasType',
-    width: 90,
+    width: 80,
     align: 'center',
   },
   {
@@ -117,14 +129,13 @@ export const tableColumns: BasicColumn[] = [
   {
     title: t('触发值'),
     dataIndex: 'dtuipTriggerVal',
-    width: 80,
+    width: 70,
     align: 'center',
-    sorter: true,
   },
   {
     title: t('事件状态'),
     dataIndex: 'eventStatus',
-    width: 90,
+    width: 80,
     align: 'center',
     sorter: true,
   },

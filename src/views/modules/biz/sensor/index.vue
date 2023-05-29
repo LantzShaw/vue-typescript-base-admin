@@ -35,8 +35,20 @@
             {{ record.sensorName }}
           </a>
         </template>
-        <template v-else-if="column.key === 'dtuipSensorTypeId'">
-          <dict-label :options="sensorTypeOptions" :value="record.dtuipSensorTypeId" />
+        <template v-else-if="column.key === 'sensorStatus'">
+          <template v-if="record.alarmFlag === '1'">
+            <dict-label :options="sensorStatusOptions" :value="0" />
+          </template>
+          <template v-if="record.maintFlag === '1'">
+            <dict-label :options="sensorStatusOptions" :value="1" />
+            <dict-label :options="maintenanceTaskTypeOptions" :value="record.taskType" />
+          </template>
+          <template v-if="record.stopFlag === '1'">
+            <dict-label :options="sensorStatusOptions" :value="2" />
+          </template>
+          <template v-if="record.normalFlag === '1'">
+            <dict-label :options="sensorStatusOptions" :value="3" />
+          </template>
         </template>
         <template v-else-if="column.key === 'dtuipIsAlarms'">
           <dict-label :options="alarmStatusOptions" :value="record.dtuipIsAlarms" />
@@ -125,6 +137,8 @@
     alarmStatusOptions,
     deleteStatusOptions,
     onlineStatusOptions,
+    maintenanceTaskTypeOptions,
+    sensorStatusOptions,
     sensorTypeOptions,
     searchForm,
     tableColumns,
@@ -246,13 +260,24 @@
    * 初始化字典数据
    */
   async function initDict() {
-    const { alarm_status, delete_status, online_status, sensor_type } = await optionsListBatchApi([
+    const {
+      sensor_status,
+      alarm_status,
+      maintenance_task_type,
+      delete_status,
+      online_status,
+      sensor_type,
+    } = await optionsListBatchApi([
+      'sensor_status',
       'alarm_status',
+      'maintenance_task_type',
       'delete_status',
       'online_status',
       'sensor_type',
     ]);
+    sensorStatusOptions.value = sensor_status || [];
     alarmStatusOptions.value = alarm_status || [];
+    maintenanceTaskTypeOptions.value = maintenance_task_type || [];
     deleteStatusOptions.value = delete_status || [];
     onlineStatusOptions.value = online_status || [];
     sensorTypeOptions.value = sensor_type || [];

@@ -8,6 +8,8 @@
   import { baseOption } from './data';
   import echarts from '/@/utils/lib/echarts';
 
+  import { statisticsGasDistribution } from '/@/api/dataview';
+
   type ChartData = {
     name: string;
     data: Array<string | number>;
@@ -51,7 +53,16 @@
       const { setOptions, getInstance } = useECharts(gasBarChartRef as Ref<HTMLDivElement>);
 
       const getChartData = async () => {
-        getInstance()?.showLoading();
+        getInstance()?.showLoading({
+          text: '加载中...',
+          color: 'rgba(1, 167, 204, 1)',
+          textColor: 'rgba(1, 167, 204, 1)',
+          maskColor: '#05132c',
+        });
+
+        const response = await statisticsGasDistribution();
+
+        console.log('气体分布统计', response);
       };
 
       /**

@@ -73,6 +73,15 @@ export const searchForm: FormProps = {
       },
     },
     {
+      label: t('服务类型'),
+      field: 'taskType',
+      component: 'Select',
+      componentProps: {
+        options: maintenanceTaskTypeOptions,
+        allowClear: true,
+      },
+    },
+    {
       label: t('发生时间'),
       field: 'timeRange',
       component: 'RangePicker',
@@ -113,6 +122,13 @@ export const tableColumns: BasicColumn[] = [
   {
     title: t('维护状态'),
     dataIndex: 'eventStatus',
+    sorter: true,
+    width: 90,
+    align: 'center',
+  },
+  {
+    title: t('服务类型'),
+    dataIndex: 'taskType',
     sorter: true,
     width: 90,
     align: 'center',
@@ -306,6 +322,45 @@ export const sensorTableColumns: BasicColumn[] = [
 ];
 
 /**
+ * 表格字段
+ */
+export const selectedSensorTableColumns: BasicColumn[] = [
+  {
+    title: t('公司名称'),
+    dataIndex: 'enterpriseName',
+    sorter: true,
+    width: 130,
+    align: 'center',
+  },
+  {
+    title: t('所属区域'),
+    dataIndex: 'regionName',
+    sorter: true,
+    width: 130,
+    align: 'center',
+  },
+
+  {
+    title: t('传感器名称'),
+    dataIndex: 'sensorName',
+    sorter: true,
+    width: 130,
+    align: 'center',
+  },
+  {
+    title: t('技术要求'),
+    dataIndex: 'specification',
+    width: 200,
+    align: 'center',
+    edit: true,
+    editable: true,
+    editComponentProps: {
+      defaultValue: '请填写技术要求',
+    },
+  },
+];
+
+/**
  *  查询表单字段
  */
 export const sensorSearchForm: FormProps = {
@@ -329,57 +384,6 @@ export const sensorSearchForm: FormProps = {
       },
       // colSlot: 'organizationId',
     },
-    // {
-    //   label: t('所属单位'),
-    //   field: 'organizationId',
-    //   component: 'Select',
-    //   componentProps: ({ formModel, formActionType }) => {
-    //     console.log('---------enterpriseOptions--------', enterpriseOptions);
-    //     // const provincesOptions = [
-    //     //   {
-    //     //     id: 'guangdong',
-    //     //     label: '广东省',
-    //     //     value: '1',
-    //     //     key: '1',
-    //     //   },
-    //     //   {
-    //     //     id: 'jiangsu',
-    //     //     label: '江苏省',
-    //     //     value: '2',
-    //     //     key: '2',
-    //     //   },
-    //     // ];
-
-    //     return {
-    //       options: enterpriseOptions.value,
-    //       placeholder: '请选择所属单位',
-    //       onChange: (e: any) => {
-    //         console.log('e', e);
-    //         // let citiesOptions =
-    //         //   e == 1
-    //         //     ? citiesOptionsData[provincesOptions[0].id]
-    //         //     : citiesOptionsData[provincesOptions[1].id];
-    //         // // console.log(citiesOptions)
-    //         // if (e === undefined) {
-    //         //   citiesOptions = [];
-    //         // }
-    //         // formModel.city = undefined; //  reset city value
-    //         // const { updateSchema } = formActionType;
-    //         // updateSchema({
-    //         //   field: 'city',
-    //         //   componentProps: {
-    //         //     options: citiesOptions,
-    //         //   },
-    //         // });
-    //       },
-    //     };
-    //   },
-    // },
-    // {
-    //   label: t('传感器名称'),
-    //   field: 'sensorName',
-    //   component: 'Input',
-    // },
     {
       label: t('所属区域'),
       field: 'regionId',

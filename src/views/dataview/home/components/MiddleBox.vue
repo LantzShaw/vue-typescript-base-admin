@@ -21,9 +21,12 @@
 </template>
 
 <script lang="ts" setup>
-  import { ref } from 'vue';
+  import { ref, onMounted } from 'vue';
   import MiddleDataDisplayBox from './MiddleDataDisplayBox.vue';
   import MiddleIndicator from './MiddleIndicator.vue';
+
+  import { sensorStatus } from '/@/api/dataview';
+  import { unref } from 'vue';
 
   type DisplayData = {
     id?: string;
@@ -41,27 +44,27 @@
     {
       id: '1',
       label: '维护',
-      value: '7',
+      value: '0',
     },
     {
       id: '2',
       label: '校准',
-      value: '12',
+      value: '0',
     },
     {
       id: '3',
       label: '停用',
-      value: '3',
+      value: '0',
     },
     {
       id: '4',
       label: '触发',
-      value: '19',
+      value: '0',
     },
     {
       id: '5',
       label: '正常',
-      value: '6',
+      value: '0',
     },
   ]);
 
@@ -82,6 +85,27 @@
       label: '正常',
     },
   ]);
+
+  async function getSensorStatusData() {
+    try {
+      const response = await sensorStatus();
+
+      const { maintNum, calibrationNum, stopNum, alarmNum, normalNum } = response;
+
+      unref(displayDataList)[0].value = maintNum;
+      unref(displayDataList)[1].value = calibrationNum;
+      unref(displayDataList)[2].value = stopNum;
+      unref(displayDataList)[3].value = alarmNum;
+      unref(displayDataList)[4].value = normalNum;
+    } catch (error) {
+      console.log(error);
+    } finally {
+    }
+  }
+
+  onMounted(() => {
+    getSensorStatusData();
+  });
 </script>
 
 <style scoped lang="less">

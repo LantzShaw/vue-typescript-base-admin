@@ -8,7 +8,7 @@
 <script lang="ts" setup>
   type Props = {
     label?: string;
-    digit?: string;
+    digit?: string | number;
   };
 
   withDefaults(defineProps<Props>(), {});

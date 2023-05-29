@@ -26,7 +26,7 @@
             autocomplete="off"
             :rules="rules"
           >
-            <a-row style="height: 350px; padding-top: 10px">
+            <a-row style="height: 300px; padding-top: 10px">
               <a-col :span="24">
                 <a-form-item
                   :label-col="{ span: 2 }"
@@ -57,6 +57,7 @@
                     }"
                     :api="uploadApi"
                     :value="fileList.fileOne"
+                    :fileNames="fileList.fileNamesOne"
                   />
                 </a-form-item>
               </a-col>
@@ -92,7 +93,7 @@
             autocomplete="off"
             :rules="rules"
           >
-            <a-row style="height: 350px; padding-top: 10px">
+            <a-row style="height: 300px; padding-top: 10px">
               <a-col :span="24">
                 <a-form-item
                   :label-col="{ span: 2 }"
@@ -123,6 +124,7 @@
                     }"
                     :api="uploadApi"
                     :value="fileList.fileTwo"
+                    :fileNames="fileList.fileNamesTwo"
                   />
                 </a-form-item>
               </a-col>
@@ -158,7 +160,7 @@
             autocomplete="off"
             :rules="rules"
           >
-            <a-row style="height: 350px; padding-top: 10px">
+            <a-row style="height: 300px; padding-top: 10px">
               <a-col :span="24">
                 <a-form-item
                   :label-col="{ span: 2 }"
@@ -176,21 +178,6 @@
                 </a-form-item>
               </a-col>
               <a-col :span="24">
-                <a-form-item
-                  :label-col="{ span: 2 }"
-                  :colon="false"
-                  label="处理结果"
-                  name="processResult"
-                  :rules="[{ required: true, message: '处理结果不能为空!' }]"
-                >
-                  <a-radio-group name="processResult" v-model:value="formState.processResult">
-                    <a-radio value="1">确认正常</a-radio>
-                    <a-radio value="2">停用</a-radio>
-                    <a-radio value="3">待处置</a-radio>
-                  </a-radio-group>
-                </a-form-item>
-              </a-col>
-              <a-col :span="24">
                 <a-form-item :label-col="{ span: 2 }" :colon="false" label="附件" name="username">
                   <BasicUpload
                     :maxSize="20"
@@ -204,7 +191,16 @@
                     }"
                     :api="uploadApi"
                     :value="fileList.fileThree"
+                    :fileNames="fileList.fileNamesThree"
                   />
+                </a-form-item>
+              </a-col>
+              <a-col span="24" v-auth="'manage:maintenance-record:process-result'">
+                <a-form-item :label-col="{ span: 2 }" :colon="false" label="处置结果">
+                  <a-space>
+                    <a-button @click="handleOpenDisabledModal" type="primary">设置停用</a-button>
+                    <a-button @click="handleOpenPendingModal" type="primary">设置待处置</a-button>
+                  </a-space>
                 </a-form-item>
               </a-col>
               <a-col span="23">
@@ -234,6 +230,18 @@
     </div>
   </BasicModal>
 
+  <EquipmentMaintenanceRecordDisabledModal
+    :id="idRef"
+    @register="registerEquipmentMaintenanceRecordDisabledModal"
+    @success="handleSuccess"
+  />
+
+  <EquipmentMaintenanceRecordPendingModal
+    :id="idRef"
+    @register="registerEquipmentMaintenanceRecordPendingModal"
+    @success="handleSuccess"
+  />
+
   <ReportModal v-if="idRef" :id="idRef" @register="registerReportModal" @success="handleSuccess" />
 </template>
 <script lang="ts" setup>
@@ -245,8 +253,7 @@
     Textarea as ATextarea,
     Tabs as ATabs,
     TabPane as ATabPane,
-    Radio as ARadio,
-    RadioGroup as ARadioGroup,
+    Space as ASpace,
   } from 'ant-design-vue';
 
   import { unref, ref, reactive, computed, onMounted } from 'vue';
@@ -255,6 +262,8 @@
   // 组件
   import { BasicModal, useModal, useModalInner } from '/@/components/Modal';
   import ReportModal from './components/ReportModal.vue';
+  import EquipmentMaintenanceRecordDisabledModal from './EquipmentMaintenanceRecordDisabledModal.vue';
+  import EquipmentMaintenanceRecordPendingModal from './EquipmentMaintenanceRecordPendingModal.vue';
 
   // data
   import {
@@ -283,9 +292,9 @@
   import { useUserStore } from '/@/store/modules/user';
 
   type FileList = {
-    attPath?: string;
+    attPath?: string; // 文件名
     recordId?: string; // 设备记录id
-    fileName?: string;
+    fileName?: string; // 源文件名
   };
 
   type FileState = {
@@ -313,7 +322,6 @@
     stepOneBizWorkflowDeviceMaintRecordAttList: FileList[];
     stepTwoBizWorkflowDeviceMaintRecordAttList: FileList[];
     stepThreeBizWorkflowDeviceMaintRecordAttList: FileList[];
-    processResult?: string;
   };
   const okAuth = ref(['manage:maintenance-record:process']);
   const emit = defineEmits(['success', 'register']);
@@ -352,7 +360,6 @@
     stepOneBizWorkflowDeviceMaintRecordAttList: [],
     stepTwoBizWorkflowDeviceMaintRecordAttList: [],
     stepThreeBizWorkflowDeviceMaintRecordAttList: [],
-    processResult: '1',
   });
 
   /**
@@ -375,6 +382,18 @@
 
   // 查看设备
   const [registerReportModal, { openModal }] = useModal();
+
+  // 停用
+  const [
+    registerEquipmentMaintenanceRecordDisabledModal,
+    { openModal: openEquipmentMaintenanceRecordDisabledModal },
+  ] = useModal();
+
+  // 待处置
+  const [
+    registerEquipmentMaintenanceRecordPendingModal,
+    { openModal: openEquipmentMaintenanceRecordPendingModal },
+  ] = useModal();
 
   /**
    * 构建Modal
@@ -404,14 +423,13 @@
     }
 
     // NOTE: 根据流程状态 - 设置tab选中
-    // const { stepOneStatus, stepTwoStatus, stepThreeStatus } = record.value;
-    // const tempArr = [stepOneStatus, stepTwoStatus, stepThreeStatus];
-    // const index = tempArr.findIndex(
-    //   (item) => item === undefined || item === '100' || item === '150',
-    // );
-    // if (index !== -1) {
-    //   activeKey.value = `${index + 1}`;
-    // }
+    const { stepOneStatus, stepTwoStatus, stepThreeStatus } = record.value;
+    const tempArr = [stepOneStatus, stepTwoStatus, stepThreeStatus];
+
+    const index = tempArr.findIndex((item) => item === '1000' || item === '50' || item === '150');
+    if (index !== -1) {
+      activeKey.value = index + '';
+    }
 
     formState.stepOneRemark = record.value.stepOneRemark;
     formState.stepTwoRemark = record.value.stepTwoRemark;
@@ -422,7 +440,6 @@
     formState.remark = record.value.remark;
     formState.startDate = record.value.startDate;
     formState.implementationUser = record.value.implementationUser;
-    formState.processResult = record.value.processResult;
 
     formState.apReceiveContacts = record.value.apReceiveContacts;
     formState.agreement = record.value.agreement;
@@ -472,12 +489,35 @@
   }
 
   /**
+   * 停用
+   *
+   * @param record
+   */
+  function handleOpenDisabledModal(record: Recordable) {
+    openEquipmentMaintenanceRecordDisabledModal(true, {
+      record,
+      isUpdate: true,
+    });
+  }
+
+  /**
+   * 待处置
+   *
+   * @param record
+   */
+  function handleOpenPendingModal(record: Recordable) {
+    openEquipmentMaintenanceRecordPendingModal(true, {
+      record,
+      isUpdate: true,
+    });
+  }
+
+  /**
    * 文件上传 - 保存按钮事件
    *
    * 150 - 工单实施，250 - 实施成果，350 - 完工单
    *
    * @param flag 对应的流程
-   * @param list 文件名数组
    */
   function handleUploadChange(flag: string) {
     return (list: string[], fileNames: string[]) => {
@@ -606,7 +646,6 @@
       case '350':
         params['stepThreeRemark'] = formState.stepThreeRemark;
         params['stepThreeStatus'] = '50';
-        params['processResult'] = formState.processResult;
 
         params['stepThreeBizWorkflowDeviceMaintRecordAttList'] =
           formState.stepThreeBizWorkflowDeviceMaintRecordAttList;
@@ -621,7 +660,6 @@
     formState.stepOneRemark = record.value.stepOneRemark;
     formState.stepTwoRemark = record.value.stepTwoRemark;
     formState.stepThreeRemark = record.value.stepThreeRemark;
-    formState.processResult = record.value.processResult;
 
     notification.success({ message: `信息提交成功!` });
 
@@ -655,7 +693,6 @@
         break;
       case '350':
         params['stepThreeStatus'] = '150';
-        params['processResult'] = formState.processResult;
 
         await equipmentMaintenanceRecordStepThreeAffirm({ ...params });
 
@@ -697,7 +734,6 @@
         break;
       case '300':
         params['stepThreeStatus'] = '100';
-        params['processResult'] = formState.processResult;
 
         await equipmentMaintenanceRecordStepThreeAffirm({ ...params });
 

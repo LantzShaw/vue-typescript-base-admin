@@ -80,6 +80,9 @@
   const [registerTable, { getDataSource, getColumns, getForm }] = useTable({
     title: '',
     api: maintenanceReport,
+    searchInfo: {
+      id: route?.query?.id,
+    },
     columns: tableColumns,
     formConfig: searchForm,
     useSearchForm: true,
@@ -93,17 +96,17 @@
       // slots: { customRender: 'action' },
       fixed: 'right',
       // fixed: undefined,
-      // auth: 'system:application:operation',
+      auth: 'manage:maintenance-record:report',
     },
   });
 
   /**
-   * 返回报表总览页面
+   * 返回报警器维护保养统计
    */
   function goBack() {
     closeCurrent();
 
-    go('/summary/report/list');
+    go('/summary/maintenance/statistic');
   }
 
   /**

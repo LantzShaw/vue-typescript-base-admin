@@ -6,19 +6,36 @@
     :contentBackground="false"
     @back="goBack"
   >
-    <BasicTable @register="registerTable">
-      <!-- 按钮工具栏 -->
-      <template #toolbar>
-        <a-button
-          :loading="isExcelExportLoading"
-          v-auth="'manage:sensor:export'"
-          preIcon="ant-design:download-outlined"
-          @click="handleExport"
-        >
-          导出Excel
-        </a-button>
-      </template>
-    </BasicTable>
+    <div class="ml-2 mr-2 mt-2">
+      <BasicTable @register="registerTable">
+        <!-- 按钮工具栏 -->
+        <template #toolbar>
+          <a-button
+            :loading="isExcelExportLoading"
+            v-auth="'manage:sensor:export'"
+            preIcon="ant-design:download-outlined"
+            @click="handleExport"
+          >
+            导出Excel
+          </a-button>
+        </template>
+        <!-- 表格内容 -->
+        <template #bodyCell="{ column, record }">
+          <template v-if="column.key === 'organizationId'">
+            <span
+              v-if="record.bizEnterprise?.enterpriseNo"
+              style="text-overflow: ellipsis"
+              :title="`[${record.bizEnterprise?.enterpriseNo}]${record.bizEnterprise?.enterpriseName}`"
+            >
+              [{{ record.bizEnterprise?.enterpriseNo }}] {{ record.bizEnterprise?.enterpriseName }}
+            </span>
+          </template>
+          <template v-else-if="column.key === 'regionId'">
+            {{ record?.bizInstallRegion?.regionName }}
+          </template>
+        </template>
+      </BasicTable>
+    </div>
   </PageWrapper>
 </template>
 <script lang="ts" setup>
@@ -52,7 +69,7 @@
     api: traceabilityReport,
     columns: tableColumns,
     formConfig: searchForm,
-    useSearchForm: true,
+    useSearchForm: false,
     canResize: false,
     showTableSetting: true,
     showIndexColumn: false,

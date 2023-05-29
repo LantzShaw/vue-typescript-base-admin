@@ -293,9 +293,14 @@
         state.selectedKeys = props.selectedKeys;
       });
 
-      watchEffect(() => {
-        state.checkedKeys = props.checkedKeys;
-      });
+      watchEffect(
+        () => {
+          state.checkedKeys = props.checkedKeys;
+        },
+        {
+          flush: 'post',
+        },
+      );
 
       watch(
         () => props.value,

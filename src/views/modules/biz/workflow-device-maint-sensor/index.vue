@@ -14,11 +14,16 @@
     <BasicTable @register="registerTable">
       <!-- 按钮工具栏 -->
       <template #toolbar>
-        <a-button type="primary" preIcon="ant-design:plus-outlined" @click="handleCreate">
+        <a-button
+          v-if="bizWorkflowDeviceMaintRecord.eventStatus == 0"
+          type="primary"
+          preIcon="ant-design:plus-outlined"
+          @click="handleCreate"
+        >
           新增
         </a-button>
         <a-button
-          v-if="getSelectRowKeys().length > 0"
+          v-if="getSelectRowKeys().length > 0 && bizWorkflowDeviceMaintRecord.eventStatus == 0"
           type="primary"
           danger
           @click="handleBatchDelete"
@@ -142,7 +147,10 @@
         title: () => h('span', t('sys.app.logoutTip')),
         content: () => h('span', t('确认删除')),
         onOk: async () => {
-          await workflowDeviceMaintSensorDelete([...getSelectRowKeys()]);
+          await workflowDeviceMaintSensorDelete({
+            recordId: recordId.value,
+            ids: [...getSelectRowKeys()],
+          });
           notification.success({ message: `执行成功` });
           clearSelectedRowKeys();
           handleSuccess();
@@ -160,7 +168,6 @@
 
   function goBack() {
     const path = unref(currentRoute).path;
-    console.log(path);
     var paths = path.split('/sensor/');
     closeCurrent();
     go(paths[0]);

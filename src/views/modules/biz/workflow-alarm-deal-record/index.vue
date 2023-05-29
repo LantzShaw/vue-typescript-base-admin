@@ -31,9 +31,9 @@
 
       <!-- 表格内容 -->
       <template #bodyCell="{ column, record }">
-        <template v-if="column.key === 'dtuipDeviceName'">
-          <a @click="handleEdit(record)" :title="record.dtuipDeviceName">
-            {{ record.dtuipDeviceName }}
+        <template v-if="column.key === 'alarmSnNo'">
+          <a @click="handleViewDeviceAlarm(record)" :title="'点击查看触发记录'">
+            {{ record.alarmSnNo }}
           </a>
         </template>
         <template v-else-if="column.key === 'bizEnterprise'">
@@ -51,9 +51,13 @@
           </a-tooltip>
         </template>
         <template v-else-if="column.key === 'bizInstallRegion'">
-          <span v-if="record.bizDeviceSensor?.bizInstallRegion">
+          <a
+            v-if="record.bizDeviceSensor?.bizInstallRegion"
+            @click="navigateToAnalysis(record)"
+            :title="'点击查看报警分析'"
+          >
             {{ record.bizDeviceSensor?.bizInstallRegion?.regionName }}
-          </span>
+          </a>
         </template>
         <template v-else-if="column.key === 'installLocation'">
           <span v-if="record.bizDeviceSensor">
@@ -76,23 +80,6 @@
           </span>
         </template>
 
-        <template v-else-if="column.key === 'dtuipIsDelete'">
-          <span v-if="record.bizDeviceAlarm">
-            <dict-label
-              :options="deleteStatusOptions"
-              :value="record.bizDeviceAlarm?.dtuipIsDelete"
-            />
-          </span>
-        </template>
-        <template v-else-if="column.key === 'dtuipSensorTypeId'">
-          <dict-label :options="sensorTypeOptions" :value="record.dtuipSensorTypeId" />
-        </template>
-        <template v-else-if="column.key === 'dtuipIsAlarms'">
-          <dict-label :options="alarmStatusOptions" :value="record.dtuipIsAlarms" />
-        </template>
-        <template v-else-if="column.key === 'dtuipIsLine'">
-          <dict-label :options="onlineStatusOptions" :value="record.dtuipIsLine" />
-        </template>
         <template v-else-if="column.key === 'eventStatus'">
           <dict-label :options="eventTriggerStatusOptions" :value="record.eventStatus" />
         </template>
@@ -131,25 +118,21 @@
                 auth: 'manage:event:report',
                 ifShow: record.eventStatus === '2',
               },
+              // {
+              //   label: '报警分析',
+              //   onClick: navigateToAnalysis.bind(null, record),
+              //   auth: 'manage:event:analysis',
+              //   ifShow: true,
+              // },
               {
-                label: '报警分析',
-                onClick: navigateToAnalysis.bind(null, record),
-                auth: 'manage:event:analysis',
-                ifShow: true,
-              },
-              {
-                label: '触发记录',
-                onClick: handleViewDeviceAlarm.bind(null, record),
-                auth: 'manage:event:alarm',
-              },
-              {
-                label: '删除',
+                label: '作废',
                 color: 'error',
                 auth: 'manage:event:delete',
                 popConfirm: {
-                  title: '是否确认删除',
+                  title: '是否确认作废',
                   confirm: handleDelete.bind(null, record),
                 },
+                ifShow: record.eventStatus === '0' || record.eventStatus === '1',
               },
             ]"
           />
@@ -202,12 +185,13 @@
   import DeviceAlarmPageModal from './DeviceAlarmPageModal.vue';
 
   // 接口
+  import { eventTriggerSend } from '/@/api/manage/eventTrigger';
+
   import {
-    eventTriggerPage,
-    eventTriggerDelete,
-    eventTriggerExport,
-    eventTriggerSend,
-  } from '/@/api/manage/eventTrigger';
+    workflowAlarmDealRecordPage,
+    workflowAlarmDealRecordInvalid,
+    workflowAlarmDealRecordExport,
+  } from '/@/api/biz/workflowAlarmDealRecord';
 
   import {
     alarmDealRecordApReceive,
@@ -232,8 +216,8 @@
   const { currentRoute } = useRouter();
   const isExportLoading = ref<boolean>(false);
 
-  const { notification } = useMessage();
-
+  const { createMessage, notification } = useMessage();
+  const { info } = createMessage;
   /**
    * 构建registerModal
    */
@@ -249,7 +233,7 @@
    */
   const [registerTable, { reload }] = useTable({
     title: '',
-    api: eventTriggerPage,
+    api: workflowAlarmDealRecordPage,
     defSort: {
       field: 'dtuipTriggerDate',
       order: 'ascend',
@@ -261,12 +245,11 @@
     showTableSetting: true,
     showIndexColumn: true,
     actionColumn: {
-      width: 260,
+      width: 140,
       title: '操作',
       dataIndex: 'action',
       fixed: 'right',
-      // fixed: undefined,
-      // auth: 'system:application:operation',
+      auth: 'manage:event:operation',
     },
   });
 
@@ -276,7 +259,7 @@
   function handleExport() {
     isExportLoading.value = true;
 
-    eventTriggerExport({})
+    workflowAlarmDealRecordExport({})
       .then((response) => {
         downloadByData(response, `事件触发_${new Date().getTime()}.xlsx`);
       })
@@ -346,6 +329,8 @@
     if (regionId) {
       const path = unref(currentRoute).path;
       go(`${path}/analysis/${record.id}?regionId=${regionId}&sensorId=${record.sensorId}`);
+    } else {
+      info('未配置区域');
     }
   }
 
@@ -384,7 +369,7 @@
    * 删除
    */
   async function handleDelete(record: Recordable) {
-    await eventTriggerDelete({ id: record.id });
+    await workflowAlarmDealRecordInvalid({ id: record.id });
     notification.success({ message: `执行成功` });
     handleSuccess();
   }

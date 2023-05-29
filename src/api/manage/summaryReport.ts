@@ -4,14 +4,18 @@ import { defHttp } from '/@/utils/http/axios';
 const { apiUrl } = useGlobSetting();
 
 enum Api {
-  OverviewData = '/biz/device/gether',
-  InstallationReportPage = '/biz/device/getgaslist',
+  OverviewData = '/biz/statistics/gether',
+  InstallationReportPage = '/biz/statistics/getgaslist',
   AdditionReportPage = '/biz/device/get-gastype-list',
   DismantlingReportPage = '',
   EventReportPage = '/biz/device/getalarmlist',
   MaintenanceReport = '/biz/device/getmainlist',
-  TraceabilityListPage = '/biz/device/get-overdue-list',
-  TraceabilityReport = '/biz/device/get-overdue-item',
+  TraceabilityListPage = '/biz/statistics/get-overdue-list',
+  TraceabilityReport = '/biz/statistics/get-overdue-item',
+
+  SensorChangeNumPage = '/biz/statistics/sensor-change-num',
+  AlarmNumPage = '/biz/statistics/alarm-num',
+  MaintRecordNumPage = '/biz/statistics/maint-record-num',
 }
 
 export const overviewData = (params?: any) => defHttp.get({ url: Api.OverviewData, params });
@@ -28,6 +32,14 @@ export const traceabilityListPage = (params?: any) =>
   defHttp.get({ url: Api.TraceabilityListPage, params });
 export const traceabilityReport = (params?: any) =>
   defHttp.get({ url: Api.TraceabilityReport, params });
+
+export const sensorChangeNumPage = (params?: any) =>
+  defHttp.get({ url: Api.SensorChangeNumPage, params });
+
+export const alarmNumPage = (params?: any) => defHttp.get({ url: Api.AlarmNumPage, params });
+
+export const maintRecordNumPage = (params?: any) =>
+  defHttp.get({ url: Api.MaintRecordNumPage, params });
 
 // export const deviceExport = (params?: any) =>
 //   defHttp.get(

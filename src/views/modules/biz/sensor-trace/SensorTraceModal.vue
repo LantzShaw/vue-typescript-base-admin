@@ -13,8 +13,8 @@
       <BasicForm autoFocusFirstItem @register="registerForm">
         <template #list>
           <BasicUpload
+            :accept="['.pdf']"
             :maxSize="20"
-            :maxNumber="10"
             :showPreviewNumber="false"
             :emptyHidePreview="true"
             :multiple="false"

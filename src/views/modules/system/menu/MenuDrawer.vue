@@ -27,7 +27,7 @@
   </BasicDrawer>
 </template>
 <script lang="ts" setup>
-  import { defineComponent, ref, unref, computed, nextTick } from 'vue';
+  import { ref, unref, computed, nextTick } from 'vue';
   // hooks
   import { useI18n } from '/@/hooks/web/useI18n';
   import { useMessage } from '/@/hooks/web/useMessage';
@@ -69,6 +69,7 @@
 
   const { createMessage, notification } = useMessage();
 
+  // const treeData = ref<TreeItem[]>([]);
   const authorityTreeData = ref<TreeItem[]>([]);
   const treeRef = ref<Nullable<TreeActionType>>(null);
   function getTree() {
@@ -133,6 +134,16 @@
           },
         },
       ]);
+    } else {
+      const treeData = [];
+      updateSchema([
+        {
+          field: 'parentId',
+          componentProps: {
+            treeData: unref(treeData),
+          },
+        },
+      ]);
     }
 
     if (data.parentId) {
@@ -145,11 +156,10 @@
         field: 'applicationId',
         componentProps: {
           options: applicationOptions,
-
           onChange: async (e: any) => {
-            const treeData = await menuTreeForEdit({ applicationId: e, id: idRef.value });
+            const treeData = (await menuTreeForEdit({ applicationId: e, id: idRef.value })) || [];
 
-            await updateSchema([
+            updateSchema([
               {
                 field: 'parentId',
                 componentProps: {
@@ -159,6 +169,7 @@
             ]);
             // 如果applicationId没变
             if (record.value.applicationId == e) {
+              console.log('applicationId没变');
             } else {
               setFieldsValue({ parentId: '0' });
             }

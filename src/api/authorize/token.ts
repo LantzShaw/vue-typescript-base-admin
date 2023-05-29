@@ -1,7 +1,7 @@
 import { defHttp } from '/@/utils/http/axios';
 
 enum Api {
-  TokenDelete = '/authorize/authorization/delete',
+  TokenDelete = '/authorize/authorization/delete-batch',
   TokenPage = '/authorize/authorization/page',
   TokenList = '/authorize/authorization/list',
   TokenForm = '/authorize/authorization/form',

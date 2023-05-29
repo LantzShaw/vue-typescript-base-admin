@@ -8,6 +8,8 @@
   import { baseOption } from './data';
   import echarts from '/@/utils/lib/echarts';
 
+  import { statisticsMaintProcess } from '/@/api/dataview';
+
   type ChartData = {
     name: string;
     value: number;
@@ -27,18 +29,27 @@
     },
     setup(props) {
       const eventTriggerPieChartRef = ref<HTMLDivElement | null>(null);
-      const chartData = ref<ChartData[]>([
-        { value: 1048, name: '计划' },
-        { value: 735, name: '执行' },
-        { value: 580, name: '结束' },
-      ]);
+      const chartData = ref<ChartData[]>([]);
 
       const { setOptions, getInstance } = useECharts(
         eventTriggerPieChartRef as Ref<HTMLDivElement>,
       );
 
       const getChartData = async () => {
-        getInstance()?.showLoading();
+        getInstance()?.showLoading({
+          text: '加载中...',
+          color: 'rgba(1, 167, 204, 1)',
+          textColor: 'rgba(1, 167, 204, 1)',
+          maskColor: '#05132c',
+        });
+
+        try {
+          const response = await statisticsMaintProcess();
+
+          chartData.value = response;
+        } catch (error) {
+        } finally {
+        }
       };
 
       /**
@@ -46,17 +57,6 @@
        */
       const onSetOptions = async () => {
         const seriesOption: any = {
-          // TODO: 这里设置颜色不行
-          // color: [
-          //   '#1D75F0',
-          //   '#FF701A',
-          //   '#FFEA00',
-          //   '#FFEA00',
-          //   '#00A8FF',
-          //   '#3FFFEA',
-          //   '#00E436',
-          //   '#78FF00',
-          // ],
           legend: {
             icon: 'circle',
             orient: 'horizontal',

@@ -17,7 +17,7 @@
         :theme="getHeaderTheme"
         :sider="false"
       />
-      <LayoutRedo :theme="getHeaderTheme" />
+      <!-- <LayoutRedo :theme="getHeaderTheme" /> -->
       <LayoutBreadcrumb v-if="getShowContent && getShowBread" :theme="getHeaderTheme" />
     </div>
     <!-- left end -->

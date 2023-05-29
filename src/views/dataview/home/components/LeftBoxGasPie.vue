@@ -8,6 +8,8 @@
   import { baseOption } from './data';
   import echarts from '/@/utils/lib/echarts';
 
+  import { statisticsGasType } from '/@/api/dataview';
+
   type ChartData = {
     name: string;
     value: number;
@@ -28,20 +30,29 @@
     setup(props) {
       const gasPieChartRef = ref<HTMLDivElement | null>(null);
       const chartData = ref<ChartData[]>([
-        { value: 1048, name: '甲烷' },
-        { value: 735, name: '氯化氢' },
-        { value: 580, name: '环氧乙烷' },
-        { value: 484, name: '氨气' },
-        { value: 320, name: '硫化氢' },
-        { value: 310, name: '二氧化氯' },
-        { value: 350, name: '正乙烷' },
-        { value: 360, name: '其他' },
+        // { value: 1048, name: '甲烷' },
+        // { value: 735, name: '氯化氢' },
+        // { value: 580, name: '环氧乙烷' },
+        // { value: 484, name: '氨气' },
+        // { value: 320, name: '硫化氢' },
+        // { value: 310, name: '二氧化氯' },
+        // { value: 350, name: '正乙烷' },
+        // { value: 360, name: '其他' },
       ]);
 
       const { setOptions, getInstance } = useECharts(gasPieChartRef as Ref<HTMLDivElement>);
 
       const getChartData = async () => {
-        getInstance()?.showLoading();
+        getInstance()?.showLoading({
+          text: '加载中...',
+          color: 'rgba(1, 167, 204, 1)',
+          textColor: 'rgba(1, 167, 204, 1)',
+          maskColor: '#05132c',
+        });
+
+        const response = await statisticsGasType();
+
+        chartData.value = response;
       };
 
       /**

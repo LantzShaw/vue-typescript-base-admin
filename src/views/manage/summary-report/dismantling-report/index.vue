@@ -52,6 +52,7 @@
     api: additionReportPage,
     searchInfo: {
       type: '2',
+      id: route?.query?.id,
     },
     columns: tableColumns,
     formConfig: searchForm,
@@ -59,15 +60,6 @@
     canResize: false,
     showTableSetting: true,
     showIndexColumn: false,
-    // actionColumn: {
-    //   width: 140,
-    //   title: '操作',
-    //   dataIndex: 'action',
-    //   // slots: { customRender: 'action' },
-    //   fixed: 'right',
-    //   // fixed: undefined,
-    //   // auth: 'system:application:operation',
-    // },
   });
 
   /**
@@ -76,7 +68,7 @@
   function goBack() {
     closeCurrent();
 
-    go('/summary/report/list');
+    go('/summary/dismantling/statistic');
   }
 
   /**
@@ -89,8 +81,6 @@
       return [item.organizationName, item.createTime, item.regionName, item.locationno];
     });
     const header = getColumns().map((column) => column.title);
-
-    header.pop();
 
     aoaToSheetXlsx({
       data: tableData,

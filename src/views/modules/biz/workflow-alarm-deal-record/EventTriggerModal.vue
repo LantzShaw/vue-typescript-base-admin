@@ -6,11 +6,10 @@
     showFooter
     :show-cancel-btn="false"
     :show-ok-btn="false"
-    :okAuth="okAuth"
     title="详情"
     :centered="true"
   >
-    <div style="padding-left: 10px; padding-right: 10px">
+    <div style="padding-right: 10px; padding-left: 10px">
       <div class="h-12 leading-12 text-center bg-gray-100 font-bold">事件信息</div>
       <a-descriptions bordered>
         <a-descriptions-item label="设备名称" :span="2">{{
@@ -36,7 +35,7 @@
   </BasicModal>
 </template>
 <script lang="ts" setup>
-import {ref, unref} from 'vue';
+  import { ref, unref } from 'vue';
   import {
     Descriptions as ADescriptions,
     DescriptionsItem as ADescriptionsItem,
@@ -51,7 +50,7 @@ import {ref, unref} from 'vue';
 
   // data
   import { isUpdate, idRef, record, eventTriggerStatusOptions } from './eventTrigger.data';
-  const okAuth = ref(['manage:event:view']);
+
   /**
    * 构建Drawer
    */

@@ -117,7 +117,6 @@ export function useFormValues({
 
       values[startTimeKey] = dateUtil(startTime).format(startTimeFormat);
       values[endTimeKey] = dateUtil(endTime).format(endTimeFormat);
-
       Reflect.deleteProperty(values, field);
     }
 

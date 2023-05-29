@@ -4,7 +4,7 @@
   </div>
 </template>
 <script lang="ts">
-  import { defineComponent, PropType, ref, Ref, onMounted, computed } from 'vue';
+  import { defineComponent, watch, PropType, ref, Ref, onMounted, computed } from 'vue';
 
   import { useECharts } from '/@/hooks/web/useECharts';
   import { baseOption } from './data';
@@ -40,19 +40,13 @@
     },
     setup(props) {
       const barChartRef = ref<HTMLDivElement | null>(null);
-      const chartData = ref<number[]>([100]);
-
-      const { setOptions, getInstance } = useECharts(barChartRef as Ref<HTMLDivElement>);
-
-      const getChartData = async () => {
-        getInstance()?.showLoading();
-      };
+      const { setOptions } = useECharts(barChartRef as Ref<HTMLDivElement>);
 
       /**
        * 设置echarts option
        */
       const onSetOptions = async () => {
-        let max = 300;
+        let max = 100;
 
         const seriesOption: any = {
           grid: {
@@ -62,14 +56,15 @@
             containLabel: true,
           },
           tooltip: {
-            trigger: 'item',
-            formatter: (params) => {
-              return `${params.name} ${params.value}`;
-            },
+            show: false,
+            // trigger: 'item',
+            // formatter: (params) => {
+            //   return `${params.name} ${params.value}`;
+            // },
           },
           xAxis: {
             type: 'value',
-            max: max,
+            max: 100,
             splitLine: {
               show: false,
             },
@@ -138,7 +133,7 @@
                 ],
               }, //底色
             },
-            data: chartData.value,
+            data: [props.displayValue],
           },
           {
             //框
@@ -173,8 +168,6 @@
         const mergedOptions = echarts.util.merge(seriesOption, baseOption);
 
         await setOptions(mergedOptions);
-
-        getInstance()?.hideLoading();
       };
 
       const styles = computed(() => {
@@ -187,9 +180,14 @@
         };
       });
 
-      onMounted(async () => {
-        await getChartData();
+      watch(
+        () => props.displayValue,
+        () => {
+          onSetOptions();
+        },
+      );
 
+      onMounted(async () => {
         onSetOptions();
       });
 

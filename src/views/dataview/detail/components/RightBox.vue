@@ -7,6 +7,7 @@
           v-for="item in traceabilityStatusDataList"
           :title="item.title"
           :display-value="item.displayValue"
+          :chart-data="item.chartData"
           :color-list="item.colorList"
           :key="item.id"
         />
@@ -35,12 +36,14 @@
 </template>
 
 <script lang="ts" setup>
-  import { ref } from 'vue';
+  import { ref, onMounted, unref } from 'vue';
 
   import CardTitle from '../../CardTitle.vue';
   import TraceabilityLiquidFill from '../../TraceabilityLiquidFill.vue';
   import EventTriggerBar from '../../EventTriggerBar.vue';
   import MaintenancePie from '../../MaintenancePie.vue';
+
+  import { statisticsTraceStatus, statisticsAlarmProcess } from '/@/api/dataview';
 
   import line_bg_1 from '/@/assets/images/dataview/line_bg_1.png';
   import line_bg_2 from '/@/assets/images/dataview/line_bg_2.png';
@@ -50,7 +53,8 @@
   type TraceabilityStatusData = {
     id?: string;
     title?: string;
-    displayValue?: string;
+    displayValue?: number;
+    chartData?: string;
     colorList?: string[];
   };
 
@@ -66,19 +70,22 @@
     {
       id: '1',
       title: '有效',
-      displayValue: '580',
+      displayValue: 0,
+      chartData: '0',
       colorList: ['#afe71c', '#15c29b', '#05b48d'],
     },
     {
       id: '2',
       title: '临近',
-      displayValue: '580',
+      displayValue: 0,
+      chartData: '0',
       colorList: ['#F6E284', '#D6A416', '#D59C03'],
     },
     {
       id: '3',
       title: '超期',
-      displayValue: '580',
+      displayValue: 0,
+      chartData: '0',
       colorList: ['#FFBA00', '#CA2F05', '#D76109'],
     },
   ]);
@@ -86,14 +93,14 @@
   const eventTriggerDataList = ref<EventTriggerData[]>([
     {
       id: '1',
-      displayValue: '230',
+      displayValue: '0',
       color: '#28F2E6',
       label: '1天内完成的',
       backgroundImagePath: line_bg_1,
     },
     {
       id: '2',
-      displayValue: '210',
+      displayValue: '0',
       color: '#FFCC00',
       label: '5天内完成的',
       backgroundImagePath: line_bg_2,
@@ -101,19 +108,69 @@
 
     {
       id: '3',
-      displayValue: '110',
+      displayValue: '0',
       color: '#00CBFF',
       label: '10天内完成的',
       backgroundImagePath: line_bg_3,
     },
     {
       id: '4',
-      displayValue: '200',
+      displayValue: '0',
       color: '#00FF99',
       label: '15天内完成的',
       backgroundImagePath: line_bg_4,
     },
   ]);
+
+  /**
+   * 溯源状态统计
+   */
+  const getTraceabilityStatusChartData = async () => {
+    try {
+      const response = await statisticsTraceStatus();
+
+      const { validNum = 0, nearNum = 0, overdueNum = 0 } = response;
+
+      const total = validNum + nearNum + overdueNum;
+
+      unref(traceabilityStatusDataList)[0].displayValue = validNum;
+      unref(traceabilityStatusDataList)[0].chartData = (validNum / total).toFixed(2);
+
+      unref(traceabilityStatusDataList)[1].displayValue = nearNum;
+      unref(traceabilityStatusDataList)[1].chartData = (nearNum / total).toFixed(2);
+
+      unref(traceabilityStatusDataList)[2].displayValue = overdueNum;
+      unref(traceabilityStatusDataList)[2].chartData = (overdueNum / total).toFixed(2);
+
+      console.log('溯源', traceabilityStatusDataList.value);
+    } catch (error) {
+    } finally {
+    }
+  };
+
+  /**
+   * 事件触发流程统计
+   */
+  const getStatisticsAlarmProcessChartData = async () => {
+    try {
+      const response = await statisticsAlarmProcess();
+
+      console.log('事件触发流程统计', response);
+
+      unref(eventTriggerDataList)[0].displayValue = response[0].value;
+      unref(eventTriggerDataList)[1].displayValue = response[1].value;
+      unref(eventTriggerDataList)[2].displayValue = response[2].value;
+      unref(eventTriggerDataList)[3].displayValue = response[3].value;
+    } catch (error) {
+    } finally {
+    }
+  };
+
+  onMounted(() => {
+    getTraceabilityStatusChartData();
+
+    getStatisticsAlarmProcessChartData();
+  });
 </script>
 
 <style scoped lang="less">

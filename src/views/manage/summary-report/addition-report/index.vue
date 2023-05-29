@@ -53,6 +53,7 @@
     columns: tableColumns,
     searchInfo: {
       type: '1',
+      id: route?.query?.id,
     },
     formConfig: searchForm,
     useSearchForm: true,
@@ -71,12 +72,12 @@
   });
 
   /**
-   * 返回报表总览页面
+   * 返回报警器新增情况统计
    */
   function goBack() {
     closeCurrent();
 
-    go('/summary/report/list');
+    go('/summary/addition/statistic');
   }
 
   /**
@@ -89,8 +90,6 @@
       return [item.organizationName, item.createTime, item.regionName, item.locationno];
     });
     const header = getColumns().map((column) => column.title);
-
-    header.pop();
 
     aoaToSheetXlsx({
       data: tableData,

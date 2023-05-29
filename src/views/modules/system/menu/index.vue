@@ -115,7 +115,6 @@
     menuWeightOptions,
     menuTypeOptions,
     applicationOptions,
-    treeData,
     searchForm,
     tableColumns,
   } from './menu.data';
@@ -123,6 +122,7 @@
   const { t } = useI18n();
   const { notification } = useMessage();
 
+  const treeData = ref<any[]>([]);
   const applicationId = ref('');
   const searchInfo = reactive<Recordable>({});
   const treeRef = ref<Nullable<TreeActionType>>(null);
@@ -299,5 +299,11 @@
   onMounted(() => {
     initApplication();
     initDict();
+  });
+</script>
+<script lang="ts">
+  export default defineComponent({
+    // 需要和路由的name一致
+    name: 'MenuPage',
   });
 </script>

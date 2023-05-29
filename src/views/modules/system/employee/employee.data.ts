@@ -9,7 +9,8 @@ import { BasicColumn } from '/@/components/Table';
 import { DescItem } from '/@/components/Description/index';
 import { Input } from 'ant-design-vue';
 // 接口
-import { orgTree } from '/@/api/system/org';
+import { organizationTree } from '/@/api/system/organization';
+import { roleSelect } from '/@/api/system/role';
 import { optionsListApi } from '/@/api/sys/dict';
 
 export const isUpdate = ref(true);
@@ -24,9 +25,6 @@ export const identityOptions = ref<any[]>([]);
 export const tfOptions = ref<any[]>([]);
 
 const { t } = useI18n();
-
-// 自定义数据权限
-const isCustom = (type: string) => type === '5';
 
 /**
  *  查询表单字段
@@ -96,7 +94,12 @@ export const tableColumns: BasicColumn[] = [
     width: 90,
     align: 'center',
   },
-
+  {
+    title: t('归属公司'),
+    dataIndex: 'sysOrganizationList',
+    width: 150,
+    align: 'center',
+  },
   {
     title: t('创建时间'),
     dataIndex: 'createTime',
@@ -173,6 +176,30 @@ export const inputFormSchemas: FormSchema[] = [
     component: 'Input',
     componentProps: {
       maxlength: 100,
+    },
+  },
+  {
+    label: t('归属企业'),
+    field: 'organizationIds',
+    component: 'ApiTreeSelect',
+    componentProps: {
+      api: organizationTree,
+      immediate: true,
+      allowClear: true,
+      multiple: true,
+      getPopupContainer: () => document.body,
+    },
+  },
+  {
+    label: t('角色'),
+    field: 'roleIds',
+    component: 'ApiSelect',
+    componentProps: {
+      api: roleSelect,
+      immediate: true,
+      allowClear: true,
+      mode: 'multiple',
+      getPopupContainer: () => document.body,
     },
   },
 ];

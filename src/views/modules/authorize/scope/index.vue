@@ -45,22 +45,21 @@
         </template>
       </template>
     </BasicTable>
-    <ScopeDrawer @register="registerDrawer" @success="handleSuccess" />
+    <ScopeModal @register="registerScopeModal" @success="handleSuccess" />
     <ScopeAuthorityModal @register="registerModal" @success="handleSuccess" />
   </PageWrapper>
 </template>
 <script lang="ts" setup>
-  import { onMounted } from 'vue';
+  import { defineComponent, onMounted } from 'vue';
   // hooks
   import { useI18n } from '/@/hooks/web/useI18n';
   import { useMessage } from '/@/hooks/web/useMessage';
   // 组件
   import { PageWrapper } from '/@/components/Page';
   import { BasicTable, TableAction, useTable } from '/@/components/Table';
-  import { useDrawer } from '/@/components/Drawer';
-  import ScopeDrawer from './ScopeDrawer.vue';
 
   import { useModal } from '/@/components/Modal';
+  import ScopeModal from './ScopeModal.vue';
   import ScopeAuthorityModal from './ScopeAuthorityModal.vue';
   // 接口
   import { scopePage, scopeDelete } from '/@/api/authorize/scope';
@@ -74,7 +73,7 @@
   /**
    * 构建registerDrawer
    */
-  const [registerDrawer, { openDrawer }] = useDrawer();
+  const [registerScopeModal, { openModal: openScopeModal }] = useModal();
   /**
    * registerModal
    */
@@ -113,7 +112,7 @@
    * 新增
    */
   function handleCreate() {
-    openDrawer(true, {
+    openScopeModal(true, {
       isUpdate: false,
     });
   }
@@ -122,7 +121,7 @@
    * 编辑
    */
   function handleEdit(record: Recordable) {
-    openDrawer(true, {
+    openScopeModal(true, {
       record,
       isUpdate: true,
     });
@@ -154,5 +153,11 @@
 
   onMounted(() => {
     initDict();
+  });
+</script>
+<script lang="ts">
+  export default defineComponent({
+    // 需要和路由的name一致
+    name: 'OAuth2ScopePage',
   });
 </script>

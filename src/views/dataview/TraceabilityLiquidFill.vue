@@ -10,7 +10,7 @@
   </div>
 </template>
 <script lang="ts">
-  import { defineComponent, PropType, ref, Ref, onMounted, computed } from 'vue';
+  import { defineComponent, watch, PropType, ref, Ref, onMounted, computed } from 'vue';
 
   import { useECharts } from '/@/hooks/web/useECharts';
   import { baseOption } from './data';
@@ -32,23 +32,22 @@
         default: '',
       },
       displayValue: {
-        type: String as PropType<string>,
-        default: '0',
+        type: Number as PropType<number>,
+        default: 0,
       },
       colorList: {
         type: Array as PropType<string[]>,
         default: () => [],
       },
+      chartData: {
+        type: String as PropType<string>,
+        default: '0',
+      },
     },
     setup(props) {
       const liquidFillChartRef = ref<HTMLDivElement | null>(null);
-      const chartData = ref<number[]>([0.45]);
 
-      const { setOptions, getInstance } = useECharts(liquidFillChartRef as Ref<HTMLDivElement>);
-
-      const getChartData = async () => {
-        getInstance()?.showLoading();
-      };
+      const { setOptions } = useECharts(liquidFillChartRef as Ref<HTMLDivElement>);
 
       const textStyle = computed(() => {
         return {
@@ -111,6 +110,9 @@
           //     },
           //   },
           // ],
+          tooltip: {
+            show: false,
+          },
           series: [],
         };
 
@@ -142,7 +144,7 @@
               globalCoord: false,
             },
           ],
-          data: chartData, // data个数代表波浪数
+          data: [props.chartData], // data个数代表波浪数
           backgroundStyle: {
             borderWidth: 1,
             color: '#0C1A88',
@@ -168,13 +170,16 @@
         const mergedOptions = echarts.util.merge(seriesOption, baseOption);
 
         await setOptions(mergedOptions);
-
-        getInstance()?.hideLoading();
       };
 
-      onMounted(async () => {
-        await getChartData();
+      watch(
+        () => props.chartData,
+        () => {
+          onSetOptions();
+        },
+      );
 
+      onMounted(async () => {
         onSetOptions();
       });
 

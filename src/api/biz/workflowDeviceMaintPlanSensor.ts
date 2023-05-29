@@ -18,8 +18,8 @@ export const workflowDeviceMaintPlanSensorPage2 = (params?: any) =>
 export const workflowDeviceMaintPlanRegionList = (params?: any) =>
   defHttp.get({ url: Api.WorkflowDeviceMaintPlanRegionList, params });
 
-export const workflowDeviceMaintPlanSensorDelete = (params?: any) =>
-  defHttp.delete({ url: Api.WorkflowDeviceMaintPlanSensorDelete, params });
+export const workflowDeviceMaintPlanSensorDelete = (data?: any) =>
+  defHttp.delete({ url: Api.WorkflowDeviceMaintPlanSensorDelete, data });
 
 export const workflowDeviceMaintPlanSensorAdd = (data?: any) =>
   defHttp.post({ url: Api.WorkflowDeviceMaintPlanSensorAdd, data });

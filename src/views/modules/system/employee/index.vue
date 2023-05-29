@@ -22,6 +22,11 @@
         <template v-else-if="column.key === 'gender'">
           <dict-label :options="genderOptions" :value="record.gender" />
         </template>
+        <template v-else-if="column.key === 'sysOrganizationList'">
+          <p v-for="(item, index) in record.sysOrganizationList" :key="index">
+            {{ item.organizationName }}
+          </p>
+        </template>
         <template v-else-if="column.key === 'identity'">
           <dict-label :options="identityOptions" :value="record.identity" />
         </template>
@@ -110,6 +115,10 @@
     title: '',
     api: employeePage,
     columns: tableColumns,
+    defSort: {
+      field: 'createTime',
+      order: 'descend',
+    },
     formConfig: searchForm,
     useSearchForm: true,
     canResize: false,

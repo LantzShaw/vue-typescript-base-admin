@@ -161,6 +161,7 @@
                     }"
                     :api="uploadApi"
                     :value="fileList.fileTwo"
+                    :file-names="fileList.fileNamesTwo"
                   />
                 </a-form-item>
               </a-col>
@@ -231,6 +232,7 @@
                     }"
                     :api="uploadApi"
                     :value="fileList.fileThree"
+                    :file-names="fileList.fileNamesThree"
                   />
                 </a-form-item>
               </a-col>
@@ -302,6 +304,7 @@
                     }"
                     :api="uploadApi"
                     :value="fileList.fileFour"
+                    :file-names="fileList.fileNamesFour"
                   />
                 </a-form-item>
               </a-col>
@@ -372,6 +375,7 @@
                     }"
                     :api="uploadApi"
                     :value="fileList.fileFive"
+                    :file-names="fileList.fileNamesFive"
                   />
                 </a-form-item>
               </a-col>
@@ -442,6 +446,7 @@
                     }"
                     :api="uploadApi"
                     :value="fileList.fileSix"
+                    :file-names="fileList.fileNamesSix"
                   />
                 </a-form-item>
               </a-col>
@@ -485,7 +490,6 @@
                   />
                 </a-form-item>
               </a-col>
-
               <a-col :span="24" v-auth="'manage:event:process-result'">
                 <a-form-item
                   label="处理结果"
@@ -525,6 +529,7 @@
                     }"
                     :api="uploadApi"
                     :value="fileList.fileSeven"
+                    :file-names="fileList.fileNamesSeven"
                   />
                 </a-form-item>
               </a-col>
@@ -575,6 +580,8 @@
   import { unref, ref, reactive, computed, onMounted } from 'vue';
   // hooks
   import { useMessage } from '/@/hooks/web/useMessage';
+  import { usePermission } from '/@/hooks/web/usePermission';
+
   // 组件
   import { BasicModal, useModalInner } from '/@/components/Modal';
   import { BasicUpload } from '/@/components/Upload';
@@ -678,6 +685,7 @@
   const isRejectLoading = ref<boolean>(false);
   const isConfirmLoading = ref<boolean>(false);
   const isCardLoading = ref<boolean>(false);
+  const { hasPermission } = usePermission();
 
   const sensorRealInformation = reactive<SensorRealInformation>({});
 
@@ -688,6 +696,10 @@
   const rules = {};
 
   const okAuth = ['manage:event:process'];
+
+  const hasProcessResultPermission = computed(() => {
+    return hasPermission('manage:event:process-result');
+  });
 
   const formState = reactive<FormState>({
     stepOneRemark: '',
@@ -769,8 +781,6 @@
 
     sensorRealtimeData({ id: data?.record?.sensorId })
       .then((res) => {
-        console.log('res', res);
-
         const { sensorName, isAlarms, isLine, value, unit, updateDate } = res;
         sensorRealInformation.sensorName = sensorName;
         sensorRealInformation.isAlarms = isAlarms;
@@ -904,12 +914,7 @@
    */
 
   function handleUploadChange(flag) {
-    console.log('flag', flag);
-
     return (list: string[], fileNames: string[]) => {
-      console.log('flag', flag);
-      console.log('-----list-------', fileNames);
-
       const filterList = list.filter((item) => item !== undefined || item !== '');
       const filterFileNameList = fileNames.filter((item) => item !== undefined || item !== '');
 
@@ -1130,6 +1135,15 @@
         params['stepSevenBizWorkflowAlarmDealRecordAttList'] =
           formState.stepSevenBizWorkflowAlarmDealRecordAttList;
         params['processResult'] = formState.processResult;
+
+        if (hasProcessResultPermission.value && !formState.processResult) {
+          notification.warning({ message: `请选择处理结果!` });
+
+          isSubmitLoading.value = false;
+
+          return;
+        }
+
         await eventTriggerStepSevenSubmit({
           ...params,
         });
@@ -1309,6 +1323,14 @@
       case '700':
         params['stepSevenStatus'] = '100';
         params['processResult'] = formState.processResult;
+
+        if (hasProcessResultPermission.value && !formState.processResult) {
+          notification.warning({ message: `请选择处理结果!` });
+
+          isConfirmLoading.value = false;
+
+          return;
+        }
 
         await eventTriggerStepSevenAffirm({
           ...params,

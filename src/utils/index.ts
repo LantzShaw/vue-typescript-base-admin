@@ -41,18 +41,26 @@ export function setObjToUrlParams(baseUrl: string, obj: any): string {
  @param source 要合并的源对象。The source object to merge from.
  @returns 合并后的对象。The merged object.
  */
-export function deepMerge<T extends object | null | undefined, U extends object | null | undefined>(
-  target: T,
-  source: U,
-): T & U {
-  return mergeWith(cloneDeep(target), source, (objValue, srcValue) => {
-    if (isObject(objValue) && isObject(srcValue)) {
-      return mergeWith(cloneDeep(objValue), srcValue, (prevValue, nextValue) => {
-        // 如果是数组，合并数组(去重) If it is an array, merge the array (remove duplicates)
-        return isArray(prevValue) ? unionWith(prevValue, nextValue, isEqual) : undefined;
-      });
-    }
-  });
+// export function deepMerge<T extends object | null | undefined, U extends object | null | undefined>(
+//   target: T,
+//   source: U,
+// ): T & U {
+//   return mergeWith(cloneDeep(target), source, (objValue, srcValue) => {
+//     if (isObject(objValue) && isObject(srcValue)) {
+//       return mergeWith(cloneDeep(objValue), srcValue, (prevValue, nextValue) => {
+//         // 如果是数组，合并数组(去重) If it is an array, merge the array (remove duplicates)
+//         return isArray(prevValue) ? unionWith(prevValue, nextValue, isEqual) : undefined;
+//       });
+//     }
+//   });
+// }
+
+export function deepMerge<T = any>(src: any = {}, target: any = {}): T {
+  let key: string;
+  for (key in target) {
+    src[key] = isObject(src[key]) ? deepMerge(src[key], target[key]) : (src[key] = target[key]);
+  }
+  return src;
 }
 
 export function openWindow(

@@ -34,7 +34,7 @@
             <div class="text-2xl font-extrabold text-center p-8">触发事件处置单</div>
             <div class="ml-2"
               ><span style="letter-spacing: 4px">单 号:</span
-              ><span>{{ eventTriggerInformation.deviceAlarmId }}</span></div
+              ><span>{{ eventTriggerInformation.id }}</span></div
             >
             <table>
               <thead>
@@ -69,9 +69,7 @@
                       >
                       <div
                         ><span>当前值: </span
-                        ><span>{{
-                          eventTriggerInformation.bizDeviceAlarm?.dtuipTriggerVal
-                        }}</span></div
+                        ><span>{{ eventTriggerInformation?.dtuipTriggerVal }}</span></div
                       >
                     </div>
                   </td>
@@ -79,7 +77,7 @@
                 <tr>
                   <td>触发时间</td>
                   <td colspan="3" class="text-left">{{
-                    eventTriggerInformation.bizDeviceAlarm?.dtuipTriggerDate
+                    eventTriggerInformation?.dtuipTriggerDate
                   }}</td>
                 </tr>
                 <tr style="height: 52px">
@@ -516,20 +514,20 @@
 
   type EventTriggerInformation = {
     alarmType?: string;
-    id?: string;
     recordNo?: string; // 表单编号
-    deviceAlarmId?: string; // 单号
+    id?: string; // 单号
     maintainer?: string; // 维保单位联系人
     userName?: string; // 使用单位联系人
     triggerContent?: string; // 异常情况
+    dtuipTriggerDate?: string; // 触发时间
     sensorName?: string; // 设备名称
     locationNo?: string; // 位号
-    triggerVal?: string; // 当前触发值
+    dtuipTriggerVal?: string; // 当前触发值
     enterpriseName?: string; // 所属单位
     departName?: string; // 部门
     stepOneSubmitDate?: string; // 信息核实提交时间
     stepFourSubmitDate?: string; // 措施落实提交时间
-    findDate?: string; // 触发时间
+    findDate?: string; // 触发时间2
     stepOneByUser?: UserObject; // 提交人
     stepOneEnterpriseId?: string; // 确认企业id
     stepOneRemark?: string; // 说明内容
@@ -625,7 +623,6 @@
 
     const {
       id,
-      deviceAlarmId,
       recordNo,
       maintainer,
       userName,
@@ -638,7 +635,8 @@
       findDate,
       alarmType,
       locationNo,
-      triggerVal,
+      dtuipTriggerVal,
+      dtuipTriggerDate,
       stepOneByUser,
       stepOneEnterpriseId,
       stepOneRemark,
@@ -685,7 +683,6 @@
       stepSevenBizWorkflowAlarmDealRecordAttList,
     } = response;
 
-    eventTriggerInformation.deviceAlarmId = deviceAlarmId;
     eventTriggerInformation.id = id;
     eventTriggerInformation.recordNo = recordNo;
     eventTriggerInformation.maintainer = maintainer;
@@ -697,9 +694,11 @@
     eventTriggerInformation.stepOneSubmitDate = stepOneSubmitDate;
     eventTriggerInformation.stepFourSubmitDate = stepFourSubmitDate;
     eventTriggerInformation.findDate = findDate;
-    eventTriggerInformation.alarmType = alarmType + '';
+    // eventTriggerInformation.alarmType = alarmType + '';
+    eventTriggerInformation.alarmType = '2';
     eventTriggerInformation.locationNo = locationNo;
-    eventTriggerInformation.triggerVal = triggerVal;
+    eventTriggerInformation.dtuipTriggerVal = dtuipTriggerVal;
+    eventTriggerInformation.dtuipTriggerDate = dtuipTriggerDate;
 
     eventTriggerInformation.stepOneByUser = stepOneByUser;
     eventTriggerInformation.stepTwoByUser = stepTwoByUser;

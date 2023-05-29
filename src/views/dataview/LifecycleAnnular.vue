@@ -8,6 +8,8 @@
   // import { baseOption } from './data';
   // import echarts from '/@/utils/lib/echarts';
 
+  import { statisticsLifeCycle } from '/@/api/dataview';
+
   import annular_icon from '/@/assets/images/dataview/annular_icon.png';
 
   type ChartData = {
@@ -17,7 +19,7 @@
   };
 
   export default defineComponent({
-    name: 'LeftBoxGasPie',
+    name: 'LifecycleAnnular',
     props: {
       width: {
         type: String as PropType<string>,
@@ -31,10 +33,10 @@
     setup(props) {
       const lifecycleAnnularChartRef = ref<HTMLDivElement | null>(null);
       const chartData = ref<ChartData[]>([
-        { value: 1048, name: '甲烷', percent: '0%' },
-        { value: 735, name: '氯化氢', percent: '0%' },
-        { value: 580, name: '环氧乙烷', percent: '0%' },
-        { value: 580, name: '硫化氢', percent: '0%' },
+        // { value: 1048, name: '甲烷', percent: '0%' },
+        // { value: 735, name: '氯化氢', percent: '0%' },
+        // { value: 580, name: '环氧乙烷', percent: '0%' },
+        // { value: 580, name: '硫化氢', percent: '0%' },
       ]);
 
       const color = ['#2D6DEA', '#DECF38', '#00BCBB', '#CAC9C9'];
@@ -56,7 +58,18 @@
       );
 
       const getChartData = async () => {
-        getInstance()?.showLoading();
+        getInstance()?.showLoading({
+          text: '加载中...',
+          color: 'rgba(1, 167, 204, 1)',
+          textColor: 'rgba(1, 167, 204, 1)',
+          maskColor: '#05132c',
+        });
+
+        const response = await statisticsLifeCycle();
+
+        chartData.value = response;
+
+        console.log(response);
       };
 
       /**
@@ -100,7 +113,6 @@
             orient: 'vertical',
             left: 'right',
             align: 'left',
-
             formatter: function (name) {
               return '{title|' + name + '}';
             },

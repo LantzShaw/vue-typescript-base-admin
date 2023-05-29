@@ -35,6 +35,9 @@
         <template v-else-if="column.key === 'workType'">
           <dict-label :options="maintenanceWorkOrderTypeOptions" :value="record.workType" />
         </template>
+        <template v-else-if="column.key === 'taskType'">
+          <dict-label :options="maintenanceTaskTypeOptions" :value="record.taskType" />
+        </template>
         <template v-else-if="column.key === 'bizEnterprise'">
           <a-tooltip placement="top">
             <template #title>
@@ -107,18 +110,18 @@
                   confirm: handleNotify.bind(null, record),
                 },
               },
-              {
-                label: '设置停用',
-                onClick: handleOpenDisabledModal.bind(null, record),
-                auth: 'manage:maintenance-record:generate-maintainer',
-                ifShow: record.eventStatus === '1',
-              },
-              {
-                label: '设置待处置',
-                onClick: handleOpenPendingModal.bind(null, record),
-                auth: 'manage:maintenance-record:generate-maintainer',
-                ifShow: record.eventStatus === '1',
-              },
+              // {
+              //   label: '设置停用',
+              //   onClick: handleOpenDisabledModal.bind(null, record),
+              //   auth: 'manage:maintenance-record:generate-maintainer',
+              //   ifShow: record.eventStatus === '1',
+              // },
+              // {
+              //   label: '设置待处置',
+              //   onClick: handleOpenPendingModal.bind(null, record),
+              //   auth: 'manage:maintenance-record:generate-maintainer',
+              //   ifShow: record.eventStatus === '1',
+              // },
               {
                 label: '删除',
                 color: 'error',
@@ -198,6 +201,7 @@
   import { optionsListBatchApi } from '/@/api/sys/dict';
   // data
   import {
+    maintenanceTaskTypeOptions,
     maintenanceWorkOrderTypeOptions,
     searchForm,
     tableColumns,
@@ -457,6 +461,7 @@
    */
   async function initDict() {
     const {
+      maintenance_task_type,
       alarm_status,
       delete_status,
       online_status,
@@ -464,6 +469,7 @@
       maintenance_status,
       maintenance_work_order_type,
     } = await optionsListBatchApi([
+      'maintenance_task_type',
       'alarm_status',
       'delete_status',
       'online_status',
@@ -471,6 +477,7 @@
       'maintenance_status',
       'maintenance_work_order_type',
     ]);
+    maintenanceTaskTypeOptions.value = maintenance_task_type || [];
     alarmStatusOptions.value = alarm_status || [];
     deleteStatusOptions.value = delete_status || [];
     onlineStatusOptions.value = online_status || [];

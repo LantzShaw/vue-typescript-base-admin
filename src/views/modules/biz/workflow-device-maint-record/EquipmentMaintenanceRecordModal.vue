@@ -58,7 +58,9 @@
             }"
             :pagination="false"
             :data-source="selectedTableData"
-            :columns="sensorTableColumns"
+            :columns="selectedSensorTableColumns"
+            @edit-end="handleEditEnd"
+            @edit-cancel="handleEditCancel"
           >
             <template #bodyCell="{ column, record }">
               <template v-if="column.key === 'action'">
@@ -115,6 +117,7 @@
     idRef,
     record,
     sensorTableColumns,
+    selectedSensorTableColumns,
     sensorTypeOptions,
     alarmStatusOptions,
     deleteStatusOptions,
@@ -230,7 +233,7 @@
 
   const sensorOptions = ref<Sensor[]>([]);
 
-  const tableData = ref([]);
+  const tableData = ref<any>([]);
 
   /**
    * 构建Drawer
@@ -358,8 +361,11 @@
         sensorId: key,
         organizationId: formState.organizationId,
         deviceId: deviceIds.value[index],
+        specification: selectedTableData.value[index]?.specification,
       };
     });
+
+    console.log('bizWorkflowDeviceMaintSensorList', bizWorkflowDeviceMaintSensorList);
 
     try {
       setModalProps({ loading: true, confirmLoading: true });
@@ -374,6 +380,20 @@
     } finally {
       setModalProps({ loading: false, confirmLoading: false });
     }
+  }
+
+  function handleEditEnd({ record, index, key, value }: Recordable) {
+    console.log(record, index, key, value);
+
+    selectedTableData.value[index].specification = value;
+
+    return false;
+  }
+
+  function handleEditCancel() {
+    console.log('cancel');
+
+    return false;
   }
 
   /**

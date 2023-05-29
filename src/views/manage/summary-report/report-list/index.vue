@@ -24,51 +24,55 @@
             label="使用单位数量"
             :label-style="{ fontWeight: 'bold', color: '#777' }"
           >
-            <DigitDisplay :value="dataList.orgCount" unit="家" @on-click="navigateToReport(1)" />
+            <DigitDisplay :value="dataList.useUnitNum" unit="家" @on-click="navigateToReport(1)" />
           </a-descriptions-item>
           <a-descriptions-item
             label="报警器总数量"
             :label-style="{ fontWeight: 'bold', color: '#777' }"
           >
-            <DigitDisplay :value="dataList.sensorCount" unit="个" @on-click="navigateToReport(1)" />
+            <DigitDisplay :value="dataList.sensorNum" unit="个" @on-click="navigateToReport(1)" />
           </a-descriptions-item>
           <a-descriptions-item
             label="监测气体种数"
             :label-style="{ fontWeight: 'bold', color: '#777' }"
           >
             <span>可燃: </span>
-            <DigitDisplay
-              :value="dataList.combustibleCount"
-              unit="个"
-              @on-click="navigateToReport(1)"
-            />，
+            <DigitDisplay :value="dataList.gasNum0" unit="个" @on-click="navigateToReport(1)" />，
             <span>有毒: </span>
-            <DigitDisplay :value="dataList.poisonous" unit="个" @on-click="navigateToReport(1)" />
+            <DigitDisplay :value="dataList.gasNum1" unit="个" @on-click="navigateToReport(1)" />
           </a-descriptions-item>
           <a-descriptions-item
             label="新增数量"
             :label-style="{ fontWeight: 'bold', color: '#777' }"
           >
-            <DigitDisplay :value="dataList.insertCount" unit="个" @on-click="navigateToReport(2)" />
+            <DigitDisplay
+              :value="dataList.insertSensorNum"
+              unit="个"
+              @on-click="navigateToReport(2)"
+            />
           </a-descriptions-item>
           <a-descriptions-item
             label="拆除数量"
             :label-style="{ fontWeight: 'bold', color: '#777' }"
           >
-            <DigitDisplay :value="dataList.deleteCount" unit="个" @on-click="navigateToReport(3)" />
+            <DigitDisplay
+              :value="dataList.deleteSensorNum"
+              unit="个"
+              @on-click="navigateToReport(3)"
+            />
           </a-descriptions-item>
           <a-descriptions-item
             label="事件触发数量"
             :label-style="{ fontWeight: 'bold', color: '#777' }"
           >
-            <DigitDisplay :value="dataList.recordCount" unit="条" @on-click="navigateToReport(4)" />
+            <DigitDisplay :value="dataList.alarmNum" unit="条" @on-click="navigateToReport(4)" />
           </a-descriptions-item>
           <a-descriptions-item
             label="维护保养数量"
             :label-style="{ fontWeight: 'bold', color: '#777' }"
           >
             <DigitDisplay
-              :value="dataList.maintRecordCount"
+              :value="dataList.maintRecordNum"
               unit="个"
               @on-click="navigateToReport(5)"
             />
@@ -78,14 +82,14 @@
             :label-style="{ fontWeight: 'bold', color: '#777' }"
           >
             <span>全部在有效期: </span>
-            <DigitDisplay
-              :value="dataList.traceCount"
-              unit="个"
-              @on-click="navigateToReport(6)"
-            />，
+            <DigitDisplay :value="dataList.sensorTraceNum" unit="个" :isUnderline="false" />
+            ，
+            <span>邻近有效期: </span>
+            <DigitDisplay :value="dataList.nearbySensorTraceNum" unit="个" :isUnderline="false" />
+            ，
             <span>部分超期: </span>
             <DigitDisplay
-              :value="dataList.overdueCount"
+              :value="dataList.overdueSensorTraceNum"
               unit="个"
               @on-click="navigateToReport(7)"
             />
@@ -115,18 +119,17 @@
   import { overviewData } from '/@/api/manage/summaryReport';
 
   type DataList = {
-    gasTypeCount?: string; // 监测气体种数
-    maintRecordCount?: string; // 维护保养数量
-    orgCount?: string; // 使用单位数量
-    sensorCount?: string; // 报警器总数量
-    deviceCount?: string;
-    recordCount?: string; // 事件触发数量
-    deleteCount?: string; // 拆除数量
-    insertCount?: string; // 新增数量
-    combustibleCount?: string; // 可燃气体数量
-    poisonous?: string; // 有毒气体数量
-    overdueCount?: string; // 部分超期
-    traceCount?: string; // 全部在有效期
+    maintRecordNum?: string; // 维护保养数量
+    useUnitNum?: string; // 使用单位数量
+    sensorNum?: string; // 报警器总数量
+    alarmNum?: string; // 事件触发数量
+    deleteSensorNum?: string; // 拆除数量
+    insertSensorNum?: string; // 新增数量
+    gasNum0?: string; // 可燃气体数量
+    gasNum1?: string; // 有毒气体数量
+    overdueSensorTraceNum?: string; // 部分超期
+    nearbySensorTraceNum?: string; // 邻近过期
+    sensorTraceNum?: string; // 全部在有效期
   };
 
   const go = useGo();
@@ -158,33 +161,30 @@
       });
 
       const {
-        gasTypeCount = '0',
-        maintRecordCount = '0',
-        orgCount = '0',
-        sensorCount = '0',
-        deviceCount = '0',
-        recordCount = '0',
-        traceCount = '0',
-        deleteCount = '0',
-        insertCount = '0',
-        type_0 = '0',
-        type_1 = '0',
-        overdueCount = '0',
+        maintRecordNum = '0',
+        useUnitNum = '0',
+        sensorNum = '0',
+        sensorTraceNum = '0',
+        nearbySensorTraceNum = '0',
+        deleteSensorNum = '0',
+        insertSensorNum = '0',
+        gasNum0 = '0',
+        gasNum1 = '0',
+        overdueSensorTraceNum = '0',
+        alarmNum = '0',
       } = response;
 
-      dataList.gasTypeCount = gasTypeCount;
-      dataList.maintRecordCount = maintRecordCount;
-      dataList.orgCount = orgCount;
-      dataList.sensorCount = sensorCount;
-      dataList.recordCount = recordCount;
-      dataList.traceCount = traceCount;
-      dataList.overdueCount = overdueCount;
-
-      dataList.deleteCount = deleteCount;
-      dataList.insertCount = insertCount;
-
-      dataList.combustibleCount = type_0;
-      dataList.poisonous = type_1;
+      dataList.maintRecordNum = maintRecordNum;
+      dataList.useUnitNum = useUnitNum;
+      dataList.sensorNum = sensorNum;
+      dataList.sensorTraceNum = sensorTraceNum;
+      dataList.overdueSensorTraceNum = overdueSensorTraceNum;
+      dataList.nearbySensorTraceNum = nearbySensorTraceNum;
+      dataList.deleteSensorNum = deleteSensorNum;
+      dataList.insertSensorNum = insertSensorNum;
+      dataList.gasNum0 = gasNum0;
+      dataList.gasNum1 = gasNum1;
+      dataList.alarmNum = alarmNum;
     } catch (error) {
       console.error(error);
     }
@@ -206,16 +206,16 @@
         go(`/summary/installation/report?${queryString}`);
         break;
       case 2:
-        go(`/summary/addition/report?${queryString}`);
+        go(`/summary/addition/statistic?${queryString}`);
         break;
       case 3:
-        go(`/summary/dismantling/report?${queryString}`);
+        go(`/summary/dismantling/statistic?${queryString}`);
         break;
       case 4:
-        go(`/summary/event/report?${queryString}`);
+        go(`/summary/event/statistic?${queryString}`);
         break;
       case 5:
-        go(`/summary/maintenance/report?${queryString}`);
+        go(`/summary/maintenance/statistic?${queryString}`);
         break;
       case 6:
         go(`/summary/traceability/list?${queryString}&fig=1`);
@@ -254,9 +254,9 @@
       display: inline-block;
       width: 6px;
       height: 20px;
+      margin-right: 4px;
       background-color: @primary-color;
       vertical-align: middle;
-      margin-right: 4px;
     }
   }
 </style>

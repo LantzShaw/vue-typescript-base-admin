@@ -31,12 +31,8 @@
             </a-form-item>
           </a-col>
           <a-col :span="12">
-            <a-form-item
-              :rules="[{ required: true, message: '请选择服务类型!' }]"
-              :label-col="{ span: 5 }"
-              label="服务类型"
-              name="taskType"
-            >
+            <a-form-item :label-col="{ span: 5 }" label="服务类型" name="taskType">
+              <!-- :rules="[{ required: true, message: '请选择服务类型!' }]" -->
               <a-select
                 placeholder="请选择服务类型"
                 :params="['maintenance_task_type']"
@@ -287,6 +283,24 @@
    */
   function handleSaveInformation() {
     isSaveLoading.value = true;
+
+    if (actionType.value === '0') {
+      if (!formState.accompanyUser || !formState.apReceiveContacts) {
+        notification.warning({ message: `陪同人员与联系人不能为空!` });
+
+        isSaveLoading.value = false;
+
+        return;
+      }
+    } else if (actionType.value === '1') {
+      if (!formState.implementationUser) {
+        notification.warning({ message: `实施人员不能为空!` });
+
+        isSaveLoading.value = false;
+
+        return;
+      }
+    }
 
     createWarningModal({
       title: '温馨提醒',

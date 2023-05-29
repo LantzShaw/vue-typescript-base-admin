@@ -29,8 +29,14 @@
             stopButtonPropagation
             :actions="[
               {
-                label: '查看',
+                label: '详情',
+                onClick: handleEdit.bind(null, record),
+                auth: 'manage:notification:view',
+              },
+              {
+                label: '查看报告',
                 onClick: navigateToReport.bind(null, record),
+                auth: 'manage:notification:view-report',
               },
             ]"
           />
@@ -42,35 +48,21 @@
 </template>
 <script lang="ts" setup>
   import { onMounted } from 'vue';
-  import { useRouter } from 'vue-router';
   // hooks
   import { useGo } from '/@/hooks/web/usePage';
-  import { useMessage } from '/@/hooks/web/useMessage';
   // 组件
-  import { jsonToSheetXlsx } from '/@/components/Excel';
   import { PageWrapper } from '/@/components/Page';
   import { BasicTable, TableAction, useTable } from '/@/components/Table';
   import { DictLabel } from '/@/components/DictLabel/index';
   import { useModal } from '/@/components/Modal';
   import WorkflowNotificationModal from './WorkflowNotificationModal.vue';
   // 接口
-  import {
-    workflowNotificationPage,
-    workflowNotificationDelete,
-  } from '/@/api/biz/workflowNotification';
+  import { workflowNotificationPage } from '/@/api/biz/workflowNotification';
   import { optionsListBatchApi } from '/@/api/sys/dict';
   // data
-  import {
-    tfOptions,
-    dataItemStatusOptions,
-    searchForm,
-    tableColumns,
-  } from './workflowNotification.data';
+  import { tfOptions, searchForm, tableColumns } from './workflowNotification.data';
 
   const go = useGo();
-  const { currentRoute } = useRouter();
-
-  const { notification } = useMessage();
 
   /**
    * 构建registerModal
@@ -81,7 +73,7 @@
   /**
    * 构建registerTable
    */
-  const [registerTable, { reload, getDataSource }] = useTable({
+  const [registerTable, { reload }] = useTable({
     title: '',
     api: workflowNotificationPage,
     columns: tableColumns,
@@ -97,7 +89,7 @@
       // slots: { customRender: 'action' },
       fixed: 'right',
       // fixed: undefined,
-      // auth: 'system:application:operation',
+      auth: 'manage:notification:view-report',
     },
   });
 
@@ -113,31 +105,6 @@
   }
 
   /**
-   * 导出
-   */
-  function handleExport() {
-    jsonToSheetXlsx({
-      data: getDataSource(),
-      // header: getColumns().map((column) => column.title),
-      filename: `设备维护计划列表_${new Date().getTime()}.xls`,
-    });
-  }
-
-  /**
-   * 导入
-   */
-  function handleImport() {}
-
-  /**
-   * 新增
-   */
-  function handleCreate() {
-    openModal(true, {
-      isUpdate: false,
-    });
-  }
-
-  /**
    * 编辑
    */
   function handleEdit(record: Recordable) {
@@ -145,15 +112,6 @@
       record,
       isUpdate: true,
     });
-  }
-
-  /**
-   * 删除
-   */
-  async function handleDelete(record: Recordable) {
-    await workflowNotificationDelete({ id: record.id });
-    notification.success({ message: `执行成功` });
-    handleSuccess();
   }
 
   /**
@@ -176,5 +134,3 @@
     initDict();
   });
 </script>
-
-<style lang="less" scoped></style>

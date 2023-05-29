@@ -52,6 +52,7 @@
   </PageWrapper>
 </template>
 <script lang="ts" setup>
+  import { defineComponent } from 'vue';
   // hooks
   import { useI18n } from '/@/hooks/web/useI18n';
   import { useMessage } from '/@/hooks/web/useMessage';
@@ -129,4 +130,11 @@
     reload();
   }
 </script>
+<script lang="ts">
+  export default defineComponent({
+    // 需要和路由的name一致
+    name: 'DefaultRolePage',
+  });
+</script>
+
 <style lang="less" scoped></style>

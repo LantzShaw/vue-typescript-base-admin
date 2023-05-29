@@ -37,11 +37,11 @@
           <TableAction
             stopButtonPropagation
             :actions="[
-              // {
-              //   label: '查看附件',
-              //   onClick: handleView.bind(null, record),
-              //   auth: 'manage:sensor-traceability:view',
-              // },
+              {
+                label: '查看附件',
+                onClick: handleView.bind(null, record),
+                auth: 'manage:sensor-traceability:view',
+              },
               {
                 label: '编辑',
                 onClick: handleEdit.bind(null, record),
@@ -62,8 +62,11 @@
       </template>
     </BasicTable>
     <SensorTraceModal @register="registerModal" @success="handleSuccess" />
-    <SensorTraceViewModal @register="registerSensorTraceViewModal" @success="handleSuccess" />
     <SensorTraceImportModal @register="registerSensorTraceImportModal" @success="handleSuccess" />
+    <SensorTraceAttachmentViewModal
+      @register="registerSensorTraceAttachmentViewModal"
+      @success="handleSuccess"
+    />
   </PageWrapper>
 </template>
 <script lang="ts" setup>
@@ -80,7 +83,7 @@
   import { useModal } from '/@/components/Modal';
   import SensorTraceModal from './SensorTraceModal.vue';
   import SensorTraceImportModal from './SensorTraceImportModal.vue';
-  import SensorTraceViewModal from './SensorTraceViewModal.vue';
+  import SensorTraceAttachmentViewModal from './SensorTraceAttachmentViewModal.vue';
 
   // 接口
   import { sensorTracePage, sensorTraceDelete } from '/@/api/biz/sensorTrace';
@@ -118,9 +121,12 @@
   // 编辑
   const [registerModal, { openModal }] = useModal();
 
-  const [registerSensorTraceViewModal, { openModal: openSensorTraceViewModal }] = useModal();
-
   const [registerSensorTraceImportModal, { openModal: openSensorTraceImportModal }] = useModal();
+
+  const [
+    registerSensorTraceAttachmentViewModal,
+    { openModal: openSensorTraceAttachmentViewModal },
+  ] = useModal();
 
   /**
    * 构建registerTable
@@ -147,7 +153,7 @@
    */
   function goBack() {
     const path = unref(currentRoute).path;
-    var paths = path.split('/sensor/');
+    var paths = path.split('/trace/');
     go(paths[0]);
     closeCurrent();
   }
@@ -177,7 +183,7 @@
    * 查看附件
    */
   function handleView(record: Recordable) {
-    openSensorTraceViewModal(true, {
+    openSensorTraceAttachmentViewModal(true, {
       record,
       isUpdate: true,
       sensorId: sensorId.value,

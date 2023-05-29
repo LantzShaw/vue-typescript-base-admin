@@ -87,7 +87,7 @@
                       <td>{{ sensor?.sensorName }}</td>
                       <td>{{ sensor.regionName }}</td>
                       <td>{{ sensor?.locationNo }}</td>
-                      <td>--</td>
+                      <td>{{ sensor?.specification ?? '--' }}</td>
                     </tr>
                   </tbody>
                 </table>
@@ -153,6 +153,7 @@
     sensorName?: string;
     regionName?: string;
     locationNo?: string;
+    specification?: string;
   };
 
   const isButtonLoading = ref<boolean>(false);

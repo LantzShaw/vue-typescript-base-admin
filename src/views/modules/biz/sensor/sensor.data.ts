@@ -25,6 +25,8 @@ export const scopeOptions = ref<any[]>([]);
 export const deviceOptions = ref<any[]>([]);
 export const enterpriseOptions = ref<any[]>([]);
 export const regionOptions = ref<any[]>([]);
+export const maintenanceTaskTypeOptions = ref<any[]>([]);
+export const sensorStatusOptions = ref<any[]>([]);
 
 const { t } = useI18n();
 
@@ -52,11 +54,16 @@ export const searchForm: FormProps = {
       },
     },
     {
-      label: t('传感器类型'),
-      field: 'dtuipSensorTypeId',
+      label: t('位号'),
+      field: 'locationNo',
+      component: 'Input',
+    },
+    {
+      label: t('状态'),
+      field: 'sensorStatus',
       component: 'Select',
       componentProps: {
-        options: sensorTypeOptions,
+        options: sensorStatusOptions,
         allowClear: true,
         getPopupContainer: () => document.body,
       },
@@ -70,11 +77,6 @@ export const searchForm: FormProps = {
         allowClear: true,
         getPopupContainer: () => document.body,
       },
-    },
-    {
-      label: t('位号'),
-      field: 'locationNo',
-      component: 'Input',
     },
 
     // {
@@ -147,12 +149,11 @@ export const tableColumns: BasicColumn[] = [
     align: 'center',
   },
   {
-    title: t('传感器类型'),
-    dataIndex: 'dtuipSensorTypeId',
-    width: 90,
+    title: t('状态'),
+    dataIndex: 'sensorStatus',
+    width: 80,
     align: 'center',
     ellipsis: true,
-    sorter: true,
   },
   {
     title: t('是否在线'),

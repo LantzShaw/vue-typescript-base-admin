@@ -78,7 +78,7 @@
 </template>
 
 <script lang="ts" setup>
-  import { onMounted, unref } from 'vue';
+  import { defineComponent, onMounted, unref } from 'vue';
   import { useRouter } from 'vue-router';
   // hooks
   import { useI18n } from '/@/hooks/web/useI18n';
@@ -203,5 +203,11 @@
 
   onMounted(() => {
     initDict();
+  });
+</script>
+<script lang="ts">
+  export default defineComponent({
+    // 需要和路由的name一致
+    name: 'QuartzPage',
   });
 </script>

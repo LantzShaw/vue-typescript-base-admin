@@ -55,7 +55,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-  import { onMounted, computed, ref, unref, h, reactive } from 'vue';
+  import { defineComponent, onMounted, computed, ref, unref, h, reactive } from 'vue';
   // hooks
   import { useI18n } from '/@/hooks/web/useI18n';
   import { useMessage } from '/@/hooks/web/useMessage';
@@ -163,4 +163,11 @@
     initDict();
   });
 </script>
+<script lang="ts">
+  export default defineComponent({
+    // 需要和路由的name一致
+    name: 'SysAuthorityPage',
+  });
+</script>
+
 <style lang="less" scoped></style>

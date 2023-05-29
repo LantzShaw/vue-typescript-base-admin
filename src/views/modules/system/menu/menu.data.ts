@@ -7,6 +7,14 @@ import { BasicColumn } from '/@/components/Table';
 
 // 接口
 import { optionsListApi } from '/@/api/sys/dict';
+// 接口
+import {
+  menuAdd,
+  menuUpdate,
+  menuForm,
+  menuTreeForEdit,
+  menuOwnAuthority,
+} from '/@/api/system/menu';
 
 export const isUpdate = ref(true);
 export const idRef = ref('');
@@ -20,6 +28,7 @@ export const applicationOptions = ref<any[]>([]);
 export const requestMethodOptions = ref<any[]>([]);
 // export const treeData = ref<TreeItem[]>([]);
 export const treeData = ref<any[]>([]);
+export const treeData2 = ref<any[]>([]);
 
 const { t } = useI18n();
 
@@ -81,7 +90,7 @@ export const tableColumns: BasicColumn[] = [
   {
     title: t('排序'),
     dataIndex: 'ranking',
-    width: 90,
+    width: 80,
   },
 ];
 

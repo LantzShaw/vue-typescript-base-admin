@@ -8,19 +8,21 @@
 </template>
 
 <script lang="ts">
-  import { ref, onMounted, onUnmounted, defineComponent } from 'vue';
+  import { ref, unref, onMounted, onUnmounted, defineComponent } from 'vue';
 
   import AMapLoader from '@amap/amap-jsapi-loader';
+
+  import { enterprisePoints } from '/@/api/dataview';
 
   import point_1 from '/@/assets/images/dataview/point_1.png';
   import point_2 from '/@/assets/images/dataview/point_2.png';
   import point_3 from '/@/assets/images/dataview/point_3.png';
 
   type Position = {
-    longitude: string;
-    latitude: string;
-    status: string;
-    label: string;
+    dtuipLng: string;
+    dtuipLat: string;
+    showStatus: string;
+    enterpriseName: string;
   };
 
   // NOTE: declare global
@@ -43,6 +45,8 @@
       const placeList = ref<string[]>([]);
       const marker = ref<any[]>([]);
 
+      const pisitionList = ref<Position[]>([]);
+
       // 初始化地图
       const initMap = () => {
         AMapLoader.load({
@@ -51,49 +55,10 @@
         }).then((AMap) => {
           map.value = new AMap.Map('amap-container', {
             viewMode: '3D', // 是否为3D地图模式
-            zoom: 10, // 初始化地图级别
+            zoom: 15, // 初始化地图级别
             mapStyle: 'amap://styles/39538de9e896cea300f0cc491b5293a4',
-            center: [120.750865, 30.762653], //初始化地图中心点位置
+            center: [121.064775, 30.605484], //初始化地图中心点位置
           });
-
-          const pisitionList: Position[] = [
-            {
-              longitude: '120.750865',
-              latitude: '30.762653',
-              status: '0',
-              label: 'A企业',
-            },
-            {
-              longitude: '120.516032',
-              latitude: '30.62626',
-              status: '1',
-              label: 'B企业',
-            },
-            {
-              longitude: '120.897807',
-              latitude: '30.518663',
-              status: '2',
-              label: 'C企业',
-            },
-            {
-              longitude: '120.918407',
-              latitude: '30.804536',
-              status: '2',
-              label: 'D企业',
-            },
-            {
-              longitude: '120.608043',
-              latitude: '30.258046',
-              status: '1',
-              label: 'F企业',
-            },
-            {
-              longitude: '119.904918',
-              latitude: '30.726654',
-              status: '0',
-              label: 'H企业',
-            },
-          ];
 
           const offlineIcon = new AMap.Icon({
             image: point_1,
@@ -114,28 +79,28 @@
             image: point_3,
           });
 
-          pisitionList.forEach((item, index) => {
+          unref(pisitionList).forEach((item, index) => {
             marker.value.push(
               new AMap.Marker({
-                position: [item.longitude, item.latitude],
-                zoom: 8,
+                position: [item.dtuipLng, item.dtuipLat],
+                zoom: 14,
                 map: map.value,
                 icon:
-                  item.status === '0'
-                    ? exceptionIcon
-                    : item.status === '1'
+                  item.showStatus === '0'
                     ? offlineIcon
+                    : item.showStatus === '1'
+                    ? exceptionIcon
                     : normalIcon,
               }),
             );
 
             marker.value[index].on('click', markerClickHandler);
 
-            marker.value[index].setLabel({
-              // offset: new AMap.Pixel(20, 20), //设置文本标注偏移量
-              content: `<div id="activeLabel">${item.label}</div>`, //设置文本标注内容
-              direction: 'right', //设置文本标注方位
-            });
+            // marker.value[index].setLabel({
+            //   // offset: new AMap.Pixel(20, 20), //设置文本标注偏移量
+            //   content: `<div id="activeLabel">${item.enterpriseName}</div>`, //设置文本标注内容
+            //   direction: 'right', //设置文本标注方位
+            // });
           });
 
           // map.value.on('click', (e) => {
@@ -169,8 +134,16 @@
         // active_label!.style.visibility = 'hidden'; //将Label所在标签设置为隐藏。
       };
 
-      onMounted(() => {
-        // initMap();
+      async function getEnterprisePoints() {
+        const response = await enterprisePoints();
+
+        pisitionList.value = response.filter((item) => item.dtuipLat);
+      }
+
+      onMounted(async () => {
+        await getEnterprisePoints();
+
+        initMap();
       });
 
       onUnmounted(() => {

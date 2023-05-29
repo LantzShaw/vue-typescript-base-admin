@@ -209,3 +209,9 @@
     initDict();
   });
 </script>
+<script lang="ts">
+  export default defineComponent({
+    // 需要和路由的name一致
+    name: 'AreaPage',
+  });
+</script>

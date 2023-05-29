@@ -160,3 +160,19 @@ export const inputFormSchemas: FormSchema[] = [
     component: 'Upload',
   },
 ];
+
+// 文件预览列表
+export const previewColumns: any[] = [
+  {
+    dataIndex: 'fileName',
+    title: t('component.upload.fileName'),
+    align: 'left',
+    width: 100,
+  },
+  {
+    dataIndex: 'createTime',
+    title: t('上传时间'),
+    align: 'left',
+    width: 100,
+  },
+];

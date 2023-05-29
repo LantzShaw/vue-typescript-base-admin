@@ -2,9 +2,9 @@ import { ref, unref } from 'vue';
 // hooks
 import { useI18n } from '/@/hooks/web/useI18n';
 // 公共组件
-import { FormProps } from '/@/components/Form';
+import { FormProps, FormSchema } from '/@/components/Form';
 import { BasicColumn } from '/@/components/Table/src/types/table';
-import { FormSchema } from '/@/components/Form';
+
 // 接口
 import { optionsListApi } from '/@/api/sys/dict';
 
@@ -38,7 +38,7 @@ export const searchForm: FormProps = {
     },
     {
       label: t('认证模式'),
-      field: 'authorizationGrantTypes',
+      field: 'authorizationGrantTypeSet',
       component: 'CheckboxGroup',
       componentProps: {
         options: grantTypesOptions,
@@ -233,7 +233,7 @@ export const inputFormSchemas: FormSchema[] = [
   },
   {
     label: t('认证模式'),
-    field: 'authorizationGrantTypes',
+    field: 'authorizationGrantTypeSet',
     component: 'CheckboxGroup',
     componentProps: {
       options: [],
@@ -245,8 +245,8 @@ export const inputFormSchemas: FormSchema[] = [
     component: 'InputTextArea',
     colProps: { lg: 24, md: 24 },
     dynamicRules: ({ values }) => {
-      if (Array.isArray(values.authorizationGrantTypes)) {
-        if (values.authorizationGrantTypes.includes('authorization_code')) {
+      if (Array.isArray(values.authorizationGrantTypeSet)) {
+        if (values.authorizationGrantTypeSet.includes('authorization_code')) {
           return [{ required: true, message: '回调地址必填' }];
         }
       }
@@ -256,7 +256,7 @@ export const inputFormSchemas: FormSchema[] = [
   },
   {
     label: t('客户端验证模式'),
-    field: 'clientAuthenticationMethods',
+    field: 'clientAuthenticationMethodSet',
     component: 'ApiSelect',
     required: true,
     componentProps: {
@@ -279,7 +279,7 @@ export const inputFormSchemas: FormSchema[] = [
       },
     },
     ifShow: ({ values }) =>
-      isShowAuthenticationSigningAlgorithm(values.clientAuthenticationMethods),
+      isShowAuthenticationSigningAlgorithm(values.clientAuthenticationMethodSet),
   },
   {
     label: t('OIDC端点认证签名算法'),
@@ -312,7 +312,7 @@ export const inputFormSchemas: FormSchema[] = [
   },
   {
     label: t('应用范围'),
-    field: 'scopes',
+    field: 'scopeIds',
     component: 'CheckboxGroup',
     componentProps: {
       options: [],

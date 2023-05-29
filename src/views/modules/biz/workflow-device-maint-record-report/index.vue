@@ -6,21 +6,26 @@
         style="justify-content: space-between"
       >
         <div>
-          <a-button preIcon="ant-design:left" @click="goBack">返回</a-button>
+          <a-button
+            v-auth="'manage:maintenance-record:report-show-back'"
+            preIcon="ant-design:left"
+            @click="goBack"
+            >返回</a-button
+          >
         </div>
 
         <div>
           <a-space>
             <a-button
               :loading="isExportLoading"
-              v-auth="'manage:sensor:export'"
+              v-auth="'manage:maintenance-record:report'"
               preIcon="ant-design:download-outlined"
               @click="handleExport"
             >
               导出工作记录表单
             </a-button>
             <a-button
-              v-auth="'manage:sensor:export'"
+              v-auth="'manage:maintenance-record:report'"
               preIcon="ant-design:eye-outlined"
               @click="handleFeedbackReportPreview"
             >
@@ -45,6 +50,7 @@
               <a-col :span="8">
                 <a-form-item label="开始日期" name="startDate">
                   <a-date-picker
+                    :disabled="isReadonly"
                     style="width: 100%"
                     v-model:value="formState.startDate"
                     value-format="YYYY-MM-DD"
@@ -54,6 +60,7 @@
               <a-col :span="8">
                 <a-form-item label="完工日期" name="endDate">
                   <a-date-picker
+                    :disabled="isReadonly"
                     style="width: 100%"
                     v-model:value="formState.endDate"
                     value-format="YYYY-MM-DD"
@@ -62,15 +69,23 @@
               </a-col>
               <a-col :span="8">
                 <a-form-item label="环境温度">
-                  <a-input placeholder="请输入环境温度" v-model:value="formState.temperature" />
+                  <a-input
+                    :disabled="isReadonly"
+                    placeholder="请输入环境温度"
+                    v-model:value="formState.temperature"
+                  />
                 </a-form-item>
               </a-col>
               <a-col :span="8">
                 <a-form-item label="环境湿度">
-                  <a-input placeholder="请输入环境湿度" v-model:value="formState.humidity" />
+                  <a-input
+                    :disabled="isReadonly"
+                    placeholder="请输入环境湿度"
+                    v-model:value="formState.humidity"
+                  />
                 </a-form-item>
               </a-col>
-              <a-col :span="8">
+              <a-col :span="8" v-auth="'manage:maintenance-record:report-edit'">
                 <a-form-item>
                   <a-button html-type="submit" type="primary">保存</a-button>
                 </a-form-item>
@@ -116,16 +131,7 @@
 
           <!-- 表格按钮 -->
           <template v-else-if="column.key === 'action'">
-            <TableAction
-              stopButtonPropagation
-              :actions="[
-                {
-                  label: '编辑',
-                  onClick: handleEdit.bind(null, record),
-                  auth: 'manage:sensor:edit',
-                },
-              ]"
-            />
+            <TableAction stopButtonPropagation :actions="createActions(record, column)" />
           </template>
         </template>
       </BasicTable>
@@ -136,7 +142,7 @@
   </PageWrapper>
 </template>
 <script lang="ts" setup>
-  import { onMounted, ref, unref, reactive } from 'vue';
+  import { onMounted, ref, unref, reactive, computed } from 'vue';
   import {
     Space as ASpace,
     Form as AForm,
@@ -146,22 +152,31 @@
     Col as ACol,
   } from 'ant-design-vue';
   import { useRouter } from 'vue-router';
+
+  import { cloneDeep } from 'lodash-es';
+
   // hooks
   import { useGo } from '/@/hooks/web/usePage';
   import { useTabs } from '/@/hooks/web/useTabs';
   import { useMessage } from '/@/hooks/web/useMessage';
+  import { usePermission } from '/@/hooks/web/usePermission';
 
   // 组件
   import { PageWrapper } from '/@/components/Page';
-  import { BasicTable, TableAction, useTable } from '/@/components/Table';
+  import {
+    BasicTable,
+    TableAction,
+    useTable,
+    BasicColumn,
+    ActionItem,
+    EditRecordRow,
+  } from '/@/components/Table';
   import { DictLabel } from '/@/components/DictLabel/index';
   import { useModal } from '/@/components/Modal';
-  // import SensorModal from './SensorModal.vue';
 
   import FeedbackReportModal from './FeedbackReportModal.vue';
 
   // 接口
-  import { sensorExport } from '/@/api/biz/sensor';
   import { optionsListBatchApi } from '/@/api/sys/dict';
   import {
     workflowDeviceMaintSensorPage,
@@ -208,16 +223,19 @@
   const recordId = ref<string>(unref(currentRoute).params?.id as string);
 
   const formState = reactive<FormState>({});
+  const currentEditKeyRef = ref('');
+
+  const { createMessage: msg } = useMessage();
+  const { hasPermission } = usePermission();
+
+  const isReadonly = computed(() => {
+    return !hasPermission('manage:maintenance-record:report-edit');
+  });
 
   /**
    * 构建registerModal
    */
   const [registerFeedbackReportModal, { openModal: openFeedbackReportModal }] = useModal();
-
-  /**
-   * 构建registerModal
-   */
-  const [registerModal, { openModal }] = useModal();
 
   /**
    * 构建registerTable
@@ -236,11 +254,12 @@
     showTableSetting: false,
     showIndexColumn: true,
     actionColumn: {
-      ifShow: false,
-      width: 140,
+      ifShow: true,
+      width: 200,
       title: '操作',
       dataIndex: 'action',
       fixed: 'right',
+      auth: 'manage:maintenance-record:report-edit',
     },
   });
 
@@ -293,18 +312,79 @@
   /**
    * 编辑
    */
-  function handleEdit(record: Recordable) {
-    openModal(true, {
-      record,
-      isUpdate: true,
-    });
-  }
+  // function handleEdit(record: Recordable) {
+  //   openModal(true, {
+  //     record,
+  //     isUpdate: true,
+  //   });
+  // }
 
   /**
    * 工作反馈报告 - 预览
    */
   function handleFeedbackReportPreview() {
     openFeedbackReportModal(true, {});
+  }
+
+  function handleEdit(record: EditRecordRow) {
+    currentEditKeyRef.value = record.key;
+    record.onEdit?.(true);
+  }
+
+  function handleCancel(record: EditRecordRow) {
+    currentEditKeyRef.value = '';
+    record.onEdit?.(false, false);
+  }
+
+  async function handleSave(record: EditRecordRow) {
+    // 校验
+    msg.loading({ content: '正在保存...', duration: 0, key: 'saving' });
+    const valid = await record.onValid?.();
+    if (valid) {
+      try {
+        const data = cloneDeep(record.editValueRefs);
+        console.log(data);
+        //TODO 此处将数据提交给服务器保存
+        // ...
+        await workflowDeviceMaintSensorUpdate({ id: record.id, ...data });
+
+        // 保存之后提交编辑状态
+        const pass = await record.onEdit?.(false, true);
+        if (pass) {
+          currentEditKeyRef.value = '';
+        }
+        msg.success({ content: '数据已保存', key: 'saving' });
+      } catch (error) {
+        msg.error({ content: '保存失败', key: 'saving' });
+      }
+    } else {
+      msg.error({ content: '请填写正确的数据', key: 'saving' });
+    }
+  }
+
+  function createActions(record: EditRecordRow, column: BasicColumn): ActionItem[] {
+    if (!record.editable) {
+      return [
+        {
+          label: '编辑',
+          disabled: currentEditKeyRef.value ? currentEditKeyRef.value !== record.key : false,
+          onClick: handleEdit.bind(null, record),
+        },
+      ];
+    }
+    return [
+      {
+        label: '保存',
+        onClick: handleSave.bind(null, record, column),
+      },
+      {
+        label: '取消',
+        popConfirm: {
+          title: '是否取消编辑',
+          confirm: handleCancel.bind(null, record, column),
+        },
+      },
+    ];
   }
 
   /**

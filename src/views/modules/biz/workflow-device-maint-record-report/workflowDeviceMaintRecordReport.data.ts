@@ -1,6 +1,7 @@
 import { ref } from 'vue';
 // hooks
 import { useI18n } from '/@/hooks/web/useI18n';
+
 // 公共组件
 import { FormProps, FormSchema } from '/@/components/Form';
 import { BasicColumn } from '/@/components/Table/src/types/table';
@@ -134,8 +135,8 @@ export const tableColumns: BasicColumn[] = [
     dataIndex: 'result1',
     width: 160,
     align: 'center',
-    edit: true,
-    // editRow: true,
+    edit: false,
+    editRow: true,
     // editable: true,
     editComponent: 'Select',
     editComponentProps: {
@@ -151,10 +152,10 @@ export const tableColumns: BasicColumn[] = [
     dataIndex: 'result2',
     width: 200,
     align: 'center',
-    edit: true,
+    edit: false,
     editComponent: 'Input',
-    // editRow: true,
-    editable: true,
+    editRow: true,
+    // editable: true,
   },
   {
     title: t('检查结果'),
@@ -167,8 +168,8 @@ export const tableColumns: BasicColumn[] = [
         dataIndex: 'result3',
         width: 130,
         align: 'center',
-        edit: true,
-        // editRow: true,
+        edit: false,
+        editRow: true,
         // editable: true,
         editComponent: 'Select',
         editComponentProps: {
@@ -184,8 +185,8 @@ export const tableColumns: BasicColumn[] = [
         dataIndex: 'result4',
         width: 130,
         align: 'center',
-        edit: true,
-        // editRow: true,
+        edit: false,
+        editRow: true,
         // editable: true,
         editComponent: 'Select',
         editComponentProps: {
@@ -203,9 +204,9 @@ export const tableColumns: BasicColumn[] = [
     dataIndex: 'suggestion',
     width: 200,
     align: 'center',
-    edit: true,
-    // editRow: true,
-    editable: true,
+    edit: false,
+    editRow: true,
+    // editable: true,
     editComponentProps: {
       defaultValue: '请填写建议',
     },

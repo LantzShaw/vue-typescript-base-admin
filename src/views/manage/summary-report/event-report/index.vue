@@ -96,6 +96,9 @@
   const [registerTable, { getDataSource, getColumns, getForm }] = useTable({
     title: '',
     api: eventReportPage,
+    searchInfo: {
+      id: route?.query?.id,
+    },
     columns: tableColumns,
     formConfig: searchForm,
     useSearchForm: true,
@@ -109,17 +112,17 @@
       // slots: { customRender: 'action' },
       fixed: 'right',
       // fixed: undefined,
-      // auth: 'system:application:operation',
+      auth: 'manage:event:report',
     },
   });
 
   /**
-   * 返回报表总览页面
+   * 返回报警器事件触发统计
    */
   function goBack() {
     closeCurrent();
 
-    go('/summary/report/list');
+    go(`/summary/event/statistic`);
   }
 
   /**
