@@ -62,54 +62,6 @@
        */
       const onSetOptions = async () => {
         const seriesOption: any = {
-          // title: [
-          //   {
-          //     show: false,
-          //     x: '34%',
-          //     y: '58%',
-          //     text: `{value|3}\n{title|有效}`,
-          //     textStyle: {
-          //       rich: {
-          //         value: {
-          //           color: '#5ed6ae',
-          //           // color: [
-          //           //   {
-          //           //     type: 'linear',
-          //           //     x: 0,
-          //           //     y: 0,
-          //           //     x2: 0,
-          //           //     y2: 1,
-          //           //     colorStops: [
-          //           //       {
-          //           //         offset: 0,
-          //           //         color: '#B2E72A',
-          //           //       },
-          //           //       {
-          //           //         offset: 0.5,
-          //           //         color: '#0ABD9C',
-          //           //       },
-          //           //       {
-          //           //         offset: 1,
-          //           //         color: '#1FBB9B',
-          //           //       },
-          //           //     ],
-          //           //     globalCoord: false,
-          //           //   },
-          //           // ],
-          //           fontSize: 20,
-          //           textAlign: 'center',
-          //           padding: [10, 0, 6, 10],
-          //         },
-          //         title: {
-          //           fontSize: 16,
-          //           textAlign: 'center',
-          //           color: '#fff',
-          //           padding: [0, 0, 1, 0],
-          //         },
-          //       },
-          //     },
-          //   },
-          // ],
           tooltip: {
             show: false,
           },

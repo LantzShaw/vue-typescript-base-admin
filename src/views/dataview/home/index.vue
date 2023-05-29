@@ -1,16 +1,17 @@
 <template>
-  <AMap>
+  <BMap>
     <Header />
     <main class="main-container">
       <LeftBox />
       <MiddleBox />
       <RightBox />
     </main>
-  </AMap>
+  </BMap>
 </template>
 
 <script lang="ts" setup>
-  import AMap from '../AMap.vue';
+  // import AMap from '../AMap.vue';
+  import BMap from '../BMap.vue';
   import Header from '../Header.vue';
   import LeftBox from './components/LeftBox.vue';
   import MiddleBox from './components/MiddleBox.vue';

@@ -26,8 +26,8 @@
         default: '',
       },
       displayValue: {
-        type: String as PropType<string>,
-        default: '0',
+        type: Number as PropType<number>,
+        default: 0,
       },
       color: {
         type: String as PropType<string>,

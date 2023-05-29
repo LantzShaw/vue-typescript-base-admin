@@ -60,7 +60,7 @@
 
   type EventTriggerData = {
     id?: string;
-    displayValue?: string;
+    displayValue?: number;
     color?: string;
     label?: string;
     backgroundImagePath?: string;
@@ -93,14 +93,14 @@
   const eventTriggerDataList = ref<EventTriggerData[]>([
     {
       id: '1',
-      displayValue: '0',
+      displayValue: 0,
       color: '#28F2E6',
       label: '1天内完成的',
       backgroundImagePath: line_bg_1,
     },
     {
       id: '2',
-      displayValue: '0',
+      displayValue: 0,
       color: '#FFCC00',
       label: '5天内完成的',
       backgroundImagePath: line_bg_2,
@@ -108,14 +108,14 @@
 
     {
       id: '3',
-      displayValue: '0',
+      displayValue: 0,
       color: '#00CBFF',
       label: '10天内完成的',
       backgroundImagePath: line_bg_3,
     },
     {
       id: '4',
-      displayValue: '0',
+      displayValue: 0,
       color: '#00FF99',
       label: '15天内完成的',
       backgroundImagePath: line_bg_4,
