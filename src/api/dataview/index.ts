@@ -9,12 +9,13 @@ enum Api {
   StatisticsAlarmProcess = '/biz/data-view/statistics-alarm-process',
   StatisticsMaintProcess = '/biz/data-view/statistics-maint-process',
   SensorStatus = '/biz/data-view/sensor-status',
-  GetAbnormalStatistics = '/biz/data-view/get-abnormal-statistics',
-  GetTriggerFrequently = '/biz/data-view/get-trigger-frequently',
+  GetAbnormalStatistics = '/biz/data/sensor-alarm/page',
+  GetTriggerFrequently = '/biz/data/sensor-alarm/page',
   StatisticsSensorAbnormal = '/biz/data-view/statistics-sensor-abnormal',
   AlarmList = '/biz/data-view/alarm-list',
   AbnormalList = '/biz/data-view/abnormal-list',
   MaintList = '/biz/data-view/maint-list',
+  EnterpriseForm = '/biz/enterprise/form',
 }
 
 // 地图点位列表
@@ -68,3 +69,6 @@ export const abnormalList = (params?: any) => defHttp.get({ url: Api.AbnormalLis
 
 // 进行中的维保任务
 export const maintList = (params?: any) => defHttp.get({ url: Api.MaintList, params });
+
+// 企业概况
+export const enterpriseForm = (params?: any) => defHttp.get({ url: Api.EnterpriseForm, params });

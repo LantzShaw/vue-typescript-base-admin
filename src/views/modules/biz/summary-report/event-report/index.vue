@@ -11,7 +11,7 @@
       <template #toolbar>
         <a-button
           :loading="isExcelExportLoading"
-          v-auth="'manage:sensor:export'"
+          v-auth="'manage:summary:export'"
           preIcon="ant-design:download-outlined"
           @click="handleExport"
         >
@@ -20,20 +20,32 @@
       </template>
       <!-- 表格内容 -->
       <template #bodyCell="{ column, record }">
-        <template v-if="column.key === 'dtuipSensorTypeId'">
-          <dict-label :options="sensorTypeOptions" :value="record.dtuipSensorTypeId" />
+        <template v-if="column.key === 'bizEnterprise'">
+          <a-tooltip placement="top">
+            <template #title>
+              <span
+                >[{{ record.bizDeviceSensor?.bizEnterprise?.enterpriseNo }}]
+                {{ record.bizDeviceSensor?.bizEnterprise?.enterpriseName }}</span
+              >
+            </template>
+            <span v-if="record.bizDeviceSensor?.bizEnterprise?.enterpriseNo">
+              [{{ record.bizDeviceSensor?.bizEnterprise?.enterpriseNo }}]
+              {{ record.bizDeviceSensor?.bizEnterprise?.enterpriseName }}
+            </span>
+          </a-tooltip>
         </template>
-        <template v-else-if="column.key === 'dtuipIsAlarms'">
-          <dict-label :options="alarmStatusOptions" :value="record.dtuipIsAlarms" />
+        <template v-else-if="column.key === 'bizInstallRegion'">
+          {{ record.bizDeviceSensor?.bizInstallRegion?.regionName }}
         </template>
-        <template v-else-if="column.key === 'dtuipIsDelete'">
-          <dict-label :options="deleteStatusOptions" :value="record.dtuipIsDelete" />
+        <template v-else-if="column.key === 'installLocation'">
+          <span v-if="record.bizDeviceSensor">
+            {{ record.bizDeviceSensor?.installLocation }}
+          </span>
         </template>
-        <template v-else-if="column.key === 'dtuipIsLine'">
-          <dict-label :options="onlineStatusOptions" :value="record.dtuipIsLine" />
-        </template>
-        <template v-else-if="column.key === 'dtuipValue'">
-          {{ record.dtuipValue + record.dtuipUnit }}
+        <template v-else-if="column.key === 'locationNo'">
+          <span v-if="record.bizDeviceSensor">
+            {{ record.bizDeviceSensor?.locationNo }}
+          </span>
         </template>
 
         <template v-else-if="column.key === 'eventStatus'">
@@ -65,7 +77,7 @@
   import { PageWrapper } from '/@/components/Page';
   import { BasicTable, TableAction, useTable } from '/@/components/Table';
   import { DictLabel } from '/@/components/DictLabel/index';
-
+  import { downloadByData } from '/@/utils/file/download';
   // 接口
   import { optionsListBatchApi } from '/@/api/sys/dict';
   // data
@@ -79,8 +91,11 @@
     tableColumns,
   } from './eventReport.data';
   import { useGo } from '/@/hooks/web/usePage';
-  import { eventReportPage } from '/@/api/manage/summaryReport';
-  import { aoaToSheetXlsx } from '/@/components/Excel';
+  import {
+    workflowAlarmDealRecordPage,
+    workflowAlarmDealRecordExport,
+  } from '/@/api/biz/workflowAlarmDealRecord';
+
   import { useTabs } from '/@/hooks/web/useTabs';
   import { useRoute } from 'vue-router';
 
@@ -93,11 +108,12 @@
   /**
    * 构建registerTable
    */
-  const [registerTable, { getDataSource, getColumns, getForm }] = useTable({
+  const [registerTable, { getForm }] = useTable({
     title: '',
-    api: eventReportPage,
+    api: workflowAlarmDealRecordPage,
     searchInfo: {
-      id: route?.query?.id,
+      organizationId: route?.query?.id,
+      eventStatus: '1',
     },
     columns: tableColumns,
     formConfig: searchForm,
@@ -112,7 +128,6 @@
       // slots: { customRender: 'action' },
       fixed: 'right',
       // fixed: undefined,
-      auth: 'manage:event:report',
     },
   });
 
@@ -131,7 +146,7 @@
    * @param record
    */
   function navigateToReport(record: Recordable) {
-    go(`/biz/alarm-management/record/report/${record.recordId}`);
+    go(`/biz/alarm-management/record/report/${record.id}`);
   }
 
   /**
@@ -140,44 +155,18 @@
   function handleExport() {
     isExcelExportLoading.value = true;
 
-    let tableData: any = getDataSource().map((item) => {
-      return [
-        item.organizationName,
-        item.dtuipTriggerDate,
-        item.regionName,
-        item.locationno,
-        item.eventStatus === '0' ? '待处理' : item.eventStatus === '1' ? '进行中' : '已完成',
-      ];
-    });
-    const header = getColumns().map((column) => column.title);
-
-    header.pop();
-
-    // tableData = [...header, ...tableData];
-
-    aoaToSheetXlsx({
-      data: tableData,
-      header: header,
-      filename: `报警器事件触发明细表_${new Date().getTime()}.xlsx`,
-    });
-
-    isExcelExportLoading.value = false;
-
-    // console.log(tableData, header);
-
-    // let workSheet = XLSX.utils.aoa_to_sheet(tableData);
-
-    // let bookNew = XLSX.utils.book_new();
-    // XLSX.utils.book_append_sheet(bookNew, workSheet, '作品名称'); // 工作簿名称
-    // let name = '参赛人员选中' + '.xlsx';
-    // XLSX.writeFile(bookNew, name); // 保存的文件名
-
-    // jsonToSheetXlsx({
-    //   data: getDataSource(),
-
-    //   header: getColumns().map((column) => column.title),
-    //   filename: `报警器事件触发明细表_${new Date().getTime()}.xls`,
-    // });
+    let params: Recordable = {
+      ...getForm().getFieldsValue(),
+      organizationId: route?.query?.id,
+      eventStatus: '1',
+    };
+    workflowAlarmDealRecordExport(params)
+      .then((response) => {
+        downloadByData(response, `报警器事件触发明细表_${new Date().getTime()}.xlsx`);
+      })
+      .finally(() => {
+        isExcelExportLoading.value = false;
+      });
   }
 
   /**

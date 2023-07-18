@@ -115,7 +115,7 @@
   </PageWrapper>
 </template>
 <script lang="ts" setup>
-  import { onMounted, ref, unref } from 'vue';
+  import { defineComponent, onMounted, ref, unref } from 'vue';
   import { useRouter } from 'vue-router';
   // hooks
   import { useGo } from '/@/hooks/web/usePage';
@@ -167,7 +167,7 @@
   /**
    * 构建registerTable
    */
-  const [registerTable, { reload }] = useTable({
+  const [registerTable, { getForm, reload }] = useTable({
     title: '',
     api: sensorPage,
     columns: tableColumns,
@@ -206,8 +206,10 @@
    */
   function handleExport() {
     isExportLoading.value = true;
-
-    sensorExport({})
+    let params: Recordable = {
+      ...getForm().getFieldsValue(),
+    };
+    sensorExport(params)
       .then((response) => {
         downloadByData(response, `传感器导出_${new Date().getTime()}.xlsx`);
       })
@@ -287,7 +289,12 @@
     initDict();
   });
 </script>
-
+<script lang="ts">
+  export default defineComponent({
+    // 需要和路由的name一致
+    name: 'SensorPage',
+  });
+</script>
 <style lang="less" scoped>
   // .dict-label {
   //   :deep(.ant-tag) {

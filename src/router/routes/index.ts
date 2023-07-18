@@ -56,7 +56,7 @@ export const DataViewRoute: AppRouteRecordRaw = {
   redirect: '/dataview/home',
   children: [
     {
-      path: '/dataview/home',
+      path: '/biz/dataview/home',
       name: 'DataViewHome',
       component: () => import('/@/views/dataview/home/index.vue'),
       meta: {
@@ -64,7 +64,7 @@ export const DataViewRoute: AppRouteRecordRaw = {
       },
     },
     {
-      path: '/dataview/detail',
+      path: '/biz/dataview/detail',
       name: 'DataViewDetail',
       component: () => import('/@/views/dataview/detail/index.vue'),
       meta: {

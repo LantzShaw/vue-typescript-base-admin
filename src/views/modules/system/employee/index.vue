@@ -51,7 +51,6 @@
               {
                 label: '账号信息',
                 onClick: handleViewUser.bind(null, record),
-                auth: 'system:role:edit',
                 ifShow: () => {
                   return record['sysUser'] !== null;
                 },

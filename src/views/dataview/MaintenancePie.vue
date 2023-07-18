@@ -2,10 +2,12 @@
   <div ref="eventTriggerPieChartRef" :style="{ height, width }"></div>
 </template>
 <script lang="ts">
-  import { defineComponent, PropType, ref, Ref, onMounted } from 'vue';
+  import { PropType, Ref, defineComponent, onMounted, ref } from 'vue';
+  import { useRoute } from 'vue-router';
 
-  import { useECharts } from '/@/hooks/web/useECharts';
   import { baseOption } from './data';
+  import { useECharts } from '/@/hooks/web/useECharts';
+  import { useUserStore } from '/@/store/modules/user';
   import echarts from '/@/utils/lib/echarts';
 
   import { statisticsMaintProcess } from '/@/api/dataview';
@@ -27,9 +29,14 @@
         default: '280px',
       },
     },
-    setup(props) {
+    setup() {
       const eventTriggerPieChartRef = ref<HTMLDivElement | null>(null);
       const chartData = ref<ChartData[]>([]);
+
+      const userStore = useUserStore();
+      const route = useRoute();
+
+      const organizationId = ref<string>((route.query.id as string) ?? userStore.getOrganizationId);
 
       const { setOptions, getInstance } = useECharts(
         eventTriggerPieChartRef as Ref<HTMLDivElement>,
@@ -44,11 +51,11 @@
         });
 
         try {
-          const response = await statisticsMaintProcess();
+          const response = await statisticsMaintProcess({ organizationId: organizationId.value });
 
           chartData.value = response;
         } catch (error) {
-        } finally {
+          console.log(error);
         }
       };
 

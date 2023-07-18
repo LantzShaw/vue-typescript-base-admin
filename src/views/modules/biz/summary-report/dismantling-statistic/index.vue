@@ -11,7 +11,7 @@
       <template #toolbar>
         <a-button
           :loading="isExcelExportLoading"
-          v-auth="'manage:sensor:export'"
+          v-auth="'manage:summary:export'"
           preIcon="ant-design:download-outlined"
           @click="handleExport"
         >
@@ -35,14 +35,16 @@
   import { BasicTable, useTable } from '/@/components/Table';
 
   // 接口
-  import { sensorChangeNumPage } from '/@/api/manage/summaryReport';
-
+  import {
+    sensorChangeNumPage,
+    sensorChangeEnterpriseExportData,
+  } from '/@/api/manage/summaryReport';
+  import { downloadByData } from '/@/utils/file/download';
   // data
   import { searchForm, tableColumns } from './dismantlingStatistic.data';
   import { useTabs } from '/@/hooks/web/useTabs';
   import { useRoute } from 'vue-router';
   import { useGo } from '/@/hooks/web/usePage';
-  import { aoaToSheetXlsx } from '/@/components/Excel';
 
   const route = useRoute();
   const { closeCurrent } = useTabs();
@@ -65,15 +67,7 @@
     canResize: false,
     showTableSetting: true,
     showIndexColumn: false,
-    // actionColumn: {
-    //   width: 140,
-    //   title: '操作',
-    //   dataIndex: 'action',
-    //   // slots: { customRender: 'action' },
-    //   fixed: 'right',
-    //   // fixed: undefined,
-    //   // auth: 'system:application:operation',
-    // },
+    pagination: false,
   });
 
   /**
@@ -100,18 +94,17 @@
   function handleExport() {
     isExcelExportLoading.value = true;
 
-    let tableData: any = getDataSource().map((item) => {
-      return [item.enterpriseName, item.enterpriseNo, item.statisticsNum];
-    });
-    const header = getColumns().map((column) => column.title);
-
-    aoaToSheetXlsx({
-      data: tableData,
-      header: header,
-      filename: `报警器拆除情况统计_${new Date().getTime()}.xlsx`,
-    });
-
-    isExcelExportLoading.value = false;
+    let params: Recordable = {
+      ...getForm().getFieldsValue(),
+      changeType: '2',
+    };
+    sensorChangeEnterpriseExportData(params)
+      .then((response) => {
+        downloadByData(response, `报警器拆除情况统计_${new Date().getTime()}.xlsx`);
+      })
+      .finally(() => {
+        isExcelExportLoading.value = false;
+      });
   }
 
   onMounted(() => {
@@ -128,10 +121,4 @@
     name: 'SummaryReportDismantlingStatisticPage',
   });
 </script>
-<style lang="less" scoped>
-  .dict-label {
-    :deep(.ant-tag) {
-      margin: 4px;
-    }
-  }
-</style>
+<style lang="less" scoped></style>

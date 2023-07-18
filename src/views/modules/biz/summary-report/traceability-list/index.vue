@@ -12,7 +12,7 @@
         <template #toolbar>
           <a-button
             :loading="isExcelExportLoading"
-            v-auth="'manage:sensor:export'"
+            v-auth="'manage:summary:export'"
             preIcon="ant-design:download-outlined"
             @click="handleExport"
           >
@@ -32,24 +32,22 @@
   </PageWrapper>
 </template>
 <script lang="ts" setup>
-  import { defineComponent, ref, onMounted } from 'vue';
+  import { defineComponent, ref } from 'vue';
 
   // 组件
   import { PageWrapper } from '/@/components/Page';
   import { BasicTable, useTable } from '/@/components/Table';
-
+  import { downloadByData } from '/@/utils/file/download';
   // 接口
-  import { traceabilityListPage } from '/@/api/manage/summaryReport';
+  import { traceabilityListPage, traceabilityListExport } from '/@/api/manage/summaryReport';
 
   // data
-  import { searchForm, tableColumns } from './traceabilityList.data';
-  import { aoaToSheetXlsx } from '/@/components/Excel';
+  import { tableColumns } from './traceabilityList.data';
+
   import { useGo } from '/@/hooks/web/usePage';
   import { useTabs } from '/@/hooks/web/useTabs';
-  import { useRoute } from 'vue-router';
 
   const go = useGo();
-  const route = useRoute();
   const { closeCurrent } = useTabs();
 
   const isExcelExportLoading = ref<boolean>(false);
@@ -57,28 +55,14 @@
   /**
    * 构建registerTable
    */
-  const [registerTable, { getForm, getDataSource, getColumns }] = useTable({
+  const [registerTable, { getForm }] = useTable({
     title: '',
     api: traceabilityListPage,
     columns: tableColumns,
-    formConfig: searchForm,
-    searchInfo: {
-      fig: route?.query?.fig,
-    },
     useSearchForm: false,
     canResize: false,
     showTableSetting: true,
     showIndexColumn: false,
-    actionColumn: {
-      ifShow: false,
-      width: 140,
-      title: '操作',
-      dataIndex: 'action',
-      // slots: { customRender: 'action' },
-      fixed: 'right',
-      // fixed: undefined,
-      // auth: 'system:application:operation',
-    },
   });
 
   /**
@@ -94,7 +78,7 @@
    * 跳转至报警器溯源超期明细表
    */
   function navigateToTraceabilityReport(record) {
-    go('/biz/summary/traceability/report');
+    go(`/biz/summary/traceability/report?id=${record.id}`);
   }
 
   /**
@@ -103,30 +87,17 @@
   function handleExport() {
     isExcelExportLoading.value = true;
 
-    let tableData: any = getDataSource().map((item) => {
-      return [item.organizationName, '--', item.maxDate];
-    });
-    const header = getColumns().map((column) => column.title);
-
-    header.pop();
-
-    aoaToSheetXlsx({
-      data: tableData,
-      header: header,
-      filename: `报警器溯源超期列表_${new Date().getTime()}.xlsx`,
-    });
-
-    isExcelExportLoading.value = false;
+    let params: Recordable = {
+      ...getForm().getFieldsValue(),
+    };
+    traceabilityListExport(params)
+      .then((response) => {
+        downloadByData(response, `报警器溯源超期列表_${new Date().getTime()}.xlsx`);
+      })
+      .finally(() => {
+        isExcelExportLoading.value = false;
+      });
   }
-
-  onMounted(() => {
-    // NOTE: 根据路由参数 - 设置默认查询时间区间
-    getForm().setFieldsValue({
-      startDate: route?.query?.startDate,
-
-      // endDate: route?.query?.endDate,
-    });
-  });
 </script>
 <script lang="ts">
   export default defineComponent({
@@ -134,10 +105,4 @@
     name: 'SummaryReportTraceabilityListPage',
   });
 </script>
-<style lang="less" scoped>
-  .dict-label {
-    :deep(.ant-tag) {
-      margin: 4px;
-    }
-  }
-</style>
+<style lang="less" scoped></style>

@@ -51,14 +51,12 @@ export const tableColumns: BasicColumn[] = [
   {
     title: t('单位名称'),
     dataIndex: 'enterpriseName',
-    sorter: true,
     width: 130,
     align: 'center',
   },
   {
     title: t('单位编号'),
     dataIndex: 'enterpriseNo',
-    sorter: true,
     width: 100,
     align: 'center',
   },

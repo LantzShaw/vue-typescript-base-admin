@@ -11,7 +11,7 @@
       <template #toolbar>
         <a-button
           :loading="isExcelExportLoading"
-          v-auth="'manage:sensor:export'"
+          v-auth="'manage:summary:export'"
           preIcon="ant-design:download-outlined"
           @click="handleExport"
         >
@@ -33,13 +33,15 @@
   // 组件
   import { PageWrapper } from '/@/components/Page';
   import { BasicTable, useTable } from '/@/components/Table';
-
+  import { downloadByData } from '/@/utils/file/download';
   // 接口
-  import { sensorChangeNumPage } from '/@/api/manage/summaryReport';
+  import {
+    sensorChangeNumPage,
+    sensorChangeEnterpriseExportData,
+  } from '/@/api/manage/summaryReport';
 
   // data
   import { searchForm, tableColumns } from './additionStatistic.data';
-  import { aoaToSheetXlsx } from '/@/components/Excel';
   import { useRoute } from 'vue-router';
   import { useGo } from '/@/hooks/web/usePage';
   import { useTabs } from '/@/hooks/web/useTabs';
@@ -65,6 +67,7 @@
     canResize: false,
     showTableSetting: true,
     showIndexColumn: false,
+    pagination: false,
   });
 
   /**
@@ -90,19 +93,17 @@
    */
   function handleExport() {
     isExcelExportLoading.value = true;
-
-    let tableData: any = getDataSource().map((item) => {
-      return [item.enterpriseName, item.enterpriseNo, item.statisticsNum];
-    });
-    const header = getColumns().map((column) => column.title);
-
-    aoaToSheetXlsx({
-      data: tableData,
-      header: header,
-      filename: `报警器新增情况统计_${new Date().getTime()}.xlsx`,
-    });
-
-    isExcelExportLoading.value = false;
+    let params: Recordable = {
+      ...getForm().getFieldsValue(),
+      changeType: '1',
+    };
+    sensorChangeEnterpriseExportData(params)
+      .then((response) => {
+        downloadByData(response, `报警器新增情况统计_${new Date().getTime()}.xlsx`);
+      })
+      .finally(() => {
+        isExcelExportLoading.value = false;
+      });
   }
 
   onMounted(() => {

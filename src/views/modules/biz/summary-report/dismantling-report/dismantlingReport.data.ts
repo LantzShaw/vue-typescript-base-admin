@@ -48,30 +48,32 @@ export const searchForm: FormProps = {
 export const tableColumns: BasicColumn[] = [
   {
     title: t('单位名称'),
-    dataIndex: 'organizationName',
-    sorter: true,
-    width: 100,
+    dataIndex: 'enterpriseName',
+    width: 180,
     align: 'center',
   },
   {
     title: t('报警器名称'),
     dataIndex: 'sensorName',
-    sorter: true,
     width: 130,
     align: 'center',
   },
   {
     title: t('位号'),
     dataIndex: 'locationNo',
-    sorter: true,
-    width: 160,
+    width: 100,
     align: 'center',
   },
   {
     title: t('所属区域'),
     dataIndex: 'regionName',
-    sorter: true,
-    width: 160,
+    width: 100,
+    align: 'center',
+  },
+  {
+    title: t('日期'),
+    dataIndex: 'changeDate',
+    width: 120,
     align: 'center',
   },
 ];

@@ -51,7 +51,7 @@
   import { omit } from 'lodash-es';
   import { PageHeader } from 'ant-design-vue';
   import { useContentHeight } from '/@/hooks/web/useContentHeight';
-  import { PageWrapperFixedHeightKey } from '..';
+  import { PageWrapperFixedHeightKey } from '/@/enums/pageEnum';
 
   export default defineComponent({
     name: 'PageWrapper',
@@ -177,7 +177,7 @@
     position: relative;
 
     .@{prefix-cls}-content {
-      margin: 16px 8px 8px 8px;
+      margin: 16px 8px 8px;
     }
 
     .ant-page-header {

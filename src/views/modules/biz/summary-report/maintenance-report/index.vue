@@ -49,7 +49,7 @@
   import { PageWrapper } from '/@/components/Page';
   import { BasicTable, TableAction, useTable } from '/@/components/Table';
   import { DictLabel } from '/@/components/DictLabel/index';
-
+  import { downloadByData } from '/@/utils/file/download';
   // 接口
   import { optionsListBatchApi } from '/@/api/sys/dict';
   // data
@@ -62,8 +62,8 @@
     searchForm,
     tableColumns,
   } from './maintenanceReport.data';
-  import { maintenanceReport } from '/@/api/manage/summaryReport';
-  import { aoaToSheetXlsx } from '/@/components/Excel';
+  import { maintenanceReport, maintenanceReportExport } from '/@/api/manage/summaryReport';
+
   import { useGo } from '/@/hooks/web/usePage';
   import { useRoute } from 'vue-router';
   import { useTabs } from '/@/hooks/web/useTabs';
@@ -77,11 +77,11 @@
   /**
    * 构建registerTable
    */
-  const [registerTable, { getDataSource, getColumns, getForm }] = useTable({
+  const [registerTable, { getForm }] = useTable({
     title: '',
     api: maintenanceReport,
     searchInfo: {
-      id: route?.query?.id,
+      organizationId: route?.query?.id,
     },
     columns: tableColumns,
     formConfig: searchForm,
@@ -122,44 +122,25 @@
   function handleExport() {
     isExportLoading.value = true;
 
-    let tableData: any = getDataSource().map((item) => {
-      return [
-        item.organizationName,
-        item.createTime,
-        item.regionName,
-        item.locationno,
-        item.eventStatus === '0' ? '待处理' : item.eventStatus === '1' ? '进行中' : '已完成',
-      ];
-    });
-    const header = getColumns().map((column) => column.title);
-
-    header.pop();
-
-    aoaToSheetXlsx({
-      data: tableData,
-      header: header,
-      filename: `报警器维护保养明细表_${new Date().getTime()}.xlsx`,
-    });
-
-    isExportLoading.value = false;
+    let params: Recordable = {
+      ...getForm().getFieldsValue(),
+      organizationId: route?.query?.id,
+    };
+    maintenanceReportExport(params)
+      .then((response) => {
+        downloadByData(response, `报警器溯源超期列表_${new Date().getTime()}.xlsx`);
+      })
+      .finally(() => {
+        isExportLoading.value = false;
+      });
   }
 
   /**
    * 初始化字典数据
    */
   async function initDict() {
-    const { alarm_status, delete_status, online_status, sensor_type, maintenance_status } =
-      await optionsListBatchApi([
-        'alarm_status',
-        'delete_status',
-        'online_status',
-        'sensor_type',
-        'maintenance_status',
-      ]);
-    alarmStatusOptions.value = alarm_status || [];
-    deleteStatusOptions.value = delete_status || [];
-    onlineStatusOptions.value = online_status || [];
-    sensorTypeOptions.value = sensor_type || [];
+    const { maintenance_status } = await optionsListBatchApi(['maintenance_status']);
+
     maintenanceStatusOptions.value = maintenance_status || [];
   }
 

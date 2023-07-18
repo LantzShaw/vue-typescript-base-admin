@@ -231,7 +231,7 @@
   /**
    * 构建registerTable
    */
-  const [registerTable, { reload }] = useTable({
+  const [registerTable, { getForm, reload }] = useTable({
     title: '',
     api: workflowAlarmDealRecordPage,
     defSort: {
@@ -258,8 +258,10 @@
    */
   function handleExport() {
     isExportLoading.value = true;
-
-    workflowAlarmDealRecordExport({})
+    let params: Recordable = {
+      ...getForm().getFieldsValue(),
+    };
+    workflowAlarmDealRecordExport(params)
       .then((response) => {
         downloadByData(response, `事件触发_${new Date().getTime()}.xlsx`);
       })

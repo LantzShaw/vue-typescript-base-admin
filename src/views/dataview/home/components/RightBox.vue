@@ -23,27 +23,28 @@
           :label="item.label"
           :backgroundImagePath="item.backgroundImagePath"
           :key="item.id"
+          :totalRecords="totalRecords"
         />
       </div>
     </section>
     <section>
       <CardTitle label="维护流程统计" />
       <div class="right-container--maintain">
-        <MaintenancePie />
+        <MaintenanceBar />
       </div>
     </section>
   </div>
 </template>
 
 <script lang="ts" setup>
-  import { ref, onMounted, unref } from 'vue';
+  import { onMounted, ref, unref } from 'vue';
 
   import CardTitle from '../../CardTitle.vue';
-  import TraceabilityLiquidFill from '../../TraceabilityLiquidFill.vue';
   import EventTriggerBar from '../../EventTriggerBar.vue';
-  import MaintenancePie from '../../MaintenancePie.vue';
+  import MaintenanceBar from '../../MaintenanceBar.vue';
+  import TraceabilityLiquidFill from '../../TraceabilityLiquidFill.vue';
 
-  import { statisticsTraceStatus, statisticsAlarmProcess } from '/@/api/dataview';
+  import { statisticsAlarmProcess, statisticsTraceStatus } from '/@/api/dataview';
 
   import line_bg_1 from '/@/assets/images/dataview/line_bg_1.png';
   import line_bg_2 from '/@/assets/images/dataview/line_bg_2.png';
@@ -122,6 +123,8 @@
     },
   ]);
 
+  const totalRecords = ref<number>(0);
+
   /**
    * 溯源状态统计
    */
@@ -141,10 +144,8 @@
 
       unref(traceabilityStatusDataList)[2].displayValue = overdueNum;
       unref(traceabilityStatusDataList)[2].chartData = (overdueNum / total).toFixed(2);
-
-      console.log('溯源', traceabilityStatusDataList.value);
     } catch (error) {
-    } finally {
+      console.log('error', error);
     }
   };
 
@@ -153,16 +154,18 @@
    */
   const getStatisticsAlarmProcessChartData = async () => {
     try {
-      const response = await statisticsAlarmProcess();
+      const response = await statisticsAlarmProcess({ organizationId: '' });
 
-      console.log('事件触发流程统计', response);
+      const { list = [], sum = 0 } = response;
 
-      unref(eventTriggerDataList)[0].displayValue = response[0].value;
-      unref(eventTriggerDataList)[1].displayValue = response[1].value;
-      unref(eventTriggerDataList)[2].displayValue = response[2].value;
-      unref(eventTriggerDataList)[3].displayValue = response[3].value;
+      totalRecords.value = sum;
+
+      unref(eventTriggerDataList)[0].displayValue = list[0].value;
+      unref(eventTriggerDataList)[1].displayValue = list[1].value;
+      unref(eventTriggerDataList)[2].displayValue = list[2].value;
+      unref(eventTriggerDataList)[3].displayValue = list[3].value;
     } catch (error) {
-    } finally {
+      console.error(error);
     }
   };
 

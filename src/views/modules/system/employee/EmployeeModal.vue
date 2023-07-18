@@ -8,7 +8,7 @@
     width="50%"
     @ok="handleSubmit"
   >
-    <div style="padding-left: 10px; padding-right: 10px">
+    <div style="padding-right: 10px; padding-left: 10px">
       <BasicForm @register="registerForm" />
     </div>
   </BasicModal>
@@ -21,15 +21,15 @@
   import { BasicForm, useForm } from '/@/components/Form/index';
   import { BasicModal, useModalInner } from '/@/components/Modal';
   // 接口
-  import { employeeForm, employeeAdd, employeeUpdate } from '/@/api/system/employee';
+  import { employeeAdd, employeeForm, employeeUpdate } from '/@/api/system/employee';
   // data
-  import { isUpdate, idRef, record, inputFormSchemas } from './employee.data';
-  const okAuth = ref(['system:dict-item:add']);
+  import { idRef, inputFormSchemas, isUpdate, record } from './employee.data';
+
+  const okAuth = ref(['system:employee:add', 'system:employee:edit']);
   const emit = defineEmits(['success', 'register']);
 
   const { notification } = useMessage();
 
-  const dictCode = ref('');
 
   /**
    * 构建表单
@@ -51,7 +51,7 @@
     record.value = ((await employeeForm({ id: data?.record?.id })) || {}) as Recordable;
     // 判断是否是更新
     isUpdate.value = !!data?.isUpdate;
-    dictCode.value = data.dictCode;
+
 
     if (unref(isUpdate)) {
       idRef.value = data.record.id;
@@ -75,10 +75,10 @@
         await employeeUpdate({
           ...values,
           id: idRef.value,
-          dictCode: dictCode.value,
+
         });
       } else {
-        await employeeAdd({ ...values, dictCode: dictCode.value });
+        await employeeAdd({ ...values });
       }
       notification.success({ message: `执行成功` });
       closeModal();

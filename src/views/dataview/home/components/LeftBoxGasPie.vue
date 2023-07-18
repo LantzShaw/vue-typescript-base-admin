@@ -2,10 +2,10 @@
   <div ref="gasPieChartRef" :style="{ height, width }"></div>
 </template>
 <script lang="ts">
-  import { defineComponent, PropType, ref, Ref, onMounted } from 'vue';
+  import { PropType, Ref, defineComponent, onMounted, ref } from 'vue';
 
-  import { useECharts } from '/@/hooks/web/useECharts';
   import { baseOption } from './data';
+  import { useECharts } from '/@/hooks/web/useECharts';
   import echarts from '/@/utils/lib/echarts';
 
   import { statisticsGasType } from '/@/api/dataview';
@@ -27,18 +27,9 @@
         default: '280px',
       },
     },
-    setup(props) {
+    setup() {
       const gasPieChartRef = ref<HTMLDivElement | null>(null);
-      const chartData = ref<ChartData[]>([
-        // { value: 1048, name: '甲烷' },
-        // { value: 735, name: '氯化氢' },
-        // { value: 580, name: '环氧乙烷' },
-        // { value: 484, name: '氨气' },
-        // { value: 320, name: '硫化氢' },
-        // { value: 310, name: '二氧化氯' },
-        // { value: 350, name: '正乙烷' },
-        // { value: 360, name: '其他' },
-      ]);
+      const chartData = ref<ChartData[]>([]);
 
       const { setOptions, getInstance } = useECharts(gasPieChartRef as Ref<HTMLDivElement>);
 
@@ -60,17 +51,28 @@
        */
       const onSetOptions = async () => {
         const seriesOption: any = {
-          // TODO: 这里设置颜色不行
-          // color: [
-          //   '#1D75F0',
-          //   '#FF701A',
-          //   '#FFEA00',
-          //   '#FFEA00',
-          //   '#00A8FF',
-          //   '#3FFFEA',
-          //   '#00E436',
-          //   '#78FF00',
-          // ],
+          tooltip: {
+            trigger: 'item',
+            backgroundColor: 'rgba(0,0,0,0)',
+            borderColor: 'rgba(0,0,0,0)',
+            borderWidth: 0,
+            formatter: function (params, _ticket, _callback) {
+              let str =
+                '<div style="color: #fff">' +
+                params.marker +
+                ' ' +
+                params.name +
+                ': ' +
+                params.value +
+                '个<br></div>';
+
+              let res =
+                `<div style=' border-radius: 8px; color:#0C525D;font-family: PingFang SC; background: #0C525D; padding: 16px; width: 156px;'>` +
+                str;
+
+              return res;
+            },
+          },
           series: [],
         };
 

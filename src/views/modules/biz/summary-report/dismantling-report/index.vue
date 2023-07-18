@@ -11,7 +11,7 @@
       <template #toolbar>
         <a-button
           :loading="isExcelExportLoading"
-          v-auth="'manage:sensor:export'"
+          v-auth="'manage:summary:export'"
           preIcon="ant-design:download-outlined"
           @click="handleExport"
         >
@@ -29,14 +29,13 @@
   import { BasicTable, useTable } from '/@/components/Table';
 
   // 接口
-  import { additionReportPage } from '/@/api/manage/summaryReport';
-
+  import { additionReportPage, sensorChangeExportData } from '/@/api/manage/summaryReport';
+  import { downloadByData } from '/@/utils/file/download';
   // data
   import { searchForm, tableColumns } from './dismantlingReport.data';
   import { useTabs } from '/@/hooks/web/useTabs';
   import { useRoute } from 'vue-router';
   import { useGo } from '/@/hooks/web/usePage';
-  import { aoaToSheetXlsx } from '/@/components/Excel';
 
   const route = useRoute();
   const { closeCurrent } = useTabs();
@@ -51,8 +50,8 @@
     title: '',
     api: additionReportPage,
     searchInfo: {
-      type: '2',
-      id: route?.query?.id,
+      changeType: '2',
+      organizationId: route?.query?.id,
     },
     columns: tableColumns,
     formConfig: searchForm,
@@ -77,18 +76,18 @@
   function handleExport() {
     isExcelExportLoading.value = true;
 
-    let tableData: any = getDataSource().map((item) => {
-      return [item.organizationName, item.createTime, item.regionName, item.locationno];
-    });
-    const header = getColumns().map((column) => column.title);
-
-    aoaToSheetXlsx({
-      data: tableData,
-      header: header,
-      filename: `报警器拆除情况明细表_${new Date().getTime()}.xlsx`,
-    });
-
-    isExcelExportLoading.value = false;
+    let params: Recordable = {
+      ...getForm().getFieldsValue(),
+      changeType: '2',
+      organizationId: route?.query?.id,
+    };
+    sensorChangeExportData(params)
+      .then((response) => {
+        downloadByData(response, `报警器拆除情况明细表_${new Date().getTime()}.xlsx`);
+      })
+      .finally(() => {
+        isExcelExportLoading.value = false;
+      });
   }
 
   onMounted(() => {
@@ -105,10 +104,4 @@
     name: 'SummaryReportDismantlingReportPage',
   });
 </script>
-<style lang="less" scoped>
-  .dict-label {
-    :deep(.ant-tag) {
-      margin: 4px;
-    }
-  }
-</style>
+<style lang="less" scoped></style>

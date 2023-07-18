@@ -90,7 +90,8 @@
   "[vue]": {
     "editor.codeActionsOnSave": {
       "source.fixAll.eslint": true,
-      "source.fixAll.stylelint": true
+      "source.fixAll.stylelint": true,
+      "source.organizeImports": true
     }
   },
   "i18n-ally.localesPaths": ["src/locales/lang"],
@@ -170,5 +171,5 @@
   },
   "terminal.integrated.scrollback": 10000,
   "vue.features.codeActions.enable": false,
-  "vue.codeActions.enabled": false
+  "vue.codeActions.enabled": false // NOTe:
 }

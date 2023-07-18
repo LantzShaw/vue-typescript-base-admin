@@ -2,10 +2,10 @@
   <div ref="gasBarChartRef" :style="{ height, width }"></div>
 </template>
 <script lang="ts">
-  import { defineComponent, PropType, ref, Ref, onMounted } from 'vue';
+  import { PropType, Ref, defineComponent, onMounted, ref } from 'vue';
 
-  import { useECharts } from '/@/hooks/web/useECharts';
   import { baseOption } from './data';
+  import { useECharts } from '/@/hooks/web/useECharts';
   import echarts from '/@/utils/lib/echarts';
 
   import { statisticsGasDistribution } from '/@/api/dataview';
@@ -28,7 +28,7 @@
       },
       colorList: {
         type: Array as PropType<string[]>,
-        default: [
+        default: () => [
           '42, 207, 255',
           '33, 255, 148',
           '239, 234, 55',
@@ -44,11 +44,8 @@
     },
     setup(props) {
       const gasBarChartRef = ref<HTMLDivElement | null>(null);
-      const chartData = ref<ChartData[]>([
-        { name: '氢气', data: [320, 302, 301, 334, 390, 330, 320] },
-        { name: '苯', data: [120, 132, 101, 134, 90, 230, 210] },
-        { name: '二氯甲烷', data: [120, 132, 101, 134, 90, 230, 210] },
-      ]);
+      const xAxisList = ref<string[]>([]);
+      const chartData = ref<ChartData[]>([]);
 
       const { setOptions, getInstance } = useECharts(gasBarChartRef as Ref<HTMLDivElement>);
 
@@ -60,9 +57,14 @@
           maskColor: '#05132c',
         });
 
-        const response = await statisticsGasDistribution();
+        try {
+          const response = await statisticsGasDistribution();
 
-        console.log('气体分布统计', response);
+          chartData.value = response.dataList;
+          xAxisList.value = response.xaxisList;
+        } catch (error) {
+          console.log('error', error);
+        }
       };
 
       /**
@@ -116,7 +118,7 @@
           },
           yAxis: {
             type: 'category',
-            data: ['星星新能源', '嘉华新材料', '美福石油', '和盛工业', '信汇新材料'],
+            data: xAxisList.value,
             axisLabel: {
               color: '#fff',
             },
@@ -138,6 +140,30 @@
               },
             },
           },
+          tooltip: {
+            trigger: 'item',
+            backgroundColor: 'rgba(0,0,0,0)',
+            borderColor: 'rgba(0,0,0,0)',
+            borderWidth: 0,
+            formatter: function (params) {
+              let str =
+                '<div style="color: #fff;">' +
+                params.name +
+                '<br/>' +
+                params.marker +
+                ' ' +
+                params.seriesName +
+                ': ' +
+                params.value +
+                '个<br></div>';
+
+              let res =
+                `<div style=' border-radius: 8px; color:#0C525D;font-family: PingFang SC; background: #0C525D; padding: 16px; '>` +
+                str;
+
+              return res;
+            },
+          },
           series: [],
         };
 
@@ -149,7 +175,6 @@
             barWidth: 20,
             itemStyle: {
               normal: {
-                // color: props.colorList[index],
                 color: `rgba(${props.colorList[index]}, 0.4)`,
                 borderWidth: 1,
                 borderColor: `rgb(${props.colorList[index]})`,
@@ -157,9 +182,6 @@
             },
             label: {
               show: true,
-            },
-            emphasis: {
-              focus: 'series',
             },
             data: item.data,
           });

@@ -18,7 +18,7 @@
         <div>
           <a-button
             :loading="isExcelExportLoading"
-            v-auth="'manage:sensor:export'"
+            v-auth="'manage:summary:export'"
             preIcon="ant-design:download-outlined"
             @click="handleExport"
           >
@@ -48,10 +48,10 @@
   </PageWrapper>
 </template>
 <script lang="ts" setup>
-  import { defineComponent, onMounted, ref } from 'vue';
+  import { RangePicker as ARangePicker, Space as ASpace, Spin as ASpin } from 'ant-design-vue';
   import { jsPDF } from 'jspdf';
   import autoTable from 'jspdf-autotable';
-  import { Spin as ASpin, RangePicker as ARangePicker, Space as ASpace } from 'ant-design-vue';
+  import { defineComponent, onMounted, ref } from 'vue';
 
   // import { myFont } from '/@/assets/fonts/ZiTiQuanWeiJunHei-W2-2-normal';
 
@@ -62,13 +62,13 @@
   import { installationReportPage } from '/@/api/manage/summaryReport';
   import { optionsListBatchApi } from '/@/api/sys/dict';
   // data
+  import { useRoute } from 'vue-router';
   import {
     alarmStatusOptions,
     deleteStatusOptions,
     onlineStatusOptions,
     sensorTypeOptions,
   } from './installationReport.data';
-  import { useRoute } from 'vue-router';
   import { aoaToSheetXlsx } from '/@/components/Excel';
   import { useGo } from '/@/hooks/web/usePage';
   import { useTabs } from '/@/hooks/web/useTabs';
@@ -245,11 +245,11 @@
       if (response) {
         const { list = [], texts = [] } = response;
 
-        const tailRow: Array<string | number> = ['列统计总数量(种)'];
+        const tailRow: Array<string | number> = ['列统计总数量(个)'];
 
         const tempArr: number[][] = [];
 
-        header.value = ['使用单位', ...texts, '行统计数量(种)'];
+        header.value = ['使用单位', ...texts, '行统计数量(个)'];
 
         tableData.value = list.map((item, index) => {
           const formatValues: number[] = item.value.map(Number);

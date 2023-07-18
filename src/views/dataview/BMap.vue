@@ -1,24 +1,27 @@
 <template>
-  <div style="position: relative; width: 100%; height: 100%">
+  <div v-bind="$attrs" style="position: relative; width: 100%; height: 100%">
     <div ref="wrapRef" :style="{ height, width }"> </div>
-    <div style="position: absolute; left: 0; top: 0">
+    <div style="position: absolute; top: 0; left: 0">
       <slot></slot>
     </div>
   </div>
 </template>
 <script lang="ts">
-  import { defineComponent, ref, nextTick, unref, onMounted } from 'vue';
+  import { defineComponent, nextTick, onMounted, ref, unref } from 'vue';
 
-  import { useScript } from '/@/hooks/web/useScript';
   import { enterprisePoints } from '/@/api/dataview';
+import { useScript } from '/@/hooks/web/useScript';
+
+  import { useGo } from '/@/hooks/web/usePage';
 
   import styleJson from './styleJson';
 
   import point_1 from '/@/assets/images/dataview/point_1.png';
-  import point_2 from '/@/assets/images/dataview/point_2.png';
-  import point_3 from '/@/assets/images/dataview/point_3.png';
+import point_2 from '/@/assets/images/dataview/point_2.png';
+import point_3 from '/@/assets/images/dataview/point_3.png';
 
   type Position = {
+    id: string;
     dtuipLng: string;
     dtuipLat: string;
     showStatus: string;
@@ -44,6 +47,8 @@
       const { toPromise } = useScript({ src: BAI_DU_MAP_URL });
       const pisitionList = ref<Position[]>([]);
 
+      const go = useGo();
+
       async function initMap() {
         await toPromise();
         await nextTick();
@@ -52,6 +57,8 @@
         const BMap = (window as any).BMap;
         const map = new BMap.Map(wrapEl);
         const point = new BMap.Point(121.061775, 30.619484);
+
+        map.getContainer().style.backgroundColor = '#091220ff';
 
         const offlineIcon = new BMap.Icon(point_1, new BMap.Size(60, 67));
 
@@ -86,7 +93,7 @@
           if (!infoWindow.isOpen()) {
             infoWindow.addEventListener('open', () => {
               (document.getElementById('markerBtn') as HTMLElement).onclick = (e) => {
-                alert(`门店编号：${item.enterpriseName}`);
+                go(`/biz/dataview/detail?id=${item.id}`);
               };
             });
           }
@@ -106,9 +113,16 @@
       }
 
       async function getEnterprisePoints() {
-        const response = await enterprisePoints();
+        try {
+          const response = await enterprisePoints();
 
-        pisitionList.value = response.filter((item) => item.dtuipLat);
+          if (response) {
+            pisitionList.value = response.filter((item) => item.dtuipLat);
+          }
+        } catch (error) {
+          console.log(error);
+        } finally {
+        }
       }
 
       onMounted(async () => {
@@ -128,66 +142,77 @@
   }
 
   :deep(.info-window) {
+    box-sizing: border-box;
     width: 280px;
     height: 54px;
     margin: 0;
-    color: #fff;
-    text-align: left;
-    line-height: 54px;
-    font-size: 14px;
     padding-left: 10px;
-    box-sizing: border-box;
     border: none !important;
     background: transparent url('/@/assets/images/dataview/data_bg_2.png') top left no-repeat;
+    color: #fff;
+    font-size: 14px;
+    line-height: 54px;
+    text-align: left;
     cursor: pointer;
   }
 
   :deep(.BMap_bubble_title) {
+    display: none;
+    padding-left: 10px;
+    border-bottom: 1px solid rgb(191 191 192);
     color: white;
     font-size: 14px;
     font-weight: bold;
     text-align: left;
-    padding-left: 10px;
-    border-bottom: 1px solid rgb(191, 191, 192);
-    display: none;
   }
+
   /* 消息内容 */
   :deep(.BMap_bubble_content) {
+    padding-top: 0;
+    padding-bottom: 0;
     padding-left: 0;
-    padding-top: 0px;
-    padding-bottom: 0px;
   }
+
   /* 内容 */
   :deep(.BMap_pop) div:nth-child(9) {
-    top: 0px !important;
+    top: 0 !important;
     border-radius: 7px;
   }
+
   /* 左上角删除按键 */
   :deep(.BMap_pop) img {
     display: none !important;
   }
+
   :deep(.BMap_top) {
     display: none;
   }
+
   :deep(.BMap_top) div {
     background-color: white;
   }
+
   ::v-deep .BMap_bottom {
     display: none;
   }
+
   :deep(.BMap_center) {
     display: none;
   }
+
   /* 隐藏边角 */
   :deep(.BMap_pop) div:nth-child(1) div {
     display: none;
   }
+
   :deep(.BMap_pop div:nth-child(3)) {
     display: none;
   }
+
   :deep(.BMap_pop div:nth-child(5)) {
     display: none;
   }
+
   :deep(.BMap_pop) div:nth-child(7) {
     display: none;
   }

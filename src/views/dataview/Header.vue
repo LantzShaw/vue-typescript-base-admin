@@ -1,7 +1,14 @@
 <template>
   <header class="header">
     <div class="back">
-      <div class="back-btn">返回首页</div>
+      <slot> </slot>
+      <div
+        v-if="isShowBack"
+        v-auth="['biz:whf:privileges', 'biz:jgf:privileges']"
+        class="back-btn"
+        @click="navigateHandler"
+        >返回首页</div
+      >
     </div>
     <div class="header-title header-title--clip-text">嘉兴港区气体泄漏监测平台</div>
     <div class="header-date">{{ dateUtil(dateTime).format('YYYY.MM.DD HH:mm:ss') }}</div>
@@ -10,15 +17,24 @@
 
 <script lang="ts" setup>
   import { onMounted, onUnmounted, ref } from 'vue';
+
   import { dateUtil } from '/@/utils/dateUtil';
+
+  import { useGo } from '/@/hooks/web/usePage';
+
+  type Props = {
+    isShowBack?: boolean;
+  };
+
+  withDefaults(defineProps<Props>(), {
+    isShowBack: false,
+  });
+
+  const go = useGo();
 
   const dateTime = ref<Date | null>(null);
 
   const timer = ref<ReturnType<typeof setInterval> | null>(null);
-
-  // NOTE: 调用子组件数据和方法时
-  // const foo = ref<InstanceType<typeof Foo> | null>(null)
-  // const foo = ref<InstanceType<typeof Foo>[]>([])
 
   function setDate() {
     timer.value = setInterval(() => {
@@ -26,8 +42,12 @@
     });
   }
 
+  function navigateHandler() {
+    go(`/biz/dataview/home`);
+  }
+
   onMounted(() => {
-    // setDate();
+    setDate();
   });
 
   onUnmounted(() => {
@@ -53,6 +73,8 @@
     .back {
       padding-left: 32px;
       width: 600px;
+      display: flex;
+      align-items: top;
 
       .back-btn {
         font-size: 16px;
@@ -60,6 +82,7 @@
         height: 38px;
         line-height: 38px;
         text-align: center;
+        margin-left: 4px;
         color: #fff;
         border: solid 2px transparent;
         border-radius: 19px;

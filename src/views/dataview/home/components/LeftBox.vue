@@ -23,9 +23,9 @@
 
 <script lang="ts" setup>
   import CardTitle from '../../CardTitle.vue';
-  import LeftBoxGasPie from './LeftBoxGasPie.vue';
-  import LeftBoxGasBar from './LeftBoxGasBar.vue';
   import LifecycleAnnular from '../../LifecycleAnnular.vue';
+  import LeftBoxGasBar from './LeftBoxGasBar.vue';
+  import LeftBoxGasPie from './LeftBoxGasPie.vue';
 </script>
 
 <style scoped lang="less">
@@ -33,7 +33,6 @@
     width: 424px;
     height: calc(1920px - 102px);
     margin-left: 30px;
-    // background-color: #05132c;
 
     &--category {
       height: 280px;
@@ -46,7 +45,6 @@
       height: 280px;
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
-      // background-color: #05132c;
     }
 
     &--lifecycle {

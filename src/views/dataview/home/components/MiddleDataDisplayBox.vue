@@ -2,6 +2,7 @@
   <div class="display-box-container">
     <span class="display-box-container-text mr-2">{{ label }}: </span>
     <span class="display-box-container-text">{{ digit }}</span>
+    <span style="color: #fff; font-size: 16px; margin-left: 4px">个</span>
   </div>
 </template>
 
@@ -26,7 +27,6 @@
       font-size: 20px;
       font-weight: bold;
       color: #fff;
-      // text-shadow: 0px 2px 3px rgba(30, 26, 43, 0.6);
       font-family: Source Han Sans CN;
       background: linear-gradient(180deg, #fff 0%, #a7fff4 100%);
       -webkit-background-clip: text;

@@ -1,32 +1,37 @@
 <template>
   <div>
-    <Table
+    <SeamlessScrollTable
+      :loading="isTableLoading"
       :evenCellStyle="{ backgroundColor: '#0D316E' }"
       :oddCellStyle="{ backgroundColor: 'transparent' }"
       :columns="columns"
       :data-source="tableData"
     >
-      <!-- <template #bodyCell="{ column, record }">
-        <template v-if="column.key === 'regionName'"> ddd{{ record.regionName }} </template>
-      </template> -->
-
-      <!-- :cell-style="{ backgroundColor: '#f40' }" -->
-
       <template #regionName="{ record }">
         <span style="color: #7bbcee">{{ record.regionName }}</span>
       </template>
 
-      <template #sensorAmount="{ record }">
-        <span style="color: #ffbc38">{{ record.sensorAmount }}</span>
+      <template #bizDeviceSensorNum="{ record }">
+        <span style="color: #ffbc38">{{ record.bizDeviceSensorNum }}</span>
       </template>
-    </Table>
+    </SeamlessScrollTable>
   </div>
 </template>
 
 <script lang="ts" setup>
-  import { ref } from 'vue';
+  import { onMounted, ref } from 'vue';
+  import { useRoute } from 'vue-router';
 
-  import Table from './Table.vue';
+  import { statisticsSensorAbnormal } from '/@/api/dataview';
+  import { useUserStore } from '/@/store/modules/user';
+
+  import SeamlessScrollTable from './SeamlessScrollTable.vue';
+
+  const userStore = useUserStore();
+  const route = useRoute();
+
+  const organizationId = ref<string>((route.query.id as string) ?? userStore.getOrganizationId);
+  const isTableLoading = ref<boolean>(false);
 
   const columns = [
     {
@@ -35,26 +40,35 @@
       key: 'regionName',
     },
     {
-      title: '传感器数量',
-      dataIndex: 'sensorAmount',
-      key: 'sensorAmount',
+      title: '传感器数量(个)',
+      dataIndex: 'bizDeviceSensorNum',
+      key: 'bizDeviceSensorNum',
     },
   ];
 
-  const tableData = ref([
-    {
-      regionName: '分区一',
-      sensorAmount: '20',
-    },
-    {
-      regionName: '分区二',
-      sensorAmount: '33',
-    },
-    {
-      regionName: '分区三',
-      sensorAmount: '22',
-    },
-  ]);
-</script>
+  const tableData = ref([]);
 
-<style></style>
+  async function getTableData() {
+    isTableLoading.value = true;
+
+    try {
+      const response = await statisticsSensorAbnormal({
+        organizationId: organizationId.value,
+      });
+
+      if (response) {
+        tableData.value = response;
+      } else {
+        tableData.value = [];
+      }
+    } catch (error) {
+      throw new Error(error);
+    } finally {
+      isTableLoading.value = false;
+    }
+  }
+
+  onMounted(() => {
+    getTableData();
+  });
+</script>

@@ -11,7 +11,7 @@
       <template #toolbar>
         <a-button
           :loading="isExportLoading"
-          v-auth="'manage:sensor:export'"
+          v-auth="'manage:summary:export'"
           preIcon="ant-design:download-outlined"
           @click="handleExport"
         >
@@ -33,22 +33,13 @@
   // 组件
   import { PageWrapper } from '/@/components/Page';
   import { BasicTable, TableAction, useTable } from '/@/components/Table';
-  import { DictLabel } from '/@/components/DictLabel/index';
-
+  import { downloadByData } from '/@/utils/file/download';
   // 接口
-  import { optionsListBatchApi } from '/@/api/sys/dict';
+  import { maintRecordNumPage, maintRecordNumExport } from '/@/api/manage/summaryReport';
+
   // data
-  import {
-    alarmStatusOptions,
-    deleteStatusOptions,
-    onlineStatusOptions,
-    sensorTypeOptions,
-    maintenanceStatusOptions,
-    searchForm,
-    tableColumns,
-  } from './maintenanceStatistic.data';
-  import { maintRecordNumPage } from '/@/api/manage/summaryReport';
-  import { aoaToSheetXlsx } from '/@/components/Excel';
+  import { searchForm, tableColumns } from './maintenanceStatistic.data';
+
   import { useGo } from '/@/hooks/web/usePage';
   import { useRoute } from 'vue-router';
   import { useTabs } from '/@/hooks/web/useTabs';
@@ -62,7 +53,7 @@
   /**
    * 构建registerTable
    */
-  const [registerTable, { getDataSource, getColumns, getForm }] = useTable({
+  const [registerTable, { getForm }] = useTable({
     title: '',
     api: maintRecordNumPage,
     columns: tableColumns,
@@ -71,6 +62,7 @@
     canResize: false,
     showTableSetting: true,
     showIndexColumn: false,
+    pagination: false,
   });
 
   /**
@@ -96,43 +88,19 @@
    */
   function handleExport() {
     isExportLoading.value = true;
-
-    let tableData: any = getDataSource().map((item) => {
-      return [item.enterpriseName, item.enterpriseNo, item.statisticsNum];
-    });
-    const header = getColumns().map((column) => column.title);
-
-    aoaToSheetXlsx({
-      data: tableData,
-      header: header,
-      filename: `报警器维护保养统计_${new Date().getTime()}.xlsx`,
-    });
-
-    isExportLoading.value = false;
-  }
-
-  /**
-   * 初始化字典数据
-   */
-  async function initDict() {
-    const { alarm_status, delete_status, online_status, sensor_type, maintenance_status } =
-      await optionsListBatchApi([
-        'alarm_status',
-        'delete_status',
-        'online_status',
-        'sensor_type',
-        'maintenance_status',
-      ]);
-    alarmStatusOptions.value = alarm_status || [];
-    deleteStatusOptions.value = delete_status || [];
-    onlineStatusOptions.value = online_status || [];
-    sensorTypeOptions.value = sensor_type || [];
-    maintenanceStatusOptions.value = maintenance_status || [];
+    let params: Recordable = {
+      ...getForm().getFieldsValue(),
+    };
+    maintRecordNumExport(params)
+      .then((response) => {
+        downloadByData(response, `报警器维护保养统计_${new Date().getTime()}.xlsx`);
+      })
+      .finally(() => {
+        isExportLoading.value = false;
+      });
   }
 
   onMounted(() => {
-    initDict();
-
     // NOTE: 根据路由参数 - 设置默认查询时间区间
     getForm().setFieldsValue({
       startDate: route?.query?.startDate,
@@ -146,10 +114,4 @@
     name: 'SummaryReportMaintenanceStatisticPage',
   });
 </script>
-<style lang="less" scoped>
-  .dict-label {
-    :deep(.ant-tag) {
-      margin: 4px;
-    }
-  }
-</style>
+<style lang="less" scoped></style>

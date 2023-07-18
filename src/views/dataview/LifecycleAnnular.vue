@@ -1,14 +1,28 @@
 <template>
-  <div ref="lifecycleAnnularChartRef" :style="{ height, width }"></div>
+  <div style="position: relative">
+    <div ref="lifecycleAnnularChartRef" :style="{ height, width }"></div>
+    <div style="position: absolute; height: 200px; width: 120px; right: 20px; top: 50px">
+      <LifecycleAnnularLegend
+        v-for="item in legendDataList"
+        :name="item.name"
+        :display-value="item.displayValue"
+        :color="item.color"
+        :key="item.id"
+      />
+    </div>
+  </div>
 </template>
 <script lang="ts">
-  import { defineComponent, PropType, ref, Ref, onMounted } from 'vue';
+  import { PropType, Ref, defineComponent, onMounted, ref } from 'vue';
+  import { useRoute } from 'vue-router';
 
   import { useECharts } from '/@/hooks/web/useECharts';
-  // import { baseOption } from './data';
-  // import echarts from '/@/utils/lib/echarts';
+  import { usePermission } from '/@/hooks/web/usePermission';
+  import { useUserStore } from '/@/store/modules/user';
 
   import { statisticsLifeCycle } from '/@/api/dataview';
+
+  import LifecycleAnnularLegend from './LifecycleAnnularLegend.vue';
 
   import annular_icon from '/@/assets/images/dataview/annular_icon.png';
 
@@ -18,8 +32,18 @@
     percent: string;
   };
 
+  type LegendData = {
+    id?: string;
+    name?: string;
+    color?: string;
+    displayValue?: number;
+  };
+
   export default defineComponent({
     name: 'LifecycleAnnular',
+    components: {
+      LifecycleAnnularLegend,
+    },
     props: {
       width: {
         type: String as PropType<string>,
@@ -30,14 +54,16 @@
         default: '360px',
       },
     },
-    setup(props) {
+    setup() {
+      const userStore = useUserStore();
+      const route = useRoute();
+      const { hasPermission } = usePermission();
+
+      const organizationId = ref<string | null>('');
+
       const lifecycleAnnularChartRef = ref<HTMLDivElement | null>(null);
-      const chartData = ref<ChartData[]>([
-        // { value: 1048, name: '甲烷', percent: '0%' },
-        // { value: 735, name: '氯化氢', percent: '0%' },
-        // { value: 580, name: '环氧乙烷', percent: '0%' },
-        // { value: 580, name: '硫化氢', percent: '0%' },
-      ]);
+      const chartData = ref<ChartData[]>([]);
+      const legendDataList = ref<LegendData[]>([]);
 
       const color = ['#2D6DEA', '#DECF38', '#00BCBB', '#CAC9C9'];
 
@@ -46,16 +72,19 @@
       let sum = 0;
       let lineYAxis: any = [];
 
-      // 数据处理
-      chartData.value.forEach((v) => {
-        arrName.push(v.name);
-        arrValue.push(v.value);
-        sum = sum + v.value;
-      });
-
       const { setOptions, getInstance } = useECharts(
         lifecycleAnnularChartRef as Ref<HTMLDivElement>,
       );
+
+      // NOTE: organizationId传null - 表示维护方、监管方查所有数据， 否则查对应id的数据
+      if (
+        !route.query.id &&
+        (hasPermission('biz:whf:privileges') || hasPermission('biz:jgf:privileges'))
+      ) {
+        organizationId.value = null;
+      } else {
+        organizationId.value = userStore.getOrganizationId;
+      }
 
       const getChartData = async () => {
         getInstance()?.showLoading({
@@ -65,11 +94,25 @@
           maskColor: '#05132c',
         });
 
-        const response = await statisticsLifeCycle();
+        const response = await statisticsLifeCycle({ organizationId: organizationId.value });
+
+        legendDataList.value = response.map((item, index) => {
+          return {
+            id: index,
+            name: item.name,
+            color: color[index],
+            displayValue: item.value,
+          };
+        });
 
         chartData.value = response;
 
-        console.log(response);
+        // 数据处理
+        chartData.value.forEach((v) => {
+          arrName.push(v.name);
+          arrValue.push(v.value);
+          sum = sum + v.value;
+        });
       };
 
       /**
@@ -80,7 +123,7 @@
           grid: {
             top: '10%',
             bottom: '60%',
-            left: '40%',
+            left: '35%',
             containLabel: true,
           },
           color: color,
@@ -94,13 +137,13 @@
                   width: 38,
                   height: 41,
                 },
-                left: '35%',
+                left: '30%',
                 top: '40%',
               },
             ],
           },
           legend: {
-            show: true,
+            show: false,
             top: '15%',
             // left: '70%',
             data: arrName,
@@ -145,7 +188,7 @@
                 formatter: function (params) {
                   let item = chartData.value[params];
 
-                  return '{circle|●}{bd|}{value|' + item.value + '}{percent|' + item.percent + '}';
+                  return '{circle|●}{bd|}{value|' + item.name + '}';
                 },
                 interval: 0,
                 inside: true,
@@ -193,7 +236,7 @@
             clockWise: false,
             hoverAnimation: false,
             radius: [62 - i * 15 + '%', 60 - i * 15 + '%'],
-            center: ['40%', '45%'],
+            center: ['35%', '45%'],
             label: {
               show: false,
             },
@@ -203,7 +246,7 @@
                 name: v.name,
               },
               {
-                value: sum - v.value,
+                value: sum + 50 - v.value,
                 name: '',
                 itemStyle: {
                   color: 'rgba(0,0,0,0)',
@@ -214,6 +257,7 @@
               },
             ],
             minAngle: 10,
+            // maxAngle: 100,
             itemStyle: {
               normal: {
                 color: () => {
@@ -228,10 +272,10 @@
             type: 'pie',
             silent: true,
             z: 1,
-            clockWise: false, //顺时加载
-            hoverAnimation: false, //鼠标移入变大
+            clockWise: false, // 顺时加载
+            hoverAnimation: false, // 鼠标移入变大
             radius: [62 - i * 15 + '%', 60 - i * 15 + '%'],
-            center: ['40%', '45%'],
+            center: ['35%', '45%'],
             label: {
               show: false,
             },
@@ -241,35 +285,10 @@
                 itemStyle: {
                   color: '#282B4E',
                 },
-                // label: {
-                //   normal: {
-                //     show: true,
-                //     position: 'center',
-                //     color: '#4c4a4a',
-                //     formatter: '{total|' + 200 + '}' + '\n\r' + '{active|共发布活动}',
-                //     rich: {
-                //       total: {
-                //         fontSize: 14,
-                //         fontFamily: '微软雅黑',
-                //         color: '#454c5c',
-
-                //       },
-                //       active: {
-                //         fontFamily: '微软雅黑',
-                //         fontSize: 16,
-                //         color: '#6c7a89',
-                //         lineHeight: 30,
-                //       },
-                //     },
-                //   },
-                //   emphasis: {
-                //     //中间文字显示
-                //     show: true,
-                //   },
-                // },
               },
               {
                 value: 2.5,
+                // value: 25,
                 name: '',
                 itemStyle: {
                   color: 'rgba(0,0,0,0)',
@@ -293,8 +312,6 @@
           });
         });
 
-        // const mergedOptions = echarts.util.merge(chartOption, baseOption);
-
         await setOptions(chartOption);
 
         getInstance()?.hideLoading();
@@ -306,7 +323,7 @@
         onSetOptions();
       });
 
-      return { lifecycleAnnularChartRef };
+      return { lifecycleAnnularChartRef, legendDataList };
     },
   });
 </script>

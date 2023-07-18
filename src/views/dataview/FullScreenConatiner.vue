@@ -10,13 +10,11 @@
   </div>
 </template>
 <script setup lang="ts">
-  import { onMounted, onUnmounted } from 'vue';
-  import { ref } from 'vue';
+  import { onMounted, onUnmounted, ref } from 'vue';
 
   type Props = {
     width?: number;
     height?: number;
-    // backgroundColors?: string[];
     backgroundColor?: string;
   };
 
@@ -24,8 +22,11 @@
     backgroundColor: '#05132C 0%, #05132c 20%, #0D1F3E, #051A38, #05132C',
   });
 
-  const width = ref<number>(props.width || screen.width); // 大屏真实宽度
-  const height = ref<number>(props.height || screen.height); // 大屏真实高度
+  // 大屏真实宽度
+  const width = ref<number>(props.width || screen.width);
+
+  // 大屏真实高度
+  const height = ref<number>(props.height || screen.height);
 
   const fullScreenContainerRef = ref<HTMLDivElement | null>(null);
 

@@ -1,5 +1,5 @@
 <template>
-  <PageWrapper :title="`配置关联设备`" contentFullHeight dense @back="goBack">
+  <PageWrapper :title="`维保计划配置关联设备`" contentFullHeight dense @back="goBack">
     <template #headerContent>
       <a-descriptions :column="2">
         <a-descriptions-item label="计划编号">

@@ -2,18 +2,19 @@
   <div class="chart-container">
     <div ref="liquidFillChartRef" :style="{ height, width }"></div>
     <div class="text-center">
-      <div class="h-6 leading-6 chart-container--clip-text" :style="[{ ...textStyle }]">{{
-        displayValue
-      }}</div>
-      <div class="text-white">{{ title }}</div>
+      <div class="h-6 leading-6 chart-container--clip-text" :style="[{ ...textStyle }]"
+        >{{ displayValue }}
+        <!-- <span style="font-family: Helvetica; font-size: 16px">个</span> -->
+      </div>
+      <div class="text-white">{{ title }}(个)</div>
     </div>
   </div>
 </template>
 <script lang="ts">
-  import { defineComponent, watch, PropType, ref, Ref, onMounted, computed } from 'vue';
+  import { PropType, Ref, computed, defineComponent, onMounted, ref, watch } from 'vue';
 
-  import { useECharts } from '/@/hooks/web/useECharts';
   import { baseOption } from './data';
+  import { useECharts } from '/@/hooks/web/useECharts';
   import echarts from '/@/utils/lib/echarts';
 
   export default defineComponent({

@@ -26,7 +26,7 @@
   </PageWrapper>
 </template>
 <script lang="ts" setup>
-  import { onMounted } from 'vue';
+  import { defineComponent, onMounted } from 'vue';
   // hooks
   import { useMessage } from '/@/hooks/web/useMessage';
   // 组件
@@ -95,5 +95,10 @@
     initDict();
   });
 </script>
-
+<script lang="ts">
+  export default defineComponent({
+    // 需要和路由的name一致
+    name: 'DeviceGroupPage',
+  });
+</script>
 <style lang="less" scoped></style>

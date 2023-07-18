@@ -111,7 +111,11 @@
        */
 
       function handleMenuClick(path: string) {
-        go(path);
+        if (path === '/dataview') {
+          window.open(path, '_blank');
+        } else {
+          go(path);
+        }
       }
 
       /**

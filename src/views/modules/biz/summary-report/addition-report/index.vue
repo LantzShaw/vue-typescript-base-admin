@@ -11,7 +11,7 @@
       <template #toolbar>
         <a-button
           :loading="isExcelExportLoading"
-          v-auth="'manage:sensor:export'"
+          v-auth="'manage:summary:export'"
           preIcon="ant-design:download-outlined"
           @click="handleExport"
         >
@@ -27,13 +27,13 @@
   // 组件
   import { PageWrapper } from '/@/components/Page';
   import { BasicTable, useTable } from '/@/components/Table';
-
+  import { downloadByData } from '/@/utils/file/download';
   // 接口
-  import { additionReportPage } from '/@/api/manage/summaryReport';
+  import { additionReportPage, sensorChangeExportData } from '/@/api/manage/summaryReport';
 
   // data
   import { searchForm, tableColumns } from './additionReport.data';
-  import { aoaToSheetXlsx } from '/@/components/Excel';
+
   import { useRoute } from 'vue-router';
   import { useGo } from '/@/hooks/web/usePage';
   import { useTabs } from '/@/hooks/web/useTabs';
@@ -47,28 +47,19 @@
   /**
    * 构建registerTable
    */
-  const [registerTable, { getColumns, getDataSource, getForm }] = useTable({
+  const [registerTable, { getForm }] = useTable({
     title: '',
     api: additionReportPage,
     columns: tableColumns,
     searchInfo: {
-      type: '1',
-      id: route?.query?.id,
+      changeType: '1',
+      organizationId: route?.query?.id,
     },
     formConfig: searchForm,
     useSearchForm: true,
     canResize: false,
     showTableSetting: true,
     showIndexColumn: false,
-    // actionColumn: {
-    //   width: 140,
-    //   title: '操作',
-    //   dataIndex: 'action',
-    //   // slots: { customRender: 'action' },
-    //   fixed: 'right',
-    //   // fixed: undefined,
-    //   // auth: 'system:application:operation',
-    // },
   });
 
   /**
@@ -86,18 +77,18 @@
   function handleExport() {
     isExcelExportLoading.value = true;
 
-    let tableData: any = getDataSource().map((item) => {
-      return [item.organizationName, item.createTime, item.regionName, item.locationno];
-    });
-    const header = getColumns().map((column) => column.title);
-
-    aoaToSheetXlsx({
-      data: tableData,
-      header: header,
-      filename: `报警器新增情况明细表_${new Date().getTime()}.xlsx`,
-    });
-
-    isExcelExportLoading.value = false;
+    let params: Recordable = {
+      ...getForm().getFieldsValue(),
+      changeType: '1',
+      organizationId: route?.query?.id,
+    };
+    sensorChangeExportData(params)
+      .then((response) => {
+        downloadByData(response, `报警器新增情况明细表_${new Date().getTime()}.xlsx`);
+      })
+      .finally(() => {
+        isExcelExportLoading.value = false;
+      });
   }
 
   onMounted(() => {
@@ -114,10 +105,4 @@
     name: 'SummaryReportAdditionReportPage',
   });
 </script>
-<style lang="less" scoped>
-  .dict-label {
-    :deep(.ant-tag) {
-      margin: 4px;
-    }
-  }
-</style>
+<style lang="less" scoped></style>

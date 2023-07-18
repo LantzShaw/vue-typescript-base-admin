@@ -4,10 +4,10 @@
   </div>
 </template>
 <script lang="ts">
-  import { defineComponent, watch, PropType, ref, Ref, onMounted, computed } from 'vue';
+  import { PropType, Ref, computed, defineComponent, onMounted, ref, watchEffect } from 'vue';
 
-  import { useECharts } from '/@/hooks/web/useECharts';
   import { baseOption } from './data';
+  import { useECharts } from '/@/hooks/web/useECharts';
   import echarts from '/@/utils/lib/echarts';
 
   export default defineComponent({
@@ -37,6 +37,10 @@
         type: String as PropType<string>,
         default: '',
       },
+      totalRecords: {
+        type: Number as PropType<number>,
+        default: 0,
+      },
     },
     setup(props) {
       const barChartRef = ref<HTMLDivElement | null>(null);
@@ -46,8 +50,6 @@
        * 设置echarts option
        */
       const onSetOptions = async () => {
-        let max = 100;
-
         const seriesOption: any = {
           grid: {
             left: '20px',
@@ -57,14 +59,10 @@
           },
           tooltip: {
             show: false,
-            // trigger: 'item',
-            // formatter: (params) => {
-            //   return `${params.name} ${params.value}`;
-            // },
           },
           xAxis: {
             type: 'value',
-            max: 100,
+            max: props.totalRecords,
             splitLine: {
               show: false,
             },
@@ -102,7 +100,7 @@
 
         seriesOption.series.push(
           {
-            //内
+            // 内
             type: 'bar',
             barWidth: 12,
             label: {
@@ -113,7 +111,7 @@
                   color: '#fff',
                 },
                 formatter: function (e) {
-                  return ((e.value / max) * 100).toFixed(2) + '%';
+                  return ((e.value / props.totalRecords) * 100).toFixed(2) + '%';
                 },
               },
             },
@@ -131,36 +129,49 @@
                     color: props.color, // 100% 处的颜色
                   },
                 ],
-              }, //底色
+              }, // 底色
             },
             data: [props.displayValue],
           },
           {
-            //框
+            // 框
             type: 'bar',
             barWidth: 12,
             barGap: '-100%',
             label: {
               normal: {
-                formatter: (e) => {
-                  return props.displayValue;
+                formatter: () => {
+                  // return `{value|${props.displayValue}} unit|条`;
+                  return '{value|' + props.displayValue + '}' + '{unit|' + ' 条}';
                 },
                 show: true,
                 position: 'right',
-                offset: [8, 0],
-                textStyle: {
-                  fontSize: 18,
-                  color: props.color,
-                  fontFamily: 'PANG_MEN_ZHENG_DAO',
+                offset: [20, 0],
+                rich: {
+                  value: {
+                    fontSize: 18,
+                    color: props.color,
+                    fontFamily: 'PANG_MEN_ZHENG_DAO',
+                  },
+                  unit: {
+                    fontSize: 16,
+                    color: '#fff',
+                  },
                 },
+
+                // textStyle: {
+                //   fontSize: 18,
+                //   color: props.color,
+                //   fontFamily: 'PANG_MEN_ZHENG_DAO',
+                // },
               },
             },
             itemStyle: {
               normal: {
-                color: '#152742', //底色
+                color: '#152742', // 底色
               },
             },
-            data: [max],
+            data: [props.totalRecords],
             z: 1,
           },
         );
@@ -171,21 +182,15 @@
       };
 
       const styles = computed(() => {
-        // NOTE: vue3 vite 无法使用require 参考文章: https://juejin.cn/post/7125274210120761352
-
-        // require(props.backgroundImagePath)
         const url = new URL(props.backgroundImagePath, import.meta.url).href;
         return {
           background: `url("${url}") top left no-repeat`,
         };
       });
 
-      watch(
-        () => props.displayValue,
-        () => {
-          onSetOptions();
-        },
-      );
+      watchEffect(() => {
+        onSetOptions();
+      });
 
       onMounted(async () => {
         onSetOptions();
@@ -199,9 +204,6 @@
 <style scoped lang="less">
   .chart-container {
     width: 100%;
-    // height: 300px;
-    // box-sizing: border-box;
-    // background: url('/@/assets/images/dataview/line_bg_1.png') top left no-repeat;
     margin-top: 20px;
 
     &--title {
@@ -212,8 +214,6 @@
       font-family: 'PANG_MEN_ZHENG_DAO';
       font-size: 20px;
       color: #fff;
-      // background: linear-gradient(-15deg, #afe71c 0%, #15c29b 80.8837890625%, #05b48d 100%);
-      // background: var(--background);
       font-weight: bold;
     }
   }

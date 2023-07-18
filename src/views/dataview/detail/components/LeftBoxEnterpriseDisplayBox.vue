@@ -1,8 +1,8 @@
 <template>
   <div class="display-box-container" :style="styles">
-    <div class="text-bold">{{ personType }}</div>
-    <div class="text">{{ userName }}</div>
-    <div class="text">{{ phoneNumber }}</div>
+    <div class="text-bold">{{ personType ?? '--' }}</div>
+    <div class="text">{{ userName ?? '--' }}</div>
+    <div class="text">{{ phoneNumber ?? '--' }}</div>
   </div>
 </template>
 

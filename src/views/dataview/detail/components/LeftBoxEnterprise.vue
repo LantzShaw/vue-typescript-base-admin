@@ -1,7 +1,7 @@
 <template>
   <div class="enterprise-container">
     <div class="enterprise-container--sub-title">
-      <span class="clip-text">企业名称企业名称</span>
+      <span class="clip-text">{{ cardTitle }}</span>
     </div>
     <div class="display-box">
       <LeftBoxEnterpriseDisplayBox
@@ -17,7 +17,11 @@
 </template>
 
 <script lang="ts" setup>
-  import { ref } from 'vue';
+  import { onMounted, ref, unref } from 'vue';
+  import { useRoute } from 'vue-router';
+
+  import { enterpriseForm } from '/@/api/dataview';
+  import { useUserStore } from '/@/store/modules/user';
 
   import LeftBoxEnterpriseDisplayBox from './LeftBoxEnterpriseDisplayBox.vue';
 
@@ -33,29 +37,69 @@
     backgroundImagePath: string;
   };
 
+  const userStore = useUserStore();
+  const route = useRoute();
+
+  const organizationId = ref<string>((route.query.id as string) ?? userStore.getOrganizationId);
+
+  const cardTitle = ref<string>('');
+
   const enterpriseDataList = ref<EnterpriseData[]>([
     {
       id: '1',
       personType: '安全负责人',
-      userName: '张三',
-      phoneNumber: '188****1234',
+      userName: '--',
+      phoneNumber: '--',
       backgroundImagePath: display_data_bg_1,
     },
     {
       id: '2',
       personType: '法人',
-      userName: '张三',
-      phoneNumber: '188****1234',
+      userName: '--',
+      phoneNumber: '--',
       backgroundImagePath: display_data_bg_2,
     },
     {
       id: '2',
       personType: '专工',
-      userName: '张三',
-      phoneNumber: '188****1234',
+      userName: '--',
+      phoneNumber: '--',
       backgroundImagePath: display_data_bg_3,
     },
   ]);
+
+  async function getEnterpriseInformation() {
+    try {
+      const response = await enterpriseForm({ id: organizationId.value });
+
+      const {
+        smPersonName,
+        smPersonContact,
+        legalPersonName,
+        legalPersonContact,
+        swPersonName,
+        swPersonContact,
+        enterpriseName,
+      } = response;
+
+      cardTitle.value = enterpriseName;
+
+      unref(enterpriseDataList)[0].userName = smPersonName;
+      unref(enterpriseDataList)[0].phoneNumber = smPersonContact;
+
+      unref(enterpriseDataList)[1].userName = legalPersonName;
+      unref(enterpriseDataList)[1].phoneNumber = legalPersonContact;
+
+      unref(enterpriseDataList)[2].userName = swPersonName;
+      unref(enterpriseDataList)[2].phoneNumber = swPersonContact;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  onMounted(() => {
+    getEnterpriseInformation();
+  });
 </script>
 
 <style scoped lang="less">

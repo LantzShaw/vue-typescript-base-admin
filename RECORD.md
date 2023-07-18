@@ -4,6 +4,40 @@
 
 **1. `.vue` 页面只有一个根节点，因为外层有`Transition` 包裹了**
 
+```vue
+<script setup lang="ts">
+  import backgroundImagePath from '/@/assets/background/logo.png';
+
+  const styles = computed(() => {
+    // NOTE: vue3 vite 无法使用require
+    // 参考文章: https://juejin.cn/post/7125274210120761352
+
+    const url = new URL(backgroundImagePath, import.meta.url /* 固定写法 */).href;
+    return {
+      background: `url("${url}") top left no-repeat`,
+    };
+  });
+</script>
+```
+
+**调用子组件数据和方法时**
+
+```ts
+const foo = ref<InstanceType<typeof Foo> | null>(null);
+const foo = ref<InstanceType<typeof Foo>[]>([]);
+```
+
+**.ts 文件中无法`console.log()`打印信息** 配置`internal/src/config/common.ts`
+
+```ts
+// internal/src/config/common.ts文件
+const commonConfig: UserConfig = {
+  esbuild: {
+    // drop: ['console', 'debugger'], // NOTE: 注释该部分内容即可
+  },
+};
+```
+
 **百度地图**
 
 ```vue

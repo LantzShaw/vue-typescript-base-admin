@@ -21,12 +21,11 @@
 </template>
 
 <script lang="ts" setup>
-  import { ref, onMounted } from 'vue';
+  import { onMounted, ref, unref } from 'vue';
   import MiddleDataDisplayBox from './MiddleDataDisplayBox.vue';
   import MiddleIndicator from './MiddleIndicator.vue';
 
   import { sensorStatus } from '/@/api/dataview';
-  import { unref } from 'vue';
 
   type DisplayData = {
     id?: string;
@@ -99,7 +98,6 @@
       unref(displayDataList)[4].value = normalNum;
     } catch (error) {
       console.log(error);
-    } finally {
     }
   }
 
@@ -117,11 +115,11 @@
       font-size: 18px;
       height: 30px;
       color: #fff;
-      font-family: Georgia, 'Times New Roman', Times, serif;
       vertical-align: middle;
       display: inline-block;
       vertical-align: middle;
       line-height: 30px;
+      font-weight: bold;
 
       &::before {
         content: '';
@@ -130,7 +128,6 @@
         display: inline-block;
         vertical-align: middle;
         margin-right: 10px;
-        // background-color: #f40;
         background: url('/@/assets/images/dataview/icon_arrow.png') top left no-repeat;
       }
     }

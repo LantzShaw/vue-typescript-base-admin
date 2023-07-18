@@ -1,26 +1,57 @@
 <template>
   <div>
-    <TableTitle label="进行中的维保任务" />
-    <Table :columns="columns" :data-source="tableData" />
+    <TableTitle label="进行中的维保任务" @on-show="showModalHandler" />
+    <Table :loading="isTableLoading" :columns="columns" :data-source="tableData" />
   </div>
+
+  <a-modal
+    :bodyStyle="{ background: '#19305e' }"
+    :closable="false"
+    :footer="null"
+    width="800px"
+    v-model:visible="isModalVisible"
+  >
+    <div>
+      <div
+        style="
+          background-color: #243a66;
+          height: 50px;
+          color: #fff;
+          line-height: 50px;
+          font-weight: bold;
+          padding-left: 10px;
+        "
+        >进行中的触发事件</div
+      >
+      <BasicTable :scroll="{ x: 700, y: 400 }" @register="registerTable" />
+    </div>
+  </a-modal>
 </template>
 
 <script lang="ts" setup>
-  import { ref } from 'vue';
+  import { Modal as AModal } from 'ant-design-vue';
+  import { onMounted, ref } from 'vue';
+  import { useRoute } from 'vue-router';
 
-  import TableTitle from './TableTitle.vue';
+  import { maintList } from '/@/api/dataview';
+  import { useUserStore } from '/@/store/modules/user';
+
   import Table from './Table.vue';
+  import TableTitle from './TableTitle.vue';
+
+  import { BasicTable, useTable } from '/@/components/Table';
+
+  const userStore = useUserStore();
+  const route = useRoute();
+
+  const organizationId = ref<string>((route.query.id as string) ?? userStore.getOrganizationId);
+  const isTableLoading = ref<boolean>(false);
 
   const columns = [
     {
-      title: '区域',
-      dataIndex: 'regionName',
-      key: 'regionName',
-    },
-    {
-      title: '传感器数量',
-      dataIndex: 'sensorAccount',
-      key: 'sensorAccount',
+      title: '传感器数量(个)',
+      dataIndex: 'bizWorkflowDeviceMaintSensorNum',
+      key: 'bizWorkflowDeviceMaintSensorNum',
     },
     {
       title: '开始时间',
@@ -34,29 +65,58 @@
     },
   ];
 
-  const tableData = ref([
-    {
-      regionName: '分区一',
-      sensorAccount: '2',
-      locationNo: 'GT-1301',
-      startDate: '2023-05-18',
-      endDate: '2023-05-20',
+  /**
+   * 构建registerTable
+   */
+  const [registerTable, { reload }] = useTable({
+    title: '',
+    api: maintList,
+    beforeFetch: (params) => {
+      params.organizationId = organizationId.value;
+      return params;
     },
-    {
-      regionName: '分区一',
-      sensorAccount: '4',
-      locationNo: 'GT-1302',
-      startDate: '2023-05-18',
-      endDate: '2023-05-20',
-    },
-    {
-      regionName: '分区一',
-      sensorAccount: '11',
-      locationNo: 'GT-1002',
-      startDate: '2023-05-18',
-      endDate: '2023-05-20',
-    },
-  ]);
+    columns: columns,
+    canResize: false,
+    showTableSetting: false,
+    showIndexColumn: false,
+    clickToRowSelect: false,
+    clearSelectOnPageChange: true,
+    maxHeight: 350,
+  });
+
+  const tableData = ref([]);
+
+  const isModalVisible = ref<boolean>(false);
+
+  function showModalHandler(open) {
+    isModalVisible.value = open;
+
+    reload();
+  }
+
+  async function getTableData() {
+    isTableLoading.value = true;
+
+    try {
+      const response = await maintList({ pageSize: 5, organizationId: organizationId.value });
+
+      if (response) {
+        tableData.value = response.records;
+      } else {
+        tableData.value = [];
+      }
+    } catch (error) {
+      throw new Error(error);
+    } finally {
+      isTableLoading.value = false;
+    }
+  }
+
+  onMounted(() => {
+    getTableData();
+  });
 </script>
 
-<style></style>
+<style scoped lang="less">
+  @import url('./styles.less');
+</style>

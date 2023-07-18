@@ -2,8 +2,9 @@
   <div class="table-title-container">
     <div>
       <span class="text">{{ label }}</span>
+      <slot></slot>
     </div>
-    <div class="action">更多></div>
+    <div class="action" @click="handleShowMore">更多></div>
   </div>
 </template>
 
@@ -12,7 +13,13 @@
     label?: string;
   };
 
+  const emit = defineEmits(['onShow']);
+
   withDefaults(defineProps<Props>(), {});
+
+  function handleShowMore() {
+    emit('onShow', true);
+  }
 </script>
 
 <style scoped lang="less">
@@ -33,6 +40,7 @@
       background: linear-gradient(74deg, rgba(139, 199, 255, 0.6) 0%, rgba(255, 255, 255, 1) 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
+      margin-right: 10px;
 
       &::before {
         content: '';
@@ -49,6 +57,7 @@
     .action {
       color: rgba(0, 168, 255, 1);
       font-size: 16px;
+      cursor: pointer;
     }
   }
 </style>

@@ -1,21 +1,21 @@
 <script lang="tsx">
-  import type { CSSProperties, PropType } from 'vue';
-  import { computed, defineComponent, nextTick, ref, toRaw, unref, watchEffect } from 'vue';
-  import type { BasicColumn } from '../../types/table';
   import { CheckOutlined, CloseOutlined, FormOutlined } from '@ant-design/icons-vue';
-  import { CellComponent } from './CellComponent';
+import type { CSSProperties, PropType } from 'vue';
+import { computed, defineComponent, nextTick, ref, toRaw, unref, watchEffect } from 'vue';
+import type { BasicColumn } from '../../types/table';
+import { CellComponent } from './CellComponent';
 
-  import { useDesign } from '/@/hooks/web/useDesign';
   import { useTableContext } from '../../hooks/useTableContext';
+import { useDesign } from '/@/hooks/web/useDesign';
 
   import clickOutside from '/@/directives/clickOutside';
 
-  import { propTypes } from '/@/utils/propTypes';
-  import { isArray, isBoolean, isFunction, isNumber, isString } from '/@/utils/is';
-  import { createPlaceholderMessage } from './helper';
-  import { pick, set } from 'lodash-es';
-  import { treeToList } from '/@/utils/helper/treeHelper';
   import { Spin } from 'ant-design-vue';
+import { pick, set } from 'lodash-es';
+import { createPlaceholderMessage } from './helper';
+import { treeToList } from '/@/utils/helper/treeHelper';
+import { isArray, isBoolean, isFunction, isNumber, isString } from '/@/utils/is';
+import { propTypes } from '/@/utils/propTypes';
 
   export default defineComponent({
     name: 'EditableCell',
@@ -483,6 +483,7 @@
   }
   .@{prefix-cls} {
     position: relative;
+    min-height: 24px; //设置高度让其始终可被hover
 
     &__wrapper {
       display: flex;

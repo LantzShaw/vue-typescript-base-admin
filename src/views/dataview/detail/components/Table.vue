@@ -1,31 +1,39 @@
 <template>
-  <table>
-    <thead>
-      <tr>
-        <th v-for="column in columns" :key="column.key">{{ column.title }}</th>
-      </tr>
-    </thead>
-    <tbody v-if="dataSource && dataSource?.length > 0">
-      <tr
-        :style="[index % 2 === 0 ? { ...evenCellStyle } : { ...oddCellStyle }]"
-        v-for="(record, index) in dataSource"
-        :key="record.key ? record.key : index"
-      >
-        <td v-for="(column, columnIndex) in columns" :key="column.key ? column.key : columnIndex">
-          <!-- TODO: 待处理 -->
-          <!-- <template v-if="$slots.bodyCell && column.key">
+  <div v-if="loading" class="loading"> 加载中... </div>
+
+  <div v-else>
+    <table>
+      <thead>
+        <tr>
+          <th v-for="column in columns" :key="column.key">{{ column.title }}</th>
+        </tr>
+      </thead>
+      <tbody v-if="dataSource && dataSource?.length > 0">
+        <tr
+          :style="[index % 2 === 0 ? { ...evenCellStyle } : { ...oddCellStyle }]"
+          v-for="(record, index) in dataSource"
+          :key="record.key ? record.key : index"
+        >
+          <td v-for="(column, columnIndex) in columns" :key="column.key ? column.key : columnIndex">
+            <!-- TODO: 待处理 -->
+            <!-- <template v-if="$slots.bodyCell && column.key">
             <slot v-if="$slots.bodyCell" name="bodyCell" v-bind="{ column, record }" />
 
             <slot>{{ record[`${column.dataIndex}`] }}</slot>
           </template> -->
 
-          <slot v-if="$slots[`${column.key}`]" :name="column.key" v-bind="{ column, record }" />
-          <slot v-else>{{ record[`${column.dataIndex}`] }}</slot>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-  <div v-if="dataSource && dataSource?.length === 0" class="table-empty">暂无数据 </div>
+            <slot
+              v-if="$slots[`${column.key}`]"
+              :name="column.key"
+              v-bind="{ column, record }"
+            ></slot>
+            <slot v-else>{{ record[`${column.dataIndex}`] }}</slot>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <div v-if="dataSource && dataSource?.length === 0" class="table-empty">暂无数据 </div>
+  </div>
 </template>
 
 <script lang="ts" setup>
@@ -46,6 +54,7 @@
     dataSource?: TableDataSource[];
     evenCellStyle?: CSSProperties;
     oddCellStyle?: CSSProperties;
+    loading?: boolean;
   };
 
   withDefaults(defineProps<Props>(), {});
@@ -65,9 +74,8 @@
 
   th,
   td {
-    /* border: 1px solid #999; */
     text-align: center;
-    padding: 20px 0;
+    padding: 11px 0;
   }
 
   table thead tr {
@@ -92,9 +100,16 @@
 
   .table-empty {
     width: 100%;
-    padding: 50px;
+    padding: 100px;
     background-color: #091b34;
     text-align: center;
+    color: #d1fffd;
+  }
+
+  .loading {
+    padding: 120px;
+    text-align: center;
+    background-color: rgba(9, 27, 52);
     color: #d1fffd;
   }
 </style>

@@ -30,14 +30,13 @@
 
   import { BasicModal, useModalInner } from '/@/components/Modal';
   import { BasicTable, TableAction, useTable, BasicColumn } from '/@/components/Table';
-  import { DictLabel } from '/@/components/DictLabel/index';
+
   import { FormProps } from '/@/components/Form';
 
   // 接口
 
   import { optionsListBatchApi } from '/@/api/sys/dict';
-
-  import { deviceAlarmPage } from '/@/api/biz/deviceAlarm';
+  import { dataAlarmPage } from '/@/api/biz/dataAlarm';
 
   const alarmSnNo = ref('');
 
@@ -79,18 +78,7 @@
   const searchForm: FormProps = {
     baseColProps: { lg: 6, md: 8 },
     labelWidth: 90,
-    schemas: [
-      {
-        label: t('角色名称'),
-        field: 'roleName',
-        component: 'Input',
-      },
-      {
-        label: t('角色标识'),
-        field: 'roleCode',
-        component: 'Input',
-      },
-    ],
+    schemas: [],
   };
 
   /**
@@ -99,7 +87,7 @@
   const [registerTable, { setLoading, getForm, reload, getSelectRowKeys, clearSelectedRowKeys }] =
     useTable({
       title: '',
-      api: deviceAlarmPage,
+      api: dataAlarmPage,
       beforeFetch: (params) => {
         params.alarmSnNo = alarmSnNo.value || '';
         return params;
