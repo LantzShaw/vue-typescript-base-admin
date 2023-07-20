@@ -130,6 +130,7 @@
   import { installRegionPage } from '/@/api/manage/installRegion';
   import { optionsListBatchApi } from '/@/api/sys/dict';
   import { t } from '/@/hooks/web/useI18n';
+  import { enterpriseSelect } from '/@/api/manage/enterprise';
 
   type Key = string | number;
   type Sensor = {
@@ -171,21 +172,38 @@
       labelWidth: 80,
       schemas: [
         {
-          label: t('所属单位'),
+          label: t('关联企业'),
           field: 'organizationId',
-          component: 'Select',
+          component: 'ApiSelect',
           defaultValue: '请选择所属单位',
           componentProps: {
-            allowClear: false,
-            placeholder: '请选择所属单位',
-            options: enterpriseOptions,
+            showSearch: true,
+            optionFilterProp: 'label',
+            api: enterpriseSelect,
             onChange: (e) => {
               formState.organizationId = e;
 
               getRegionList();
             },
+            getPopupContainer: () => document.body,
           },
         },
+        // {
+        //   label: t('所属单位'),
+        //   field: 'organizationId',
+        //   component: 'Select',
+        //   defaultValue: '请选择所属单位',
+        //   componentProps: {
+        //     allowClear: false,
+        //     placeholder: '请选择所属单位',
+        //     options: enterpriseOptions,
+        //     onChange: (e) => {
+        //       formState.organizationId = e;
+
+        //       getRegionList();
+        //     },
+        //   },
+        // },
         {
           label: t('所属区域'),
           field: 'regionId',

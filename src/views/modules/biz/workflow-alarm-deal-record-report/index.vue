@@ -261,7 +261,7 @@
           </div>
         </div>
 
-        <p style="margin: 30px 0"></p>
+        <p style="margin: 60px 0"></p>
         <div id="secondPage" style="padding: 2px">
           <div class="flex border-b-2 mb-10" style="justify-content: end">
             <div>
@@ -831,7 +831,9 @@
         console.log('dataUrl', dataUrl);
 
         // NOTE: 去除页眉页脚
-        const style = '@page {margin:0 20mm,padding:0};';
+        // NOTE: 设置body的margin为0，避免第一页出现空白页，因为审查打印的iFrame的时候，里面的body元素默认有一个margin: 8px(浏览器默认margin)
+        // const style = '@page {margin:0 20mm;padding:0}; body {margin: 0;}';
+        const style = ' body {margin: 0;background-color: #fff;}';
 
         printJS({
           printable: dataUrl,

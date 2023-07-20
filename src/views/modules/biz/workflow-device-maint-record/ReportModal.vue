@@ -119,7 +119,6 @@
       <!-- 
         NOTE: 用于打印与PDF下载的DOM - 由于表格的数据不是固定的, 后期优化可以由后端去实现pdf的生成下载
        -->
-
       <div
         class="pl-24 pr-24 pt-2 text-lg tracking-2px"
         :style="{
@@ -127,6 +126,7 @@
           display: `${display}`,
           background: '#fff',
           width: '1090px',
+          boxSizing: 'border-box',
         }"
         ref="maintenanceReportRef"
         id="maintenanceReport"
@@ -218,44 +218,26 @@
                   </tbody>
                 </table>
               </div>
-
-              <div class="perpage">
-                <table style="margin-top: 80px" v-if="lastPageTableData.length > 0">
-                  <thead>
-                    <tr>
-                      <th v-for="column in sensorTableColumn" :key="column.key">
-                        {{ column.title }}
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr v-for="(sensor, indexs) in lastPageTableData" :key="sensor.id">
-                      <td>{{ indexs + 1 + limitPage * LIMIT_PAGE_SIZE }}</td>
-                      <td>{{ sensor?.sensorName }}</td>
-                      <td>{{ sensor.regionName }}</td>
-                      <td>{{ sensor?.locationNo }}</td>
-                      <td>{{ sensor?.specification ?? '--' }}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
             </div>
           </div>
-          <div class="h-12 leading-12 tracking-4px mt-20px">
+
+          <div class="h-12 leading-12 tracking-4px mt-20px perpage">
             <span>备注说明:</span>
             <span class="ml-4">{{ maintenanceInformation.remark }}</span>
           </div>
-          <div class="h-50 leading-50 flex">
-            <div style="width: 50%">
-              <span>实施人员: </span>
-              <span>{{ maintenanceInformation.implementationUser }}</span>
+          <div :style="{ marginTop: `${lastPageMargin}px` }">
+            <div class="h-20 leading-20 flex">
+              <div style="width: 50%">
+                <span>实施人员: </span>
+                <span>{{ maintenanceInformation.implementationUser }}</span>
+              </div>
+              <div>
+                <span>陪同人员: </span>
+                <span>{{ maintenanceInformation.accompanyUser }}</span>
+              </div>
             </div>
-            <div>
-              <span>陪同人员: </span>
-              <span>{{ maintenanceInformation.accompanyUser }}</span>
-            </div>
+            <div class="h-20 leading-20 text-right"> 合约客户专用，一式两份，各执一份 </div>
           </div>
-          <div class="text-right"> 合约客户专用，一式两份，各执一份 </div>
         </div>
       </div>
     </div>
@@ -279,8 +261,8 @@
   import { nextTick } from 'vue';
 
   // 第一页与最后一页之间的 即中间页表格数据（44条数据刚好沾满一页，所以默认设置为44条）
-  const LIMIT_PAGE_SIZE: number = 44;
-  const FIRST_PAGE_LIMIT_SIZE: number = 31;
+  const LIMIT_PAGE_SIZE: number = 45;
+  const FIRST_PAGE_LIMIT_SIZE: number = 33; // 31
 
   type MaintenanceInformation = {
     id?: string; // 表单编号
@@ -344,6 +326,7 @@
   const lastPageTableData = ref<SensorData[]>([]);
   const limitPage = ref<number>(0);
   const modalContentHeight = ref<number>(0);
+  const lastPageMargin = ref<number>(0);
 
   const maintenanceInformation = reactive<MaintenanceInformation>({});
 
@@ -396,7 +379,7 @@
     // 第一页表格数据
     firstPageTableData.value = unref(sensorTableData).slice(0, FIRST_PAGE_LIMIT_SIZE);
 
-    // 除去第一页31条表格数据后，剩下的表格数据还可以中间的页数
+    // 除去第一页33条表格数据后，剩下的表格数据还可以中间的页数
     limitPage.value = Math.ceil(
       (unref(sensorTableData).length - FIRST_PAGE_LIMIT_SIZE) / LIMIT_PAGE_SIZE,
     );
@@ -418,6 +401,34 @@
       sensorTableData.value.length,
     );
 
+    // 根据第一页的表格数据长度，设置margin，让最后的的文字可以正常展示，而不会在打印或这生成pdf的时候被截取
+    if (firstPageTableData.value.length > 0) {
+      const firstPageTableDataLength = unref(firstPageTableData).length;
+
+      if (firstPageTableDataLength >= 29 && firstPageTableDataLength < 32) {
+        lastPageMargin.value = 140;
+      } else if (firstPageTableDataLength === 32) {
+        lastPageMargin.value = 80;
+      } else {
+        lastPageMargin.value = 0;
+      }
+    }
+
+    // 根据最后一页的表格数据长度，设置margin，让最后的的文字可以正常展示，而不会在打印或这生成pdf的时候被截取
+    if (extraTableData.value.length > 0) {
+      const lastPageTableDataLength = unref(extraTableData)[extraTableData.value.length - 1].length;
+
+      if (lastPageTableDataLength > 40 && lastPageTableDataLength <= 42) {
+        lastPageMargin.value = 170;
+      } else if (lastPageTableDataLength > 42 && lastPageTableDataLength < 45) {
+        lastPageMargin.value = 100;
+      } else if (lastPageTableDataLength === 45) {
+        lastPageMargin.value = 40;
+      } else {
+        lastPageMargin.value = 0;
+      }
+    }
+
     isLoading.value = false;
   }
 
@@ -430,6 +441,7 @@
 
     display.value = 'block';
 
+    (document.querySelector('#maintenanceReport') as HTMLElement).style.height = '300px';
     (document.querySelector('#maintenanceReport') as HTMLElement).style.display = 'block';
 
     modalContentHeight.value = maintenanceReportRef.value
@@ -448,20 +460,22 @@
       let position = 0; // pdf页面偏移
       // a4纸的尺寸[595.28,841.89]，html页面生成的canvas在pdf中图片的宽高
       let imgWidth = 585.28; // 555.28
-      let imgHeight = (555.28 / contentWidth) * contentHeight + 110; // NOTE:  这里可以调节图片高度
+      let imgHeight = (555.28 / contentWidth) * contentHeight + 20; // NOTE:  这里可以调节图片高度
       let pageData = canvas.toDataURL('image/jpeg', 1.0);
       const pdf = new jsPDF('p', 'pt', 'a4');
+
       // 有两个高度需要区分，一个是html页面的实际高度，和生成pdf的页面高度(841.89)
       // 当内容未超过pdf一页显示的范围，无需分页
       if (leftHeight < pageHeight) {
-        pdf.addImage(pageData, 'JPEG', 20, 0, imgWidth, imgHeight);
+        pdf.addImage(pageData, 'JPEG', 4, 0, imgWidth, imgHeight);
       } else {
         while (leftHeight > 0) {
-          pdf.addImage(pageData, 'JPEG', 20, position, imgWidth, imgHeight);
+          pdf.addImage(pageData, 'JPEG', 4, position, imgWidth, imgHeight);
           leftHeight -= pageHeight;
           position -= 841.89;
-          // 避免添加空白页
-          if (leftHeight > 0) {
+
+          // NOTE: 避免添加空白页 59
+          if (leftHeight > 300) {
             pdf.addPage();
           }
         }
@@ -499,7 +513,22 @@
       const dataUrl = await toPng(document.querySelector('#maintenanceReport') as HTMLElement);
 
       // NOTE: 去除页眉页脚
-      const style = '@page {margin:0 20mm,padding:0};';
+      // // const style =
+      //   '@page {margin: 0,padding:0, size: A4, }; @page { margin-top: 0; }, @page { margin-bottom: 0; },@page { margin: 0; } ';
+
+      // const style =
+      //   '@page {size: A4; margin: 3mm; padding: 0; border: 0; height: 0;}; * {margin: 0; padding: 0; border: 0;} html{background-color: #ffffff;margin: 0; height: 0; }; body: {  border: 1px solid #fff;margin: 10mm 15mm 10mm 15mm;}';
+
+      // const style =
+      //   '@page {size: A4; margin: 3mm; height: 0; border: 0; padding: 0;} html {height: 0;margin:0; background-color: #fff};';
+
+      // const style =
+      //   ' html {height: 0;margin:0; background-color: #fff};';
+
+      const style = ' body { margin: 0; background-color: #fff};'; // 有效
+      // const style = ' html { height: 0; background-color: #fff};'; // 有效
+      // const style = ' html { margin: 0; background-color: #fff};'; // 无效
+      // const style = ' * { margin: 0; background-color: #fff};'; // 有效
 
       nextTick(() => {
         printJS({
@@ -507,8 +536,9 @@
           type: 'image',
           documentTitle: '嘉兴港区气体泄漏检测管理平台',
           targetStyles: ['*'],
+          scanStyles: true,
           style,
-          imageStyle: 'width:100%;margin-top:20px;margin-bottom:20px;',
+          imageStyle: 'width:100%;margin-top:0;margin-bottom:0;',
         });
 
         display.value = 'none';
@@ -573,6 +603,12 @@
     font-weight: bold;
   }
 
+  @media print {
+    @page {
+      size: A3 landscape;
+    }
+  }
+
   // @media print {
   //   // @page {
   //   //   size: auto; /* auto是初始值 */
@@ -601,4 +637,22 @@
   //     margin: 0 !important;
   //   }
   // }
+</style>
+
+<style media="print">
+  @page  {
+      size: auto;
+      margin: 5mm;
+  }
+
+  html  {
+      background-color: #ffffff;
+      margin: 0px;
+  }
+
+  body  {
+      height: auto;
+      border: solid 1px #ffffff;
+      margin: 10mm 2mm 10mm 2mm;
+  }
 </style>

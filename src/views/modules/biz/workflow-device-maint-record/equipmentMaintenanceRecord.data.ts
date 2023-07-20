@@ -266,12 +266,19 @@ export const deviceTableColumns: BasicColumn[] = [
  */
 export const sensorTableColumns: BasicColumn[] = [
   {
-    title: t('公司名称'),
-    dataIndex: 'enterpriseName',
+    title: t('位号'),
+    dataIndex: 'locationNo',
     sorter: true,
     width: 130,
     align: 'center',
   },
+  // {
+  //   title: t('公司名称'),
+  //   dataIndex: 'enterpriseName',
+  //   sorter: true,
+  //   width: 130,
+  //   align: 'center',
+  // },
   {
     title: t('所属区域'),
     dataIndex: 'regionName',
@@ -326,12 +333,19 @@ export const sensorTableColumns: BasicColumn[] = [
  */
 export const selectedSensorTableColumns: BasicColumn[] = [
   {
-    title: t('公司名称'),
-    dataIndex: 'enterpriseName',
+    title: t('位号'),
+    dataIndex: 'locationNo',
     sorter: true,
     width: 130,
     align: 'center',
   },
+  // {
+  //   title: t('公司名称'),
+  //   dataIndex: 'enterpriseName',
+  //   sorter: true,
+  //   width: 130,
+  //   align: 'center',
+  // },
   {
     title: t('所属区域'),
     dataIndex: 'regionName',
